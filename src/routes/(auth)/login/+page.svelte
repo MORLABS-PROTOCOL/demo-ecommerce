@@ -31,15 +31,24 @@
 				<button
 					class="w-full text-center bg-blue-700 p-3 font-bold rounded-lg text-white"
 					onclick={async () => {
-						const authData = await pocketbase
-							.collection('users')
-							.authWithPassword(userData.email, userData.password);
-
-						if (authData) {
-							notify('Log in successful');
-							window.location.href = '/';
-						} else {
-							notify('Error', `An error occured while trying to login`);
+						try {
+							let userExists = await pocketbase
+								.collection('users')
+								.getFirstListItem(`email="${userData.email}"`);
+							let authData;
+							if (userExists) {
+								authData = await pocketbase
+									.collection('users')
+									.authWithPassword(userData.email, userData.password);
+								if (authData) {
+									notify('Log in successful');
+									window.location.href = '/';
+								}
+							} else {
+								notify('Error', 'User not found', 'error');
+							}
+						} catch (error) {
+							notify('Error', `An error occured while trying to login`, 'error');
 						}
 					}}>Log In</button
 				>
