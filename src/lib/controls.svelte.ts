@@ -81,3 +81,4 @@ export async function getProductsByCategory(category: string, limit?: number): P
         }
     })
 }
+
