@@ -3,6 +3,6 @@
 	import { validateAuthState } from '$lib/controls.svelte';
 
 	onMount(() => {
-		let authState = validateAuthState();
+		validateAuthState();
 	});
 </script>

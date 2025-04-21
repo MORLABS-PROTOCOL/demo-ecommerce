@@ -19,6 +19,7 @@
 		'Office Supplies',
 		'Pet Supplies'
 	];
+
 	onMount(async () => {
 		adImages = await pullAds();
 	});
@@ -40,7 +41,8 @@
 		<div class="flex flex-col gap-y-6">
 			<div class="">
 				{#await getAllProducts() then products}
-					<div class="flex px-5">
+					<div class="flex px-5 overflow-hidden items-center flex-wrap">
+						<img src="./80off.png" class="w-2/4 h-[350px] bottom-0 py-1" />
 						{#each products as product}
 							<a href="/products/{product.id}" class="text-black">
 								<ProductCard
@@ -62,7 +64,7 @@
 				{#each categories as category}
 					<div class="mb-4">
 						<div class="flex flex-col">
-							{#await getProductsByCategory(category, 8) then products}
+							{#await getProductsByCategory(category, 5) then products}
 								{#if products.length > 0}
 									<div class="flex justify-between items-center font-bold bg-white p-3 mx-5">
 										<p class="uppercase font-bold">{category}</p>

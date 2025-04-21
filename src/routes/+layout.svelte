@@ -79,18 +79,31 @@
 						}}
 					/>
 					<div class="flex items-center gap-x-3">
-						<a href="/login">
-							<div
-								class="flex items-center gap-x-3 font-semibold hover:scale-100 cursor-pointer duration-500 px-4 py-2 hover:shadow-lg hover:border-blue-700 hover:border hover:shadow-blue-500 hover:rounded-full justify-end"
-							>
-								<UserCertification size={20} />
-								<div class="sm:flex flex-col items-start hidden">
-									<p class="font-light">
-										{pocketbase.authStore.isValid ? `Hi, ${userData?.username}` : 'Login'}
-									</p>
+						{#if pocketbase.authStore.isValid}
+							<a href="/profile">
+								<div
+									class="flex items-center gap-x-3 font-semibold hover:scale-100 cursor-pointer duration-500 px-4 py-2 hover:shadow-lg hover:border-blue-700 hover:border hover:shadow-blue-500 hover:rounded-full justify-end"
+								>
+									<UserCertification size={20} />
+									<div class="sm:flex flex-col items-start hidden">
+										<p class="font-light">
+											{`Hi, ${userData?.username}`}
+										</p>
+									</div>
 								</div>
-							</div>
-						</a>
+							</a>
+						{:else}
+							<a href="/login">
+								<div
+									class="flex items-center gap-x-3 font-semibold hover:scale-100 cursor-pointer duration-500 px-4 py-2 hover:shadow-lg hover:border-blue-700 hover:border hover:shadow-blue-500 hover:rounded-full justify-end"
+								>
+									<User />
+									<div class="sm:flex flex-col items-start hidden">
+										<p class="font-light">Login</p>
+									</div>
+								</div>
+							</a>
+						{/if}
 						<div>
 							<div
 								class="relative inline-block duration-300 hover:shadow-xl hover:scale-100 rounded-full hover:shadow-blue-500 hover:border hover:border-blue-700"
@@ -104,10 +117,10 @@
 								</button>
 							</div>
 						</div>
-						<div class="flex items-center font-bold">
-							<div
-								class="relative inline-block duration-300 hover:shadow-xl hover:scale-100 rounded-full hover:shadow-blue-500 hover:border hover:border-blue-700"
-							>
+						<div
+							class="flex items-center font-bold duration-300 hover:shadow-xl hover:scale-100 rounded-full hover:shadow-blue-500 hover:border hover:border-blue-700 px-2"
+						>
+							<div class="relative inline-block">
 								<button class="relative p-2 rounded-full">
 									<a href="/cart" class="text-black font-semibold"
 										><ShoppingCart color="black" class="font-bold" size={20} /></a
@@ -159,9 +172,9 @@
 						</div>
 
 						<div class="flex w-full gap-x-4 justify-end items-center px-3">
-							<div class="text-start cursor-pointer h-full gap-x-2 hover:bg-black">Track</div>
-							<div class="text-start cursor-pointer h-full gap-x-2 hover:bg-black">Affiliate</div>
-							<div class="text-start cursor-pointer h-full gap-x-2 hover:bg-black">Brands</div>
+							<div class="text-start cursor-pointer h-full gap-x-2">Track</div>
+							<div class="text-start cursor-pointer h-full gap-x-2">Affiliate</div>
+							<div class="text-start cursor-pointer h-full gap-x-2">Brands</div>
 						</div>
 					</div>
 					<hr />

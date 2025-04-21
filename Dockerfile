@@ -18,7 +18,7 @@ WORKDIR /app
 
 
 # Expose the port the app runs on
-EXPOSE 5000
+EXPOSE 10000
 
 # Command to run the app
 CMD node ./build

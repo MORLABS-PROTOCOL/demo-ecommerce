@@ -1,13 +1,17 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { notify, pocketbase } from '$lib/controls.svelte';
+	import { notify, pocketbase, validateAuthState } from '$lib/controls.svelte';
 	import { FormGroup, Modal, PasswordInput, TextInput, Form } from 'carbon-components-svelte';
+	import { onMount } from 'svelte';
 	let userData = $state({
 		email: '',
 		password: '',
 		otp: ''
 	});
 	let formData: HTMLFormElement;
+	onMount(() => {
+		validateAuthState();
+	});
 </script>
 
 <Form bind:ref={formData}>

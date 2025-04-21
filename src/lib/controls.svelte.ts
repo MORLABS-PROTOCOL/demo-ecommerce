@@ -2,7 +2,7 @@ import { browser } from "$app/environment"
 import { page } from "$app/state"
 import Client, { type ListResult, type RecordModel } from "pocketbase"
 
-export let pocketbase = new Client("https://manage.morlabsprotocol.com/")
+export let pocketbase = new Client("http://localhost:8090")
 export let user: {
     country: string
     name: string
@@ -41,8 +41,8 @@ export async function pullAds(): Promise<RecordModel[]> {
 }
 
 export async function getAllProducts(): Promise<RecordModel[]> {
-    let records = await pocketbase.collection("products").getFullList()
-    let products = records.map((p) => {
+    let records = await pocketbase.collection("products").getList(1, 3)
+    let products = records.items.map((p) => {
         return {
             ...p, imageUrl: pocketbase.files.getURL(p, p.product_image)
         }
@@ -82,3 +82,8 @@ export async function getProductsByCategory(category: string, limit?: number): P
     })
 }
 
+export async function getProductDetails(id: string) {
+    let result = await pocketbase.collection("products").getOne(id)
+    console.log(result)
+    return result
+}
