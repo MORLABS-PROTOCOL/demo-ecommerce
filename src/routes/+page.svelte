@@ -1,10 +1,9 @@
 <script lang="ts">
 	import Carousel from '$lib/components/Carousel.svelte';
 	import ProductCard from '$lib/components/ProductCard.svelte';
-	import ProductTile from '$lib/components/ProductCard.svelte';
-	import { getAllProducts, getProductsByCategory, pocketbase, pullAds } from '$lib/controls.svelte';
+	import { getAllProducts, getLogo, getProductsByCategory, pullAds } from '$lib/controls.svelte';
 	import { onMount } from 'svelte';
-	let adImages: any[] = [];
+	let adImages: any[] = $state([]);
 	let categories: string[] = [
 		'Electronics',
 		'Fashion',
@@ -20,12 +19,36 @@
 		'Pet Supplies'
 	];
 
+	let busy = $state(false);
+	let products: any[] = $state([]);
+	let productsByCategory: {
+		category: string;
+		items: any[];
+	}[] = $state([]);
+
 	onMount(async () => {
+		for (const category of categories) {
+			const prods = await getProductsByCategory(category);
+			console.log('Prods:', prods);
+
+			productsByCategory = [
+				...productsByCategory,
+				{
+					category,
+					items: prods
+				}
+			];
+		}
+
 		adImages = await pullAds();
+		await getLogo();
+		products = await getAllProducts();
+		// busy = true;
+		// busy = false;
 	});
 </script>
 
-<main class="mx-auto bg-gray-50 max-w-7xl">
+<main class="mx-auto bg-gray-300 max-w-7xl">
 	<div>
 		<!-- {#each adImages as ad}
 			<div class="flex justify-center items-center">
@@ -38,42 +61,46 @@
 				<div></div>
 			</div>
 		</div>
+
 		<div class="flex flex-col gap-y-6">
 			<div class="">
-				{#await getAllProducts() then products}
-					<div class="flex px-5 overflow-hidden items-center flex-wrap">
-						<img src="./80off.png" class="w-2/4 h-[350px] bottom-0 py-1" />
-						{#each products as product}
-							<a href="/products/{product.id}" class="text-black">
-								<ProductCard
-									discountPercentage={product.discount_percentage}
-									title={product.title}
-									image={product.imageUrl}
-									price={product.price}
-									quantity={product.quantity}
-									flashSale={product.flash_sale}
-								/>
-							</a>
-						{/each}
-					</div>
-				{/await}
+				<div
+					class="lg:flex px-5 overflow-hidden mx-auto items-center grid grid-cols-[200px,200px,200px] w-fit gap-0"
+				>
+					<!-- <img src="./80off.png" class="w-2/4 h-[350px] bottom-0 py-1" /> -->
+					{#each products as product}
+						<a href="/products/{product.id}" class="text-black">
+							<ProductCard
+								discountPercentage={product.discount_percentage}
+								title={product.title}
+								image={product.imageUrl}
+								price={product.price}
+								quantity={product.quantity}
+								flashSale={product.flash_sale}
+							/>
+						</a>
+					{/each}
+				</div>
 			</div>
 
 			<div>
 				<!--Get Products by Category-->
-				{#each categories as category}
-					<div class="mb-4">
-						<div class="flex flex-col">
-							{#await getProductsByCategory(category, 5) then products}
-								{#if products.length > 0}
-									<div class="flex justify-between items-center font-bold bg-white p-3 mx-5">
-										<p class="uppercase font-bold">{category}</p>
+
+				<div class="mb-4">
+					<div class="flex flex-col gap-y-6">
+						{#each productsByCategory as products, index}
+							<div class="">
+								{#if products.items.length > 0}
+									<div class="flex justify-between mx-auto items-center font-bold bg-white p-3">
+										<p class="uppercase font-bold">{products.category}</p>
 										<p>View More {'>'}</p>
 									</div>
 								{/if}
-
-								<div class="flex px-5">
-									{#each products as product}
+								<div
+									class="lg:flex px-5 overflow-hidden grid grid-cols-[200px,200px,200px] w-fit gap-0"
+								>
+									{#each products.items as product}
+										<!-- <img src="./80off.png" class="w-2/4 h-[350px] bottom-0 py-1" /> -->
 										<a href="/products/{product.id}" class="text-black">
 											<ProductCard
 												discountPercentage={product.discount_percentage}
@@ -86,10 +113,10 @@
 										</a>
 									{/each}
 								</div>
-							{/await}
-						</div>
+							</div>
+						{/each}
 					</div>
-				{/each}
+				</div>
 			</div>
 		</div>
 	</div>

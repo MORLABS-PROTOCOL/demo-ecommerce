@@ -24,5 +24,5 @@
 		<img src={images[2].imageUrl} alt="Banner Image 3" class="w-full h-auto object-cover" />
 	</div>
 {:else}
-	<p>Loading ads...</p>
+	<p class="text-center h-64">...</p>
 {/if}

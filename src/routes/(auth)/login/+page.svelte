@@ -1,6 +1,12 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { notify, pocketbase, validateAuthState } from '$lib/controls.svelte';
+	import {
+		getLogo,
+		notify,
+		pageSettings,
+		pocketbase,
+		validateAuthState
+	} from '$lib/controls.svelte';
 	import { FormGroup, Modal, PasswordInput, TextInput, Form } from 'carbon-components-svelte';
 	import { onMount } from 'svelte';
 	let userData = $state({
@@ -8,8 +14,8 @@
 		password: '',
 		otp: ''
 	});
-	let formData: HTMLFormElement;
-	onMount(() => {
+	let formData: HTMLFormElement | undefined = $state();
+	onMount(async () => {
 		validateAuthState();
 	});
 </script>
@@ -22,7 +28,7 @@
 		<div class="h-[500px] w-[500px] gap-y-3 px-3">
 			<div class="sm:flex sm:flex-col sm:items-center sm:my-[100px]">
 				<div class="items-center flex sm:hidden text-center justify-center">
-					<img src="./e-commerce.png" alt="Logo" class="w-[100px] h-[100px]" />
+					<img src={pageSettings.logoUrl} alt="Logo" class="w-[100px] h-[100px]" />
 				</div>
 				<h3 class="justify-center items-center flex">Log In</h3>
 				<FormGroup class="w-full">
@@ -30,29 +36,26 @@
 				</FormGroup>
 				<FormGroup class="w-full">
 					<PasswordInput labelText="Enter Password" required bind:value={userData.password} />
+					<br /><a href="/login/forgot-password"
+						><span class="text-blue-500">Forgot password?</span></a
+					>
 				</FormGroup>
 
 				<button
 					class="w-full text-center bg-blue-700 p-3 font-bold rounded-lg text-white"
 					onclick={async () => {
 						try {
-							let userExists = await pocketbase
+							let authData = await pocketbase
 								.collection('users')
-								.getFirstListItem(`email="${userData.email}"`);
-							let authData;
-							if (userExists) {
-								authData = await pocketbase
-									.collection('users')
-									.authWithPassword(userData.email, userData.password);
-								if (authData) {
-									notify('Log in successful');
-									window.location.href = '/';
-								}
-							} else {
-								notify('Error', 'User not found', 'error');
+								.authWithPassword(userData.email, userData.password);
+							if (authData) {
+								notify('Success', 'Logged in successfully');
+								window.location.href = '/';
 							}
 						} catch (error) {
-							notify('Error', `An error occured while trying to login`, 'error');
+							if (error == "ClientResponseError 404: The requested resource wasn't found.") {
+								notify('Error', `Invalid email/password`, 'error');
+							}
 						}
 					}}>Log In</button
 				>

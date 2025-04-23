@@ -1,6 +1,8 @@
 import { browser } from "$app/environment"
 import { page } from "$app/state"
+import { PricingTailored } from "carbon-icons-svelte"
 import Client, { type ListResult, type RecordModel } from "pocketbase"
+import { writable, type Writable } from "svelte/store"
 
 export let pocketbase = new Client("http://localhost:8090")
 export let user: {
@@ -12,6 +14,7 @@ export let user: {
     name: "Dandy",
     preferred_currency: 'NGN'
 })
+export let pageSettings = $state({ logoUrl: "" })
 export let userData = pocketbase.authStore.record
 export let currency = () => {
     if (user.preferred_currency === "NGN") {
@@ -19,6 +22,16 @@ export let currency = () => {
     } else if (user.preferred_currency === "USD") {
         return "$"
     }
+}
+
+
+export async function getLogo() {
+    let logo = await pocketbase.collection("settings").getFullList({ filter: `name="logo"`, requestKey: Date.now().toString() })
+    let collection = pocketbase.collection("settings")
+
+    pageSettings.logoUrl = pocketbase.files.getURL(logo[0], logo[0].image)
+
+
 }
 
 export function getRandomNumber(): number {
@@ -30,7 +43,7 @@ export function getRandomArray(): number[] {
     return numbers.sort(() => Math.random() - 0.5);
 }
 export async function pullAds(): Promise<RecordModel[]> {
-    let records = await pocketbase.collection('ads').getFullList()
+    let records = await pocketbase.collection('ads').getFullList({ requestKey: Date.now().toString() })
     const ads = records.map((ad) => {
         return {
             ...ad,
@@ -41,7 +54,7 @@ export async function pullAds(): Promise<RecordModel[]> {
 }
 
 export async function getAllProducts(): Promise<RecordModel[]> {
-    let records = await pocketbase.collection("products").getList(1, 3)
+    let records = await pocketbase.collection("products").getList(1, 6, { requestKey: Date.now().toString() })
     let products = records.items.map((p) => {
         return {
             ...p, imageUrl: pocketbase.files.getURL(p, p.product_image)
@@ -55,13 +68,13 @@ export function notify(title: string, text: string = "", status: string = "info"
     });
 }
 export function validateAuthState() {
-    if (pocketbase.authStore.isValid && (page.url.pathname === '/signup' || page.url.pathname === '/login') && browser) {
+    if (pocketbase.authStore.isValid && (page.url.pathname === '/signup' || page.url.pathname === '/login' || page.url.pathname === "/login/forgot-password") && browser) {
         // Redirect authenticated users away from signup or login pages
         window.location.href = '/';
         return pocketbase.authStore.isValid;
     }
 
-    if (!pocketbase.authStore.isValid && page.url.pathname !== '/' && page.url.pathname !== '/login' && page.url.pathname !== '/signup' && browser) {
+    if (!pocketbase.authStore.isValid && page.url.pathname !== '/' && page.url.pathname !== '/login' && page.url.pathname !== '/signup' && page.url.pathname !== "/login/forgot-password" && browser) {
         // Redirect unauthenticated users to the login page
         window.location.href = '/login';
         return pocketbase.authStore.isValid;
@@ -70,10 +83,11 @@ export function validateAuthState() {
     return pocketbase.authStore.isValid;
 }
 
+
 export async function getProductsByCategory(category: string, limit?: number): Promise<RecordModel[]> {
 
 
-    let results = await pocketbase.collection("products").getList(1, limit, { filter: `category="${category.toLocaleLowerCase()}"`, requestKey: Date.now().toString() })
+    let results = await pocketbase.collection("products").getList(1, limit, { filter: `category="${category.toLocaleLowerCase()}"`, requestKey: `${category}-${Date.now().toString()}` })
 
     return results.items.map((p) => {
         return {
@@ -83,7 +97,109 @@ export async function getProductsByCategory(category: string, limit?: number): P
 }
 
 export async function getProductDetails(id: string) {
-    let result = await pocketbase.collection("products").getOne(id)
-    console.log(result)
+    let result = await pocketbase.collection("products").getOne(id, { requestKey: Date.now().toString() })
+
     return result
+}
+
+export async function getProductById(id: string) {
+
+    if (browser) {
+        let result = await pocketbase.collection("products").getOne(id, { requestKey: Date.now().toString() })
+        return {
+            ...result, imageUrl: pocketbase.files.getURL(result, result.product_image)
+        }
+    }
+}
+export async function getProductsBySearch(search: string, limit?: number): Promise<RecordModel[]> {
+    let results = await pocketbase.collection("products").getList(1, limit, { filter: `title~"${search}"`, requestKey: Date.now().toString() })
+
+    return results.items.map((p) => {
+        return {
+            ...p, imageUrl: pocketbase.files.getURL(p, p.product_image)
+        }
+    })
+}
+
+export function calculateNewPrice(price: number, discountPercentage: number): number {
+    return price - (price * discountPercentage) / 100;
+}
+
+export async function getCart() {
+    let cart = await pocketbase.collection("carts").getFullList({ filter: `userId="${pocketbase.authStore.record?.id}" && status="pending"`, requestKey: Date.now().toString() });
+    return cart
+}
+
+
+export let cart: { length: number, total: number } = $state({ length: 0, total: 0 });
+
+export let refreshCart = async () => {
+    let record = await getCart()
+
+    cart.length = record[0].items?.length
+    cart.total = record[0].total?.toLocaleString()
+
+}
+let productDetails: { id: string, name: string, productImage: string, price: number, discount: string, oldPrice?: number } = $state({
+    id: "",
+    name: "",
+    productImage: "",
+    price: 0,
+    discount: ""
+})
+export async function addToCart(productId: string, quantity: number) {
+    let product = await pocketbase.collection("products").getOne(productId, { requestKey: Date.now().toString() })
+
+    if (product.discount_percentage < 1) {
+        productDetails = {
+            id: product.id,
+            name: product.title,
+            productImage: pocketbase.files.getURL(product, product.product_image), price: product.price, discount: product.discount_percentage
+        };
+    } else {
+        productDetails = {
+            id: product.id,
+            name: product.title,
+            productImage: pocketbase.files.getURL(product, product.product_image),
+            price: calculateNewPrice(product.price, product.discount_percentage),
+            oldPrice: product.price,
+            discount: product.discount_percentage
+        };
+    }
+    let existingCart = await pocketbase.collection("carts").getFullList({ filter: `userId="${pocketbase.authStore.record?.id}" && status="pending"`, requestKey: Date.now().toString() });
+
+    if (existingCart.length > 0) {
+        let cart = existingCart[0]
+        // Modify the existing cart by pushing the new item into the items array
+        cart.items.push({ quantity: quantity, product: productDetails });
+        await pocketbase.collection("carts").update(cart.id, {
+            items: cart.items,
+            total: cart.items.reduce((sum: number, item: { quantity: number, product: { price: number } }) => sum + (item.quantity * item.product.price), 0)
+        }, { requestKey: Date.now().toString() });
+        return cart;
+    } else {
+        // No existing pending cart, create a new one
+        let cart = await pocketbase.collection("carts").create({
+            items: [{ quantity: quantity, product: productDetails, total: productDetails.price * quantity }],
+            userId: pocketbase.authStore.record?.id,
+            status: "pending",
+            total: [{ quantity: quantity, product: productDetails, total: productDetails.price * quantity }]
+                .reduce((sum, item) => sum + item.total, 0)
+        }, { requestKey: Date.now().toString() });
+        await pocketbase.collection("users").update(pocketbase.authStore.record?.id as string, {
+            carts: [...(pocketbase.authStore.record?.carts || []), cart.id]
+        }, { requestKey: Date.now().toString() });
+
+        return cart;
+    }
+
+}
+
+export function shuffleArray<T>(array: T[]): T[] {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
 }

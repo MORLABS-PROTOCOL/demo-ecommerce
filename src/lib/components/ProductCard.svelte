@@ -1,14 +1,12 @@
 <script lang="ts">
-	import { currency, user } from '$lib/controls.svelte';
+	import { calculateNewPrice, currency, user } from '$lib/controls.svelte';
 	import { CheckmarkOutline, Star, StarFilled } from 'carbon-icons-svelte';
 	import { onMount } from 'svelte';
 	import Exit from './Icons/Exit-sm.svelte';
 
 	let { price, title, quantity, flashSale, image, discountPercentage } = $props();
 	let newPrice: number = $state(0);
-	function calculateNewPrice(price: number, discountPercentage: number): number {
-		return price - (price * discountPercentage) / 100;
-	}
+
 	onMount(() => {
 		calculateNewPrice(price, discountPercentage);
 	});
@@ -16,7 +14,7 @@
 </script>
 
 <div
-	class="w-[250px] h-[350px] duration-300 hover:shadow-xl hover:scale-100 border-solid border-2 hover:shadow-blue-500 bg-white p-3 mt-2 border-gray-300"
+	class="w-[200px] h-[350px] duration-300 hover:shadow-xl hover:scale-100 border-solid border-2 hover:shadow-blue-500 bg-white p-3 mt-2 border-gray-300"
 >
 	<div class="flex flex-col gap-y-3 h-full w-full">
 		<div class="relative w-full h-[50%]">
@@ -44,7 +42,7 @@
 		{#if quantity < 1}
 			<div class="flex justify-between items-center">
 				<p
-					class="bg-red-400 flex items-center gap-x-2 text-center text-red-700 rounded-full px-3 py-1 text-sm font-semibold"
+					class="bg-red-400 flex items-center gap-x-1 text-center text-red-700 rounded-full px-1 py-1 text-sm font-semibold"
 				>
 					<Exit />Out of stock
 				</p>
@@ -53,7 +51,7 @@
 		{:else}
 			<div class="flex justify-between items-center">
 				<p
-					class="bg-green-400 flex items-center gap-x-2 text-green-700 rounded-full px-3 py-1 text-sm font-semibold"
+					class="bg-green-400 flex items-center gap-x-1 text-green-700 rounded-full px-2 py-1 text-sm font-semibold"
 				>
 					<CheckmarkOutline />In stock
 				</p>
