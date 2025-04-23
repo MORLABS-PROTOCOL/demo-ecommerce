@@ -1,16 +1,37 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { addToCart, calculateNewPrice, getProductById, refreshCart } from '$lib/controls.svelte';
+	import {
+		addToCart,
+		calculateNewPrice,
+		categories,
+		currency,
+		getProductById,
+		getProductsByCategory,
+		refreshCart,
+		validateAuthState
+	} from '$lib/controls.svelte';
 	import { page } from '$app/state';
+	import ProductCard from '$lib/components/ProductCard.svelte';
 
 	let { data } = $props();
 	let product = $state();
 	let productId = page.params.productId;
 	let quantity: number = $state(1);
 	let newPrice = $state(0);
+	let products: any[] = $state([]);
+	let productsByCategory: {
+		category: string;
+		items: any[];
+	}[] = $state([]);
+
 	onMount(async () => {
 		product = await getProductById(page.params.productId);
 		newPrice = calculateNewPrice(product?.price, product?.discount_percentage);
+		productsByCategory = await getProductsByCategory(product.category);
+		products = productsByCategory;
+		console.log(productsByCategory);
+		// busy = true;
+		// busy = false;
 	});
 </script>
 
@@ -54,7 +75,7 @@
 				>
 			</p>
 		{:else}
-			<p class="text-2xl font-bold text-black">₦{product?.price.toLocaleString()}</p>
+			<p class="text-2xl font-bold text-black">{currency()}{product?.price.toLocaleString()}</p>
 		{/if}
 		<!-- Quantity Selector -->
 		<div>
@@ -72,8 +93,13 @@
 		<button
 			onclick={async () => {
 				console.log(quantity);
+				let authState = validateAuthState();
+				if (!authState) {
+					return;
+				}
 				await addToCart(productId, quantity);
 				await refreshCart();
+				quantity = 1;
 			}}
 			class="w-full py-3 bg-black hover:bg-[#224981] text-white font-semibold text-lg rounded-md transition-colors"
 		>
@@ -96,5 +122,47 @@
 				<span class="">Hurry, only {product?.quantity} left</span>
 			</div>
 		{/if}
+	</div>
+</div>
+<div class="flex flex-col gap-y-6 mx-auto max-w-7xl">
+	<div class="">
+		{#if products.length > 0}
+			<div class="flex justify-between mx-auto font-bold bg-white p-3">
+				<p class="uppercase font-bold">You may be interested in</p>
+			</div>
+		{/if}
+		{#each productsByCategory as product, index}
+			{#if products.length < 5}
+				<div
+					class="lg:flex px-5 mb-3 overflow-hidden grid grid-cols-[200px,200px,200px] items-start w-fit gap-0"
+				>
+					<!-- <img src="./80off.png" class="w-2/4 h-[350px] bottom-0 py-1" /> -->
+					<a href="/products/{product.id}" class="text-black">
+						<ProductCard
+							discountPercentage={product.discount_percentage}
+							title={product.title}
+							image={product.imageUrl}
+							price={product.price}
+							quantity={product.quantity}
+							flashSale={product.flash_sale}
+						/>
+					</a>
+				</div>
+			{:else}
+				<div class="lg:flex px-5 overflow-hidden grid grid-cols-[200px,200px,200px] w-fit gap-0">
+					<!-- <img src="./80off.png" class="w-2/4 h-[350px] bottom-0 py-1" /> -->
+					<a href="/products/{product.id}" class="text-black">
+						<ProductCard
+							discountPercentage={product.discount_percentage}
+							title={product.title}
+							image={product.imageUrl}
+							price={product.price}
+							quantity={product.quantity}
+							flashSale={product.flash_sale}
+						/>
+					</a>
+				</div>
+			{/if}
+		{/each}
 	</div>
 </div>

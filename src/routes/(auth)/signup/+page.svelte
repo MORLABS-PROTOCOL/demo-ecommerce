@@ -34,7 +34,17 @@
 				</div>
 				<h3 class="justify-center items-center flex">Sign Up</h3>
 				<FormGroup class="w-full">
-					<TextInput labelText="Username" required bind:value={userData.userName} />
+					<TextInput
+						labelText="Username"
+						required
+						bind:value={userData.userName}
+						on:keydown={(e) => {
+							return e.key !== ' ';
+						}}
+						on:input={(e) => {
+							e.target.value = e.target.value.replace(/\s/g, '');
+						}}
+					/>
 				</FormGroup>
 				<FormGroup class="w-full">
 					<TextInput type="email" labelText="Enter Email" required bind:value={userData.email} />

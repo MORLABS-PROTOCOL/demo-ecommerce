@@ -24,7 +24,18 @@ export let currency = () => {
     }
 }
 
-
+export let categories: any[] = $state(['Electronics',
+    'Fashion',
+    'Home & Kitchen',
+    'Beauty & Personal Care',
+    'Sports & Outdoors',
+    'Toys & Games',
+    'Books',
+    'Automotive',
+    'Health & Wellness',
+    'Groceries',
+    'Office Supplies',
+    'Pet Supplies'])
 export async function getLogo() {
     let logo = await pocketbase.collection("settings").getFullList({ filter: `name="logo"`, requestKey: Date.now().toString() })
     let collection = pocketbase.collection("settings")

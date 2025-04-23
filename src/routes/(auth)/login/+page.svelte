@@ -48,14 +48,13 @@
 							let authData = await pocketbase
 								.collection('users')
 								.authWithPassword(userData.email, userData.password);
+							console.log(authData);
 							if (authData) {
 								notify('Success', 'Logged in successfully');
 								window.location.href = '/';
 							}
 						} catch (error) {
-							if (error == "ClientResponseError 404: The requested resource wasn't found.") {
-								notify('Error', `Invalid email/password`, 'error');
-							}
+							notify('Error', `Invalid Login Credentials`, 'error');
 						}
 					}}>Log In</button
 				>

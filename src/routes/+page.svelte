@@ -1,23 +1,15 @@
 <script lang="ts">
 	import Carousel from '$lib/components/Carousel.svelte';
 	import ProductCard from '$lib/components/ProductCard.svelte';
-	import { getAllProducts, getLogo, getProductsByCategory, pullAds } from '$lib/controls.svelte';
+	import {
+		getAllProducts,
+		getLogo,
+		getProductsByCategory,
+		pullAds,
+		categories
+	} from '$lib/controls.svelte';
 	import { onMount } from 'svelte';
 	let adImages: any[] = $state([]);
-	let categories: string[] = [
-		'Electronics',
-		'Fashion',
-		'Home & Kitchen',
-		'Beauty & Personal Care',
-		'Sports & Outdoors',
-		'Toys & Games',
-		'Books',
-		'Automotive',
-		'Health & Wellness',
-		'Groceries',
-		'Office Supplies',
-		'Pet Supplies'
-	];
 
 	let busy = $state(false);
 	let products: any[] = $state([]);
@@ -96,23 +88,43 @@
 										<p>View More {'>'}</p>
 									</div>
 								{/if}
-								<div
-									class="lg:flex px-5 overflow-hidden grid grid-cols-[200px,200px,200px] w-fit gap-0"
-								>
-									{#each products.items as product}
-										<!-- <img src="./80off.png" class="w-2/4 h-[350px] bottom-0 py-1" /> -->
-										<a href="/products/{product.id}" class="text-black">
-											<ProductCard
-												discountPercentage={product.discount_percentage}
-												title={product.title}
-												image={product.imageUrl}
-												price={product.price}
-												quantity={product.quantity}
-												flashSale={product.flash_sale}
-											/>
-										</a>
-									{/each}
-								</div>
+								{#if products.items.length < 5}
+									<div
+										class="lg:flex px-5 overflow-hidden grid grid-cols-[200px,200px,200px] w-fit gap-0"
+									>
+										{#each products.items as product}
+											<!-- <img src="./80off.png" class="w-2/4 h-[350px] bottom-0 py-1" /> -->
+											<a href="/products/{product.id}" class="text-black">
+												<ProductCard
+													discountPercentage={product.discount_percentage}
+													title={product.title}
+													image={product.imageUrl}
+													price={product.price}
+													quantity={product.quantity}
+													flashSale={product.flash_sale}
+												/>
+											</a>
+										{/each}
+									</div>
+								{:else}
+									<div
+										class="lg:flex px-5 overflow-hidden grid grid-cols-[200px,200px,200px] w-fit gap-0"
+									>
+										{#each products.items as product}
+											<!-- <img src="./80off.png" class="w-2/4 h-[350px] bottom-0 py-1" /> -->
+											<a href="/products/{product.id}" class="text-black">
+												<ProductCard
+													discountPercentage={product.discount_percentage}
+													title={product.title}
+													image={product.imageUrl}
+													price={product.price}
+													quantity={product.quantity}
+													flashSale={product.flash_sale}
+												/>
+											</a>
+										{/each}
+									</div>
+								{/if}
 							</div>
 						{/each}
 					</div>
