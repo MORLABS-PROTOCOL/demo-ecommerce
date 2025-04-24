@@ -20,12 +20,12 @@
 	import HamburgerMenu from '$lib/components/Icons/Hamburger-Menu.svelte';
 	import Heart from '$lib/components/Icons/Heart.svelte';
 	import User from '$lib/components/Icons/User.svelte';
+	import Search from '$lib/components/Icons/Search.svelte';
 	import { fly } from 'svelte/transition';
 	import { page } from '$app/state';
 
 	import {
 		LocationHeart,
-		Search,
 		ShoppingBag,
 		ShoppingCart,
 		TrainHeart,
@@ -83,8 +83,12 @@
 				</div>
 				<div class="flex justify-between items-center gap-4">
 					<a href="/">
-						<div class="flex-shrink-0">
-							<img src={pageSettings.logoUrl} class="w-[100px] h-[100px]" alt="logo" />
+						<div class="">
+							<img
+								src={pageSettings.logoUrl}
+								class="w-fit max-w-[300px] md:w-[100] h-[100px]"
+								alt="logo"
+							/>
 						</div>
 					</a>
 					<Form
@@ -128,13 +132,14 @@
 						</div>
 					</Form>
 
-					<Search
+					<button
 						class="sm:hidden block"
-						size={20}
 						onclick={() => {
 							showSearchBar = !showSearchBar;
 						}}
-					/>
+					>
+						<Search />
+					</button>
 					<div class="flex items-center gap-x-3">
 						{#if pocketbase.authStore.isValid}
 							<a href="/profile">
