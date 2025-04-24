@@ -1,24 +1,23 @@
-# Use the official Node.js image as the base image
+# Use the official Node.js image
 FROM node:18.20.4-slim
-
 
 # Set the working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
-COPY package.json package-lock.json ./
+# Copy the dependency files
+COPY package*.json ./
 
-# Install the dependencies
+# Install dependencies
 RUN npm install
 
-# Copy the rest of the application code
+# Copy the rest of the app
 COPY . .
+
+# Build the app
 RUN npm run build
-WORKDIR /app
 
+# Expose the default port used by the Node adapter
+EXPOSE 3000
 
-# Expose the port the app runs on
-EXPOSE 4173
-
-# Command to run the app
-CMD node ./build
+# Run the built app
+CMD ["node", "build"]

@@ -319,7 +319,7 @@
 		{@render children()}
 	</div>
 	{#if page.url.pathname !== '/login' && page.url.pathname !== '/signup' && page.url.pathname !== '/login/forgot-password'}
-		<footer class="bg-[#224981] text-white w-screen p-6 bottom-0 left-0 z-50">
+		<footer class="bg-[#224981] text-white w-screen p-6 min-h-[50vh] h-full bottom-0 left-0 z-50">
 			<div class="flex justify-center items-center">
 				<div class="w-full h-[50px]">
 					<hr />
