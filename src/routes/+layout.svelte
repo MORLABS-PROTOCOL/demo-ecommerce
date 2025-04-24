@@ -11,7 +11,9 @@
 		refreshCart,
 		cart,
 		getLogo,
-		pageSettings
+		pageSettings,
+		wishList,
+		refreshWishList
 	} from '$lib/controls.svelte';
 	import Carousel from '$lib/components/Carousel.svelte';
 	import 'carbon-components-svelte/css/white.css';
@@ -35,6 +37,7 @@
 	import Exit from '$lib/components/Icons/Exit.svelte';
 	import { onMount } from 'svelte';
 	import { Form } from 'carbon-components-svelte';
+	import { browser } from '$app/environment';
 	let { children } = $props();
 	let showCategories = $state(false);
 	let showSearchBar = $state(false);
@@ -54,11 +57,15 @@
 	];
 	let userCartTotals: any;
 	let queryCategory: string = $state('All');
-	onMount(async () => {
-		await refreshCart();
-		await getLogo();
-	});
-	let formData: HTMLFormElement;
+	if (browser) {
+		(async () => {
+			await refreshCart();
+			await getLogo();
+			await refreshWishList();
+		})();
+	}
+	onMount(async () => {});
+	let formData: HTMLFormElement | undefined = $state();
 	let searchTerm: string = $state('');
 </script>
 
@@ -74,18 +81,19 @@
 						<ShoppingBag />Become a seller
 					</div>
 				</div>
-				<Form
-					bind:ref={formData}
-					on:submit={() => {
-						window.location.href = `/search/${searchTerm}`;
-					}}
-				>
-					<div class="flex justify-between items-center gap-4">
-						<a href="/">
-							<div class="flex-shrink-0">
-								<img src={pageSettings.logoUrl} class="w-[100px] h-[100px]" alt="logo" />
-							</div>
-						</a>
+				<div class="flex justify-between items-center gap-4">
+					<a href="/">
+						<div class="flex-shrink-0">
+							<img src={pageSettings.logoUrl} class="w-[100px] h-[100px]" alt="logo" />
+						</div>
+					</a>
+					<Form
+						class="w-2/3"
+						bind:ref={formData}
+						on:submit={() => {
+							window.location.href = `/search/${searchTerm}`;
+						}}
+					>
 						<div class="flex-grow justify-center items-center sm:flex hidden h-12">
 							<!-- Category Selector -->
 							<select
@@ -118,121 +126,129 @@
 								Search
 							</button>
 						</div>
+					</Form>
 
-						<Search
-							class="sm:hidden block"
-							size={20}
-							onclick={() => {
-								showSearchBar = !showSearchBar;
-							}}
-						/>
-						<div class="flex items-center gap-x-3">
-							{#if pocketbase.authStore.isValid}
-								<a href="/profile">
-									<div
-										class="flex items-center gap-x-3 font-semibold hover:scale-100 cursor-pointer duration-500 px-4 py-2 hover:shadow-lg hover:border-blue-700 hover:border hover:shadow-blue-500 hover:rounded-full justify-end"
-									>
-										<UserCertification size={20} />
-										<div class="sm:flex flex-col items-start hidden">
-											<p class="font-light">
-												{`Hi, ${userData?.username}`}
-											</p>
-										</div>
-									</div>
-								</a>
-								<div>
-									<div
-										class="relative inline-block duration-300 hover:shadow-xl hover:scale-100 rounded-full hover:shadow-blue-500 hover:border hover:border-blue-700"
-									>
-										<button class="relative p-2 rounded-full">
-											<Heart />
-											<span
-												class="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-4 text-xs font-bold text-white bg-red-500 rounded-full"
-												>3</span
-											>
-										</button>
+					<Search
+						class="sm:hidden block"
+						size={20}
+						onclick={() => {
+							showSearchBar = !showSearchBar;
+						}}
+					/>
+					<div class="flex items-center gap-x-3">
+						{#if pocketbase.authStore.isValid}
+							<a href="/profile">
+								<div
+									class="flex items-center gap-x-3 font-semibold hover:scale-100 cursor-pointer duration-500 px-4 py-2 hover:shadow-lg hover:border-blue-700 hover:border hover:shadow-blue-500 hover:rounded-full justify-end"
+								>
+									<UserCertification size={20} />
+									<div class="sm:flex flex-col items-start hidden">
+										<p class="font-light">
+											{`Hi, ${userData?.username}`}
+										</p>
 									</div>
 								</div>
-								<a href="/cart" class="text-black font-semibold">
-									<div
-										class="flex items-center font-bold duration-300 hover:shadow-xl hover:scale-100 rounded-full hover:shadow-blue-500 hover:border hover:border-blue-700 px-2"
-									>
-										<div class="relative inline-block">
-											<button class="relative p-2 rounded-full">
-												<ShoppingCart color="black" class="font-bold" size={20} />
-												<span
-													class="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-4 text-xs font-bold text-white bg-red-500 rounded-full"
-													>{cart.length}</span
-												>
-											</button>
-										</div>
-										{currency()}{cart.total}
-									</div>
-								</a>
-							{:else}
-								<a href="/login">
-									<div
-										class="flex items-center gap-x-3 font-semibold hover:scale-100 cursor-pointer duration-500 px-4 py-2 hover:shadow-lg hover:border-blue-700 hover:border hover:shadow-blue-500 hover:rounded-full justify-end"
-									>
-										<User />
-										<div class="sm:flex flex-col items-start hidden">
-											<p class="font-light">Login</p>
-										</div>
-									</div>
-								</a>
-								<div>
-									<div
-										class="relative inline-block duration-300 hover:shadow-xl hover:scale-100 rounded-full hover:shadow-blue-500 hover:border hover:border-blue-700"
-									>
-										<button class="relative p-2 rounded-full">
-											<Heart />
-											<span
-												class="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-4 text-xs font-bold text-white bg-red-500 rounded-full"
-												>0</span
-											>
-										</button>
-									</div>
+							</a>
+							<div>
+								<div
+									class="relative inline-block duration-300 hover:shadow-xl hover:scale-100 rounded-full hover:shadow-blue-500 hover:border hover:border-blue-700"
+								>
+									<button class="relative p-2 rounded-full">
+										<Heart color="none" />
+										<span
+											class="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-4 text-xs font-bold text-white bg-red-500 rounded-full"
+											>{wishList.items.length}</span
+										>
+									</button>
 								</div>
+							</div>
+							<a href="/cart" class="text-black font-semibold">
 								<div
 									class="flex items-center font-bold duration-300 hover:shadow-xl hover:scale-100 rounded-full hover:shadow-blue-500 hover:border hover:border-blue-700 px-2"
 								>
 									<div class="relative inline-block">
 										<button class="relative p-2 rounded-full">
-											<a href="/cart" class="text-black font-semibold"
-												><ShoppingCart color="black" class="font-bold" size={20} /></a
-											>
+											<ShoppingCart color="black" class="font-bold" size={20} />
 											<span
 												class="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-4 text-xs font-bold text-white bg-red-500 rounded-full"
-												>0</span
+												>{cart?.length}</span
 											>
 										</button>
 									</div>
-									$0.00
+									{currency()}{cart?.total.toLocaleString()}
 								</div>
-							{/if}
-
+							</a>
+						{:else}
+							<a href="/login">
+								<div
+									class="flex items-center gap-x-3 font-semibold hover:scale-100 cursor-pointer duration-500 px-4 py-2 hover:shadow-lg hover:border-blue-700 hover:border hover:shadow-blue-500 hover:rounded-full justify-end"
+								>
+									<User />
+									<div class="sm:flex flex-col items-start hidden">
+										<p class="font-light">Login</p>
+									</div>
+								</div>
+							</a>
+							<div>
+								<div
+									class="relative inline-block duration-300 hover:shadow-xl hover:scale-100 rounded-full hover:shadow-blue-500 hover:border hover:border-blue-700"
+								>
+									<button class="relative p-2 rounded-full">
+										<Heart />
+										<span
+											class="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-4 text-xs font-bold text-white bg-red-500 rounded-full"
+											>0</span
+										>
+									</button>
+								</div>
+							</div>
 							<div
-								class="flex items-center gap-x-1 font-semibold justify-end hover:bg-blue-950 cursor-pointer h-[50px] p-3"
-							></div>
-						</div>
+								class="flex items-center font-bold duration-300 hover:shadow-xl hover:scale-100 rounded-full hover:shadow-blue-500 hover:border hover:border-blue-700 px-2"
+							>
+								<div class="relative inline-block">
+									<button class="relative p-2 rounded-full">
+										<a href="/cart" class="text-black font-semibold"
+											><ShoppingCart color="black" class="font-bold" size={20} /></a
+										>
+										<span
+											class="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-4 text-xs font-bold text-white bg-red-500 rounded-full"
+											>0</span
+										>
+									</button>
+								</div>
+								{currency()}0.00
+							</div>
+						{/if}
+
+						<div
+							class="flex items-center gap-x-1 font-semibold justify-end hover:bg-blue-950 cursor-pointer h-[50px] p-3"
+						></div>
 					</div>
-				</Form>
+				</div>
 			</div>
 			<!-- Search Bar for mobile-->
 			{#if showSearchBar}
-				<div class="flex sm:hidden w-full p-3 justify-center items-center">
-					<select
-						class="h-full outline-none text-black font-semibold w-[100px] text-center border-2 border-gray-300 focus:outline-none border-l-1 border-r-0 p-3 bg-transparent"
-						><option>All</option></select
-					>
-					<input
-						class="w-full p-3 border-2 hover:border-blue-900 focus:outline-none focus:border-blue-500 outline-none border-r-0 border-l-1 duration-500 border-solid"
-						placeholder="Search..."
-					/><button
-						class="h-full bg-blue-900 text-white font-semibold w-[100px] text-center border-2 border-l-0 border-blue-900 p-3 rounded-r-md"
-						>Search</button
-					>
-				</div>
+				<Form
+					class="w-full"
+					bind:ref={formData}
+					on:submit={() => {
+						window.location.href = `/search/${searchTerm}`;
+					}}
+				>
+					<div class="flex sm:hidden w-full p-3 justify-center items-center">
+						<select
+							class="h-full outline-none text-black font-semibold w-[100px] text-center border-2 border-gray-300 focus:outline-none border-l-1 border-r-0 p-3 bg-transparent"
+							><option>All</option></select
+						>
+						<input
+							class="w-full p-3 border-2 hover:border-blue-900 focus:outline-none focus:border-blue-500 outline-none border-r-0 border-l-1 duration-500 border-solid"
+							placeholder="Search..."
+						/><button
+							class="h-full bg-blue-900 text-white font-semibold w-[100px] text-center border-2 border-l-0 border-blue-900 p-3 rounded-r-md"
+							>Search</button
+						>
+					</div>
+				</Form>
 			{/if}
 			<!-- End of Search Bar for mobile-->
 			<div class="flex justify-center items-center">

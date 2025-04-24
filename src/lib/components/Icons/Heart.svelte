@@ -1,6 +1,10 @@
+<script lang="ts">
+	let { color }: { color?: 'none' | string } = $props();
+</script>
+
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
 	><path
-		fill="none"
+		fill={color}
 		stroke="currentColor"
 		stroke-dasharray="32"
 		stroke-dashoffset="32"

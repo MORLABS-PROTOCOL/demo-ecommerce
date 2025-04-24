@@ -4,7 +4,7 @@ import { PricingTailored } from "carbon-icons-svelte"
 import Client, { type ListResult, type RecordModel } from "pocketbase"
 import { writable, type Writable } from "svelte/store"
 
-export let pocketbase = new Client("http://localhost:8090")
+export let pocketbase = new Client("https://manage.morlabsprotocol.com")
 export let user: {
     country: string
     name: string
@@ -148,7 +148,7 @@ export let refreshCart = async () => {
     let record = await getCart()
 
     cart.length = record[0].items?.length
-    cart.total = record[0].total?.toLocaleString()
+    cart.total = record[0].total
 
 }
 let productDetails: { id: string, name: string, productImage: string, price: number, discount: string, oldPrice?: number } = $state({
@@ -182,7 +182,7 @@ export async function addToCart(productId: string, quantity: number) {
     if (existingCart.length > 0) {
         let cart = existingCart[0]
         // Modify the existing cart by pushing the new item into the items array
-        cart.items.push({ quantity: quantity, product: productDetails });
+        cart.items.push({ quantity: quantity, product: productDetails, total: productDetails.price * quantity });
         await pocketbase.collection("carts").update(cart.id, {
             items: cart.items,
             total: cart.items.reduce((sum: number, item: { quantity: number, product: { price: number } }) => sum + (item.quantity * item.product.price), 0)
@@ -213,4 +213,30 @@ export function shuffleArray<T>(array: T[]): T[] {
         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     return shuffled;
+}
+
+
+export async function addToWishList(productId: string) {
+    let user = await pocketbase.collection("users").getFullList({ filter: `id="${pocketbase.authStore.record?.id}"`, requestKey: Date.now().toString() })
+    if (user[0].wishlist === null) user[0].wishlist = [];
+    if (user[0].wishlist.includes(productId)) {
+        user[0].wishlist = user[0].wishlist.filter((id: string) => id !== productId);
+        await pocketbase.collection("users").update(pocketbase.authStore.record?.id as string, {
+            wishlist: user[0].wishlist
+        }, { requestKey: Date.now().toString() });
+    } else {
+        user[0].wishlist.push(productId);
+        await pocketbase.collection("users").update(pocketbase.authStore.record?.id as string, {
+            wishlist: user[0].wishlist
+        }, { requestKey: Date.now().toString() });
+    }
+    await refreshWishList()
+    return user[0].wishlist
+}
+
+export let wishList: { items: string[] } = $state({ items: [] })
+export async function refreshWishList() {
+    let user = await pocketbase.collection("users").getFullList({ filter: `id="${pocketbase.authStore.record?.id}"`, requestKey: Date.now().toString() })
+
+    wishList.items = user[0].wishlist;
 }

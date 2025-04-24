@@ -71,7 +71,9 @@
 								username: userData.userName,
 								email: userData.email,
 								password: userData.password,
-								passwordConfirm: userData.c_password
+								passwordConfirm: userData.c_password,
+								carts: [],
+								wishlist: []
 							});
 							console.log(authData);
 							let verificationReq = await pocketbase
