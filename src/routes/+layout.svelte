@@ -334,7 +334,9 @@
 								&copy; {new Date().getFullYear()} Vikstores. All rights reserved.
 							</p>
 						</div>
-						<div class="flex w-full gap-x-4 justify-end items-center px-3">
+						<div
+							class="lg:flex block py-3 w-full gap-x-4 justify-end lg:items-center place-items-end px-3"
+						>
 							<div class="text-start cursor-pointer h-full gap-x-2">Privacy Policy</div>
 							<div class="text-start cursor-pointer h-full gap-x-2">Terms of Service</div>
 							<div class="text-start cursor-pointer h-full gap-x-2">Contact Us</div>
