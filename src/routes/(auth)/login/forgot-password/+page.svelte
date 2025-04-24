@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Seo from '$lib/components/Seo.svelte';
 	import { notify, pageSettings, pocketbase, validateAuthState } from '$lib/controls.svelte';
 	import { Form, FormGroup, PasswordInput, TextInput } from 'carbon-components-svelte';
 	import { onMount } from 'svelte';
@@ -14,6 +15,12 @@
 		validateAuthState();
 	});
 </script>
+
+<Seo
+	title="Vikstores | Forgot Password"
+	description="Forgot Password"
+	keywords="vikstores, forgot password"
+/>
 
 <Form bind:ref={formData} class="">
 	<main class="h-screen overflow-hidden mx-auto flex justify-center items-center w-full">

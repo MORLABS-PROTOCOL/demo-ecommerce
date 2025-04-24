@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { getCart, cart, currency } from '$lib/controls.svelte';
+	import Seo from '$lib/components/Seo.svelte';
 
 	let cartDetails: any = $state(null);
 	let cartItems: any[] = $state([]);
@@ -15,6 +16,8 @@
 		cartTotal = cart.total || 0;
 	});
 </script>
+
+<Seo title="Cart" description="Your shopping cart" keywords="vikstores, cart, shopping cart" />
 
 <div class="flex flex-col lg:flex-row gap-6 px-4 py-6">
 	<!-- Cart Items Section -->

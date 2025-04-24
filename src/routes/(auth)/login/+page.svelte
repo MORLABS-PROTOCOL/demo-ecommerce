@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import Seo from '$lib/components/Seo.svelte';
 	import {
 		getLogo,
 		notify,
@@ -19,6 +20,8 @@
 		validateAuthState();
 	});
 </script>
+
+<Seo title="Vikstores | Login" description="login" keywords="vikstores, login" />
 
 <Form bind:ref={formData}>
 	<main class="h-screen overflow-hidden mx-auto flex justify-center items-center">

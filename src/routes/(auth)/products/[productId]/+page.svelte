@@ -18,6 +18,7 @@
 	import ProductCard from '$lib/components/ProductCard.svelte';
 	import Heart from '$lib/components/Icons/Heart.svelte';
 	import { StarFilled } from 'carbon-icons-svelte';
+	import Seo from '$lib/components/Seo.svelte';
 
 	let { data } = $props();
 	let product = $state();
@@ -42,13 +43,19 @@
 	});
 </script>
 
+<Seo
+	title={product?.title}
+	description={product?.description}
+	keywords="vikstores, {product?.description}"
+/>
+
 <div class="flex flex-col md:flex-row gap-10 p-6">
 	<!-- Product Image -->
 	<div class=" w-full md:w-1/2 h-[400px] rounded-xl">
 		{#if product?.imageUrl}
 			<img
 				src={product.imageUrl}
-				alt={product.name}
+				alt={product.title}
 				class="w-full h-full object-contain rounded-xl"
 			/>
 		{/if}

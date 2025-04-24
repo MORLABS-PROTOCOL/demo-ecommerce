@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import Seo from '$lib/components/Seo.svelte';
 	import { notify, pageSettings, pocketbase, validateAuthState } from '$lib/controls.svelte';
 	import { Form, FormGroup, Modal, PasswordInput, TextInput } from 'carbon-components-svelte';
 	import { getTokenPayload } from 'pocketbase';
@@ -20,6 +21,8 @@
 		// console.log('Signup Auth State:', authState);
 	});
 </script>
+
+<Seo title="Vikstores | Signup" description="signup" keywords="vikstores, signup" />
 
 <Form bind:ref={formData}>
 	<main class="h-screen overflow-hidden mx-auto flex justify-center items-center">

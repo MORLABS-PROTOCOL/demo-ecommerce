@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Carousel from '$lib/components/Carousel.svelte';
 	import ProductCard from '$lib/components/ProductCard.svelte';
+	import Seo from '$lib/components/Seo.svelte';
 	import {
 		getAllProducts,
 		getLogo,
@@ -39,6 +40,8 @@
 		// busy = false;
 	});
 </script>
+
+<Seo title="Vikstores | Home" description="home" keywords="vikstores" />
 
 <main class="mx-auto bg-gray-300 max-w-7xl">
 	<div>
