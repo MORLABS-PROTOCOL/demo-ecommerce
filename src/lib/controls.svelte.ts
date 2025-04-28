@@ -1,10 +1,17 @@
-import { browser } from "$app/environment"
+import { browser, dev } from "$app/environment"
 import { page } from "$app/state"
-import { PricingTailored } from "carbon-icons-svelte"
 import Client, { type ListResult, type RecordModel } from "pocketbase"
 import { writable, type Writable } from "svelte/store"
+import { PUBLIC_SDK_URL } from "$env/static/public"
 
-export let pocketbase = new Client("https://manage.morlabsprotocol.com")
+export let pocketbase: Client;
+if (dev) {
+    pocketbase = new Client(`${PUBLIC_SDK_URL}`)
+    console.log("Accessing offline backend")
+} else {
+    pocketbase = new Client(`${PUBLIC_SDK_URL}`)
+    console.log("Accessing online backend")
+}
 export let user: {
     country: string
     name: string
@@ -239,4 +246,13 @@ export async function refreshWishList() {
     let user = await pocketbase.collection("users").getFullList({ filter: `id="${pocketbase.authStore.record?.id}"`, requestKey: Date.now().toString() })
 
     wishList.items = user[0].wishlist;
+}
+
+export async function removeFromCart(productId: string) {
+    let cartItems = await pocketbase.collection("carts").getFullList({ filter: `userId="${pocketbase.authStore.record?.id}"`, requestKey: Date.now().toString() })
+
+    cartItems[0].items = cartItems[0].items.filter((products: any) => products.product.id !== productId);
+    await pocketbase.collection("carts").update(cartItems[0].id as string, {
+        items: cartItems[0].items
+    }, { requestKey: Date.now().toString() });
 }

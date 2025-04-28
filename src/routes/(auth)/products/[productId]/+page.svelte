@@ -6,6 +6,7 @@
 		calculateNewPrice,
 		categories,
 		currency,
+		getCart,
 		getProductById,
 		getProductsByCategory,
 		pocketbase,
@@ -38,6 +39,8 @@
 		products = productsByCategory;
 		console.log(productsByCategory);
 		await refreshWishList();
+		let cartItems = await getCart();
+		console.log(cartItems);
 		// busy = true;
 		// busy = false;
 	});
@@ -79,6 +82,7 @@
 			</h1>
 			<button
 				onclick={async () => {
+					console.log(pocketbase.authStore.record);
 					validateAuthState();
 					let wishlist = await addToWishList(productId);
 					console.log(wishlist);
@@ -118,7 +122,9 @@
 				<div class="flex items-center gap-3 mt-2">
 					<button
 						class="border px-3 py-1 rounded text-lg"
-						onclick={() => quantity > 1 && quantity--}>-</button
+						onclick={() => {
+							quantity > 1 && quantity--;
+						}}>-</button
 					>
 					<span class="text-lg font-medium">{quantity}</span>
 					<button class="border px-3 py-1 rounded text-lg" onclick={() => quantity++}>+</button>

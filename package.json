@@ -44,6 +44,7 @@
 		"@sveltejs/adapter-node": "^5.2.12",
 		"carbon-components-svelte": "^0.88.4",
 		"carbon-icons-svelte": "^13.3.0",
+		"dotenv": "^16.5.0",
 		"notifyjs": "^3.0.0",
 		"pocketbase": "^0.26.0"
 	}

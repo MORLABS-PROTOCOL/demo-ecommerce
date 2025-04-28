@@ -59,9 +59,7 @@
 
 		<div class="flex flex-col gap-y-6">
 			<div class="">
-				<div
-					class="lg:flex px-5 overflow-hidden mx-auto items-center grid grid-cols-[200px,200px,200px] w-fit gap-0"
-				>
+				<div class="flex px-5 overflow-x-auto w-full gap-0">
 					<!-- <img src="./80off.png" class="w-2/4 h-[350px] bottom-0 py-1" /> -->
 					{#each products as product}
 						<a href="/products/{product.id}" class="text-black">
@@ -88,13 +86,13 @@
 								{#if products.items.length > 0}
 									<div class="flex justify-between mx-auto items-center font-bold bg-white p-3">
 										<p class="uppercase font-bold">{products.category}</p>
-										<p>View More {'>'}</p>
+										<a href="/products/category/{categories[index].toLowerCase()}"
+											>View More {'>'}</a
+										>
 									</div>
 								{/if}
 								{#if products.items.length < 5}
-									<div
-										class="lg:flex px-5 overflow-hidden grid grid-cols-[200px,200px,200px] w-fit gap-0"
-									>
+									<div class="flex px-5 overflow-x-auto w-full md:overflow-hidden gap-0">
 										{#each products.items as product}
 											<!-- <img src="./80off.png" class="w-2/4 h-[350px] bottom-0 py-1" /> -->
 											<a href="/products/{product.id}" class="text-black">
@@ -110,9 +108,7 @@
 										{/each}
 									</div>
 								{:else}
-									<div
-										class="lg:flex px-5 overflow-hidden grid grid-cols-[200px,200px,200px] w-fit gap-0"
-									>
+									<div class="flex px-5 overflow-x-auto w-full gap-0">
 										{#each products.items as product}
 											<!-- <img src="./80off.png" class="w-2/4 h-[350px] bottom-0 py-1" /> -->
 											<a href="/products/{product.id}" class="text-black">

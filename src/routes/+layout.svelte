@@ -142,12 +142,12 @@
 					</button>
 					<div class="flex items-center gap-x-3">
 						{#if pocketbase.authStore.isValid}
-							<a href="/profile">
+							<a href="/profile" class="w-full">
 								<div
 									class="flex items-center gap-x-3 font-semibold hover:scale-100 cursor-pointer duration-500 px-4 py-2 hover:shadow-lg hover:border-blue-700 hover:border hover:shadow-blue-500 hover:rounded-full justify-end"
 								>
 									<UserCertification size={20} />
-									<div class="sm:flex flex-col items-start hidden">
+									<div class="sm:flex items-start hidden">
 										<p class="font-light">
 											{`Hi, ${userData?.username}`}
 										</p>
@@ -180,7 +180,7 @@
 											>
 										</button>
 									</div>
-									{currency()}{cart?.total.toLocaleString()}
+									<p class="hidden md:block">{currency()}{cart?.total.toLocaleString()}</p>
 								</div>
 							</a>
 						{:else}
@@ -221,7 +221,7 @@
 										>
 									</button>
 								</div>
-								{currency()}0.00
+								<p class="hidden md:block">{currency()}0.00</p>
 							</div>
 						{/if}
 
@@ -242,8 +242,13 @@
 				>
 					<div class="flex sm:hidden w-full p-3 justify-center items-center">
 						<select
+							onchange={(e) => {
+								queryCategory = e?.target.value;
+							}}
 							class="h-full outline-none text-black font-semibold w-[100px] text-center border-2 border-gray-300 focus:outline-none border-l-1 border-r-0 p-3 bg-transparent"
-							><option>All</option></select
+							><option>All</option>{#each categories as category}
+								<option>{category}</option>
+							{/each}</select
 						>
 						<input
 							class="w-full p-3 border-2 hover:border-blue-900 focus:outline-none focus:border-blue-500 outline-none border-r-0 border-l-1 duration-500 border-solid"
@@ -308,7 +313,8 @@
 							{#each categories as category}
 								<div class="flex justify-start items-center gap-x-2 p-3">
 									<a
-										href="/categories/{category.toLowerCase()}"
+										href="/products/category/{category.toLowerCase()}"
+										onclick={() => (showCategories = false)}
 										class="text-white font-semibold text-sm">{category}</a
 									>
 								</div>
