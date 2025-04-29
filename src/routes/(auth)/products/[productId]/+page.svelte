@@ -40,9 +40,10 @@
 		console.log(productsByCategory);
 		await refreshWishList();
 		let cartItems = await getCart();
-		console.log(cartItems);
-		// busy = true;
-		// busy = false;
+		console.log(
+			'Cart Items: ',
+			cartItems[0].items.find((item) => item.product.id === productId)
+		);
 	});
 </script>
 

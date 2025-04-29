@@ -86,7 +86,7 @@
 						<div class="">
 							<img
 								src={pageSettings.logoUrl}
-								class="w-fit max-w-[300px] md:w-[100] h-[100px]"
+								class="w-fit max-w-[250px] md:w-[100px] h-[100px]"
 								alt="logo"
 							/>
 						</div>
@@ -180,7 +180,7 @@
 											>
 										</button>
 									</div>
-									<p class="hidden md:block">{currency()}{cart?.total.toLocaleString()}</p>
+									<p class="hidden lg:block">{currency()}{cart?.total.toLocaleString()}</p>
 								</div>
 							</a>
 						{:else}
@@ -221,7 +221,7 @@
 										>
 									</button>
 								</div>
-								<p class="hidden md:block">{currency()}0.00</p>
+								<p class="hidden lg:block">{currency()}0.00</p>
 							</div>
 						{/if}
 

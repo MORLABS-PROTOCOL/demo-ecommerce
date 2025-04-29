@@ -256,3 +256,14 @@ export async function removeFromCart(productId: string) {
         items: cartItems[0].items
     }, { requestKey: Date.now().toString() });
 }
+
+export async function updateCart(productId: string, quantity: number) {
+    let cartItems = await pocketbase.collection("carts").getFullList({ filter: `userId="${pocketbase.authStore.record?.id}"&&status="pending"`, requestKey: Date.now().toString() })
+    let cartItem = cartItems[0].items.find((item: any) => item.product.id === productId);
+    if (cartItem) {
+        cartItem.quantity = quantity;
+        await pocketbase.collection("carts").update(cartItems[0].id as string, {
+            items: cartItems[0].items
+        }, { requestKey: Date.now().toString() });
+    }
+}
