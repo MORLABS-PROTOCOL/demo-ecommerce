@@ -16,16 +16,18 @@
 		direction = 1;
 		current = (current + 1) % images.length;
 	}
-	onMount(() => {
+
+	$effect(() => {
 		if (images && images.length > 0) {
 			current = 0; // Start with the first image
 		}
 		setTimeout(() => {
 			if (current >= images.length) {
 				current = 0; // Reset to the first image if out of bounds
+			} else {
+				next();
 			}
-			next();
-		}, 100);
+		}, 1000);
 	});
 </script>
 
