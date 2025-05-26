@@ -229,7 +229,7 @@
 
 								<!-- Header for small screens -->
 								<h3
-									class="sm:hidden font-bold text-xl flex justify-between items-center pb-5 text-white"
+									class="sm:hidden font-bold text-xl flex justify-center gap-x-2 items-center pb-5 text-white"
 								>
 									Browse all categories
 									<button onclick={() => (showCategories = false)}><Exit /></button>
@@ -293,7 +293,7 @@
 					onclick={() => {
 						showCategories = !showCategories;
 					}}
-					class="flex w-full items-center justify-start px-5 gap-x-3"
+					class="flex w-full items-center justify-center px-5 gap-x-3"
 				>
 					<HamburgerMenu />Browse all categories
 				</button>
