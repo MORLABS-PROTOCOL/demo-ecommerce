@@ -287,13 +287,13 @@
 				</Form>
 			{/if}
 			<div
-				class="md:flex md:justify-between block w-full font-semibold ax-w-screen h-[50px] mb-2 text-white bg-[#1e3a8a]"
+				class="md:flex md:justify-between block w-full font-semibold max-w-screen h-fit py-3 mb-2 text-white bg-[#1e3a8a]"
 			>
 				<button
 					onclick={() => {
 						showCategories = !showCategories;
 					}}
-					class="flex w-full items-center justify-start px-5 gap-x-3"
+					class="flex h-fit w-full items-center justify-start px-5 gap-x-3"
 				>
 					<HamburgerMenu />Browse all categories
 				</button>

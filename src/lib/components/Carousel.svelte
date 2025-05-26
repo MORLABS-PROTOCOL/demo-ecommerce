@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { fly } from 'svelte/transition';
 
 	let { images } = $props();
@@ -15,6 +16,17 @@
 		direction = 1;
 		current = (current + 1) % images.length;
 	}
+	onMount(() => {
+		if (images && images.length > 0) {
+			current = 0; // Start with the first image
+		}
+		setTimeout(() => {
+			if (current >= images.length) {
+				current = 0; // Reset to the first image if out of bounds
+			}
+			next();
+		}, 100);
+	});
 </script>
 
 {#if images && images.length > 0}
