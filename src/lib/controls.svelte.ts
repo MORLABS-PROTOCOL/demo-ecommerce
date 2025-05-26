@@ -303,3 +303,19 @@ export async function updateCart(productId: string, quantity: number) {
         }, { requestKey: Date.now().toString() });
     }
 }
+
+
+export async function addToNewsLetter(email: string) {
+    try {
+        let record = await pocketbase.collection("newsletter").create({
+            email: email
+        }, { requestKey: Date.now().toString() });
+        if (record) {
+            notify("Success", "You have been added to the newsletter successfully!", "success");
+        }
+        return record;
+    } catch (error) {
+        console.error("Error adding to newsletter:", error);
+        throw error;
+    }
+}

@@ -13,7 +13,8 @@
 		getLogo,
 		pageSettings,
 		wishList,
-		refreshWishList
+		refreshWishList,
+		addToNewsLetter
 	} from '$lib/controls.svelte';
 	import Carousel from '$lib/components/Carousel.svelte';
 	import 'carbon-components-svelte/css/white.css';
@@ -58,6 +59,7 @@
 		'Office Supplies',
 		'Pet Supplies'
 	];
+	let email = $state('');
 	let userCartTotals: any;
 	let queryCategory: string = $state('All');
 	if (browser) {
@@ -325,10 +327,15 @@
 						class="flex flex-col sm:flex-row items-center gap-2 w-full max-w-md"
 						onsubmit={() => {
 							// Add your newsletter subscription logic here
+							addToNewsLetter(email);
+							setTimeout(() => {
+								email = '';
+							}, 500);
 						}}
 					>
 						<input
 							type="email"
+							bind:value={email}
 							required
 							placeholder="Enter your email"
 							class="w-full px-4 py-2 rounded text-black focus:outline-none"
