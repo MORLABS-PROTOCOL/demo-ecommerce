@@ -1,28 +1,53 @@
 <script lang="ts">
-	import { getRandomNumber } from '$lib/controls.svelte';
-	let layoutIndex = getRandomNumber();
-	export let images: any[] = [];
+	import { fly } from 'svelte/transition';
+
+	let { images } = $props();
+
+	let current = $state(0);
+	let direction = 1;
+
+	function prev() {
+		direction = -1;
+		current = (current - 1 + images.length) % images.length;
+	}
+
+	function next() {
+		direction = 1;
+		current = (current + 1) % images.length;
+	}
 </script>
 
 {#if images && images.length > 0}
-	<div class="grid grid-cols-1 md:grid-cols-3 gap-2 w-full h-fit text-center">
-		<div class="md:col-span-2 hidden md:block md:row-span-2 w-full h-64 md:h-full">
+	<div class="relative w-full flex items-center justify-center h-64">
+		<!-- Prev Button -->
+		<button
+			class="absolute left-2 z-10 bg-white/70 hover:bg-white rounded-full p-2 shadow"
+			onclick={prev}
+			aria-label="Previous"
+		>
+			&#8592;
+		</button>
+
+		<!-- Image with sliding effect -->
+		{#key current}
 			<img
-				src={images[0].imageUrl}
-				alt="Banner Image 2"
-				class="w-full h-full object-cover sm:block hidden"
+				src={images[current].imageUrl}
+				alt={images[current].alt || `Image ${current + 1}`}
+				class="w-full h-64 object-cover rounded"
+				in:fly={{ x: 100 * direction, duration: 300 }}
+				out:fly={{ x: -100 * direction, duration: 300 }}
 			/>
-		</div>
+		{/key}
 
-		<img
-			src={images[1].imageUrl}
-			alt="Banner Image 2"
-			class="w-full h-auto object-cover sm:hidden block"
-		/>
-
-		<img src={images[1].imageUrl} alt="Banner Image 2" class="w-full h-auto object-cover" />
-		<img src={images[2].imageUrl} alt="Banner Image 3" class="w-full h-auto object-cover" />
+		<!-- Next Button -->
+		<button
+			class="absolute right-2 z-10 bg-white/70 hover:bg-white rounded-full p-2 shadow"
+			onclick={next}
+			aria-label="Next"
+		>
+			&#8594;
+		</button>
 	</div>
 {:else}
-	<p class="text-center h-64">...</p>
+	<p class="text-center h-64 flex items-center justify-center">...</p>
 {/if}
