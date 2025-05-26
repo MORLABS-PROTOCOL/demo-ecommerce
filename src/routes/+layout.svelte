@@ -293,7 +293,7 @@
 					onclick={() => {
 						showCategories = !showCategories;
 					}}
-					class="flex w-full items-center justify-center px-5 gap-x-3"
+					class="flex w-full items-center justify-start px-5 gap-x-3"
 				>
 					<HamburgerMenu />Browse all categories
 				</button>
