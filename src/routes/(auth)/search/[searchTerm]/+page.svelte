@@ -2,4 +2,4 @@
 	import Seo from '$lib/components/Seo.svelte';
 </script>
 
-<Seo title="Vikstores | Search" description="search" keywords="vikstores, search" />
+<Seo title="Vixstores | Search" description="search" keywords="vixstores, search" />

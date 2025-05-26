@@ -17,12 +17,10 @@
 	let formData: HTMLFormElement;
 	onMount(() => {
 		validateAuthState();
-		console.log(pocketbase.authStore.isValid);
-		// console.log('Signup Auth State:', authState);
 	});
 </script>
 
-<Seo title="Vikstores | Signup" description="signup" keywords="vikstores, signup" />
+<Seo title="Vixstores | Signup" description="signup" keywords="vixstores, signup" />
 
 <Form bind:ref={formData}>
 	<main class="h-screen overflow-hidden mx-auto flex justify-center items-center">
@@ -78,7 +76,6 @@
 								carts: [],
 								wishlist: []
 							});
-							console.log(authData);
 							let verificationReq = await pocketbase
 								.collection('users')
 								.requestVerification(userData.email);
@@ -92,7 +89,6 @@
 								notify('Error', `An error occured while trying to send you a verification mail`);
 							}
 						} catch (error) {
-							console.log(error.data);
 							notify(
 								'Error',
 								`${error.data?.data?.email?.message || ''}\n \n ${error.data?.data?.password?.message || ''} \n \n ${error.data?.data?.passwordConfirm?.message || ''}`,

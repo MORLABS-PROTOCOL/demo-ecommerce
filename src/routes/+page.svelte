@@ -22,7 +22,6 @@
 	onMount(async () => {
 		for (const category of categories) {
 			const prods = await getProductsByCategory(category);
-			console.log('Prods:', prods);
 
 			productsByCategory = [
 				...productsByCategory,
@@ -41,17 +40,17 @@
 	});
 </script>
 
-<Seo title="Vikstores | Home" description="home" keywords="vikstores" />
+<Seo title="Vixstores | Home" description="home" keywords="vixstores" />
 
-<main class="mx-auto bg-gray-300 max-w-7xl">
-	<div>
+<main class="mx-auto bg-[#f8f8f8]">
+	<div class="max-w-7xl mx-auto">
 		<!-- {#each adImages as ad}
 			<div class="flex justify-center items-center">
 				<img src={ad.imageUrl} alt="Ad Image" class="w-full h-full" />
 			</div>
 		{/each} -->
 		<Carousel images={adImages} />
-		<div class=" bg-white p-5 w-full">
+		<div class="  p-5 w-full">
 			<div class="flex justify-evenly items-center">
 				<div></div>
 			</div>
@@ -85,7 +84,7 @@
 							<div class="">
 								{#if products.items.length > 0}
 									<div class="flex justify-between mx-auto items-center font-bold bg-white p-3">
-										<p class="uppercase font-bold">{products.category}</p>
+										<p class="uppercase text-2xl font-semibold">{products.category}</p>
 										<a href="/products/category/{categories[index].toLowerCase()}"
 											>View More {'>'}</a
 										>

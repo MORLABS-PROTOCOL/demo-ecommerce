@@ -25,6 +25,7 @@
 	import { page } from '$app/state';
 
 	import {
+		CustomerService,
 		LocationHeart,
 		ShoppingBag,
 		ShoppingCart,
@@ -38,6 +39,8 @@
 	import { onMount } from 'svelte';
 	import { Form } from 'carbon-components-svelte';
 	import { browser } from '$app/environment';
+	import CustomerCare from '$lib/components/Icons/CustomerCare.svelte';
+	import Orders from '$lib/components/Icons/Orders.svelte';
 	let { children } = $props();
 	let showCategories = $state(false);
 	let showSearchBar = $state(false);
@@ -64,296 +67,250 @@
 			await refreshWishList();
 		})();
 	}
-	onMount(async () => {});
+	let loginState: boolean = $state(false);
+	onMount(() => {
+		loginState = pocketbase.authStore.isValid;
+	});
 	let formData: HTMLFormElement | undefined = $state();
 	let searchTerm: string = $state('');
 </script>
 
 <div class="font-jost overflow-hidden">
-	<main class="max-w-7xl mx-auto">
+	<main class=" mx-auto">
 		{#if page.url.pathname !== '/login' && page.url.pathname !== '/signup' && page.url.pathname !== '/login/forgot-password'}
-			<div class="">
-				<div class="flex justify-between items-center py-2">
-					<div class="text-xs text-gray-500 font-semibold px-3">
-						{user.country} | {user.preferred_currency}
-					</div>
-					<div class="text-xs text-gray-500 font-semibold px-3 flex gap-x-3">
-						<ShoppingBag />Become a seller
-					</div>
-				</div>
-				<div class="flex justify-between items-center gap-4">
-					<a href="/">
-						<div class="">
-							<img
-								src={pageSettings.logoUrl}
-								class="w-fit max-w-[250px] md:w-[100px] h-[100px]"
-								alt="logo"
-							/>
-						</div>
-					</a>
-					<Form
-						class="w-2/3"
-						bind:ref={formData}
-						on:submit={() => {
-							window.location.href = `/search/${searchTerm}`;
-						}}
-					>
-						<div class="flex-grow justify-center items-center sm:flex hidden h-12">
-							<!-- Category Selector -->
-							<select
-								onchange={(e) => {
-									queryCategory = e?.target.value;
-								}}
-								class="h-full w-[100px] px-3 text-black font-semibold bg-gray-100 border border-gray-300 focus:outline-none"
-							>
-								<option>All</option>
-								{#each categories as category}
-									<option>{category}</option>
-								{/each}
-							</select>
-
-							<!-- Search Input -->
-							<input
-								type="text"
-								required
-								bind:value={searchTerm}
-								oninput={() => {}}
-								placeholder="Search..."
-								class="h-full w-2/3 px-3 border-t border-b border-gray-300 text-black focus:outline-none focus:border-blue-500"
-							/>
-
-							<!-- Search Button -->
-							<button
-								type="submit"
-								class="h-full w-[100px] px-3 bg-blue-900 text-white font-semibold border border-blue-900 rounded-r-md hover:bg-blue-800 transition-all duration-300"
-							>
-								Search
-							</button>
-						</div>
-					</Form>
-
-					<button
-						class="sm:hidden block"
-						onclick={() => {
-							showSearchBar = !showSearchBar;
-						}}
-					>
-						<Search />
-					</button>
-					<div class="flex items-center gap-x-3">
-						{#if pocketbase.authStore.isValid}
-							<a href="/profile" class="w-full">
-								<div
-									class="flex items-center gap-x-3 font-semibold hover:scale-100 cursor-pointer duration-500 px-4 py-2 hover:shadow-lg hover:border-blue-700 hover:border hover:shadow-blue-500 hover:rounded-full justify-end"
-								>
-									<UserCertification size={20} />
-									<div class="sm:flex items-start hidden">
-										<p class="font-light">
-											{`Hi, ${userData?.username}`}
-										</p>
-									</div>
-								</div>
-							</a>
-							<div>
-								<div
-									class="relative inline-block duration-300 hover:shadow-xl hover:scale-100 rounded-full hover:shadow-blue-500 hover:border hover:border-blue-700"
-								>
-									<button class="relative p-2 rounded-full">
-										<Heart color="none" />
-										<span
-											class="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-4 text-xs font-bold text-white bg-red-500 rounded-full"
-											>{wishList.items.length}</span
-										>
-									</button>
-								</div>
-							</div>
-							<a href="/cart" class="text-black font-semibold">
-								<div
-									class="flex items-center font-bold duration-300 hover:shadow-xl hover:scale-100 rounded-full hover:shadow-blue-500 hover:border hover:border-blue-700 px-2"
-								>
-									<div class="relative inline-block">
-										<button class="relative p-2 rounded-full">
-											<ShoppingCart color="black" class="font-bold" size={20} />
-											<span
-												class="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-4 text-xs font-bold text-white bg-red-500 rounded-full"
-												>{cart?.length}</span
-											>
-										</button>
-									</div>
-									<p class="hidden lg:block">{currency()}{cart?.total.toLocaleString()}</p>
-								</div>
-							</a>
-						{:else}
-							<a href="/login">
-								<div
-									class="flex items-center gap-x-3 font-semibold hover:scale-100 cursor-pointer duration-500 px-4 py-2 hover:shadow-lg hover:border-blue-700 hover:border hover:shadow-blue-500 hover:rounded-full justify-end"
-								>
-									<User />
-									<div class="sm:flex flex-col items-start hidden">
-										<p class="font-light">Login</p>
-									</div>
-								</div>
-							</a>
-							<div>
-								<div
-									class="relative inline-block duration-300 hover:shadow-xl hover:scale-100 rounded-full hover:shadow-blue-500 hover:border hover:border-blue-700"
-								>
-									<button class="relative p-2 rounded-full">
-										<Heart />
-										<span
-											class="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-4 text-xs font-bold text-white bg-red-500 rounded-full"
-											>0</span
-										>
-									</button>
-								</div>
-							</div>
-							<div
-								class="flex items-center font-bold duration-300 hover:shadow-xl hover:scale-100 rounded-full hover:shadow-blue-500 hover:border hover:border-blue-700 px-2"
-							>
-								<div class="relative inline-block">
-									<button class="relative p-2 rounded-full">
-										<a href="/cart" class="text-black font-semibold"
-											><ShoppingCart color="black" class="font-bold" size={20} /></a
-										>
-										<span
-											class="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-4 text-xs font-bold text-white bg-red-500 rounded-full"
-											>0</span
-										>
-									</button>
-								</div>
-								<p class="hidden lg:block">{currency()}0.00</p>
-							</div>
-						{/if}
-
-						<div
-							class="flex items-center gap-x-1 font-semibold justify-end hover:bg-blue-950 cursor-pointer h-[50px] p-3"
-						></div>
-					</div>
+			<!-- Top Info Bar -->
+			<div
+				class="bg-[#f8f8f8] text-xs max-w-7xl mx-auto text-gray-500 font-semibold py-2 px-4 flex justify-between items-center"
+			>
+				<div>{user.country} | {user.preferred_currency}</div>
+				<div class="flex gap-x-2 items-center text-black">
+					<ShoppingBag class="w-4 h-4" />
+					<span>Become a seller</span>
 				</div>
 			</div>
-			<!-- Search Bar for mobile-->
-			{#if showSearchBar}
+
+			<!-- Main Header Section -->
+			<div class="flex max-w-7xl mx-auto justify-between items-center py-4 gap-4">
+				<!-- Logo -->
+				<a href="/" class="flex-shrink-0">
+					<img src={pageSettings.logoUrl} alt="logo" class="h-[80px] w-auto object-contain" />
+				</a>
+
+				<!-- Search Bar (Desktop) -->
 				<Form
-					class="w-full"
+					class="w-full max-w-xl hidden md:flex items-center"
 					bind:ref={formData}
 					on:submit={() => {
 						window.location.href = `/search/${searchTerm}`;
 					}}
 				>
-					<div class="flex sm:hidden w-full p-3 justify-center items-center">
-						<select
-							onchange={(e) => {
-								queryCategory = e?.target.value;
-							}}
-							class="h-full outline-none text-black font-semibold w-[100px] text-center border-2 border-gray-300 focus:outline-none border-l-1 border-r-0 p-3 bg-transparent"
-							><option>All</option>{#each categories as category}
-								<option>{category}</option>
-							{/each}</select
-						>
-						<input
-							class="w-full p-3 border-2 hover:border-blue-900 focus:outline-none focus:border-blue-500 outline-none border-r-0 border-l-1 duration-500 border-solid"
-							placeholder="Search..."
-						/><button
-							class="h-full bg-blue-900 text-white font-semibold w-[100px] text-center border-2 border-l-0 border-blue-900 p-3 rounded-r-md"
-							>Search</button
-						>
-					</div>
+					<select
+						class="h-10 px-2 border border-gray-300 bg-gray-100 text-sm text-black"
+						onchange={(e) => {
+							queryCategory = e?.target.value;
+						}}
+					>
+						<option>All</option>
+						{#each categories as category}
+							<option>{category}</option>
+						{/each}
+					</select>
+
+					<input
+						type="text"
+						required
+						bind:value={searchTerm}
+						placeholder="Search..."
+						class="flex-grow h-10 px-3 border-t border-b border-gray-300 focus:outline-none"
+					/>
+
+					<button
+						type="submit"
+						class="h-10 px-4 bg-blue-900 text-white font-semibold hover:bg-blue-800 border border-blue-900"
+					>
+						Search
+					</button>
 				</Form>
-			{/if}
-			<!-- End of Search Bar for mobile-->
-			<div class="flex justify-center items-center">
-				<div class="w-full h-[50px]">
-					<hr />
-					<div class="flex justify-between w-full items-center">
-						<div class="flex justify-start space-x-10 items-center w-full py-3 px-2">
+
+				<!-- User/Cart Section -->
+				<div class="flex items-center gap-3 px-3">
+					{#if loginState}
+						<!-- Mobile Search Toggle -->
+						<button class=" block md:hidden" onclick={() => (showSearchBar = !showSearchBar)}>
+							<Search />
+						</button>
+						<!-- Profile -->
+						<a
+							href="/profile"
+							class="flex items-center gap-2 px-4 py-2 hover:shadow hover:rounded-full border hover:border-blue-700 transition"
+						>
+							<UserCertification size={20} />
+							<p class="text-sm hidden md:flex">{`${userData?.username}`}</p>
+						</a>
+
+						<!-- Wishlist -->
+						<a href="/wishlist" class="relative">
+							<div>
+								<button class="p-2 rounded-full hover:shadow hover:border-blue-700">
+									<Heart />
+									<span
+										class="absolute -top-1 -right-1 text-xs bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
+									>
+										{wishList.items.length}
+									</span>
+								</button>
+							</div>
+						</a>
+						<!-- Cart -->
+						<a href="/cart" class="relative text-black">
+							<button class="p-2 rounded-full hover:shadow hover:border-blue-700">
+								<ShoppingCart size={24} />
+								<span
+									class="absolute -top-1 -right-1 text-xs bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
+								>
+									{cart?.length}
+								</span>
+							</button>
+						</a>
+					{:else}
+						<!-- Mobile Search Toggle -->
+						<button class="block md:hidden" onclick={() => (showSearchBar = !showSearchBar)}>
+							<Search />
+						</button>
+						<!-- Login -->
+						<a
+							href="/login"
+							class="flex text-black items-center gap-2 px-4 py-2 hover:shadow hover:rounded-full border hover:border-blue-700 transition"
+						>
+							<User />
+							<p class="text-sm hidden md:block">Login</p>
+						</a>
+
+						<!-- Wishlist -->
+						<div class="relative">
 							<button
-								class="text-start cursor-pointer h-full flex items-center sm:gap-x-2"
 								onclick={() => {
-									showCategories = !showCategories;
+									window.location.href = '/login';
 								}}
+								class="p-2 rounded-full hover:shadow hover:border-blue-700"
 							>
-								<HamburgerMenu /><span class="hidden sm:block">Browse All Categories</span>
+								<Heart color="red" />
+								<span
+									class="absolute -top-1 -right-1 text-xs bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
+									>0</span
+								>
 							</button>
 						</div>
 
-						<div class="flex w-full gap-x-4 justify-end items-center px-3">
-							<div class="text-start cursor-pointer h-full gap-x-2">Track</div>
-							<div class="text-start cursor-pointer h-full gap-x-2">Affiliate</div>
-							<div class="text-start cursor-pointer h-full gap-x-2">Brands</div>
+						<!-- Cart -->
+						<a
+							href="/login"
+							class="relative text-black flex items-center gap-1 p-3 font-semibold hover:shadow hover:border-blue-700 rounded-full cursor-pointer"
+						>
+							<ShoppingCart size={20} />
+							<span
+								class="absolute -top-1 -right-1 text-xs bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
+								>0</span
+							>
+						</a>
+					{/if}
+					{#if showCategories}
+						<div
+							transition:fly={{ x: -300, duration: 300 }}
+							class="fixed top-0 left-0 z-50 min-h-screen w-full sm:w-1/4 bg-[#224981] transition-transform transform translate-x-0 sm:translate-x-0 ease-in-out"
+						>
+							<div class="p-3 w-full h-full overflow-y-auto">
+								<!-- Close button for large screens -->
+								<div class="hidden sm:flex justify-end pb-5 px-2">
+									<button class="font-bold text-white" onclick={() => (showCategories = false)}>
+										<Exit />
+									</button>
+								</div>
+
+								<!-- Header for small screens -->
+								<h3
+									class="sm:hidden font-bold text-xl flex justify-between items-center pb-5 text-white"
+								>
+									Browse all categories
+									<button onclick={() => (showCategories = false)}><Exit /></button>
+								</h3>
+
+								<hr class="border-gray-600" />
+
+								<!-- Categories list -->
+								{#each categories as category}
+									<div class="flex justify-start items-center gap-x-2 p-3">
+										<a
+											href="/products/category/{category.toLowerCase()}"
+											onclick={() => (showCategories = false)}
+											class="text-white font-semibold text-sm">{category}</a
+										>
+									</div>
+									<hr class="border-gray-700" />
+								{/each}
+							</div>
 						</div>
-					</div>
-					<hr />
+					{/if}
 				</div>
 			</div>
-			<div class="flex justify-center items-center p-3">
-				{#if showCategories}
-					<div
-						transition:fly={{ x: -300, duration: 300 }}
-						class="fixed top-0 left-0 z-50 min-h-screen w-full sm:w-1/4 bg-[#224981] transition-transform transform translate-x-0 sm:translate-x-0 ease-in-out"
-					>
-						<div class="p-3 w-full h-full overflow-y-auto">
-							<!-- Close button for large screens -->
-							<div class="hidden sm:flex justify-end pb-5 px-2">
-								<button class="font-bold text-white" onclick={() => (showCategories = false)}>
-									<Exit />
-								</button>
-							</div>
 
-							<!-- Header for small screens -->
-							<h3
-								class="sm:hidden font-bold text-xl flex justify-between items-center pb-5 text-white"
-							>
-								Browse all categories
-								<button onclick={() => (showCategories = false)}><Exit /></button>
-							</h3>
-
-							<hr class="border-gray-600" />
-
-							<!-- Categories list -->
+			<!-- Mobile Search Bar -->
+			{#if showSearchBar}
+				<Form
+					class="w-full sm:hidden px-3 pb-3"
+					bind:ref={formData}
+					on:submit={() => {
+						window.location.href = `/search/${searchTerm}`;
+					}}
+				>
+					<div class="flex items-center gap-2">
+						<select
+							class="h-10 w-[90px] border border-gray-300 text-sm bg-gray-100"
+							onchange={(e) => {
+								queryCategory = e?.target.value;
+							}}
+						>
+							<option>All</option>
 							{#each categories as category}
-								<div class="flex justify-start items-center gap-x-2 p-3">
-									<a
-										href="/products/category/{category.toLowerCase()}"
-										onclick={() => (showCategories = false)}
-										class="text-white font-semibold text-sm">{category}</a
-									>
-								</div>
-								<hr class="border-gray-700" />
+								<option>{category}</option>
 							{/each}
-						</div>
+						</select>
+						<input
+							bind:value={searchTerm}
+							placeholder="Search..."
+							class="flex-grow h-10 px-3 border border-gray-300 focus:outline-none"
+						/>
+						<button type="submit" class="h-10 px-3 bg-blue-900 text-white font-semibold rounded">
+							Search
+						</button>
 					</div>
-				{/if}
+				</Form>
+			{/if}
+			<div
+				class="md:flex md:justify-between block w-full font-semibold ax-w-screen h-[50px] mb-2 text-white bg-[#1e3a8a]"
+			>
+				<button
+					onclick={() => {
+						showCategories = !showCategories;
+					}}
+					class="flex w-full items-center justify-start px-5 gap-x-3"
+				>
+					<HamburgerMenu />Browse all categories
+				</button>
+				<div class="hidden px-4 w-full md:flex justify-end">
+					<ul class="md:flex hidden items-center gap-x-4">
+						<li class="flex justify-center items-center gap-x-2"><Orders /> Orders</li>
+						<li class="flex justify-center items-center gap-x-2"><CustomerCare /> Support</li>
+					</ul>
+				</div>
 			</div>
 		{/if}
+		<div class="bg-[#f8f8f8]">
+			{@render children()}
+		</div>
+
+		{#if page.url.pathname !== '/login' && page.url.pathname !== '/signup' && page.url.pathname !== '/login/forgot-password'}
+			<footer class="min-h-screen h-full bg-blue-700 bottom-0"></footer>
+		{/if}
 	</main>
-	<div>
-		{@render children()}
-	</div>
-	{#if page.url.pathname !== '/login' && page.url.pathname !== '/signup' && page.url.pathname !== '/login/forgot-password'}
-		<footer class="bg-[#224981] text-white w-screen p-6 min-h-[50vh] h-full bottom-0 left-0 z-50">
-			<div class="flex justify-center items-center">
-				<div class="w-full h-[50px]">
-					<hr />
-					<div class="flex justify-between w-full items-center">
-						<div class="flex justify-start space-x-10 items-center w-full py-3 px-2">
-							<p class="text-start cursor-pointer h-full flex items-center sm:gap-x-2">
-								&copy; {new Date().getFullYear()} Vikstores. All rights reserved.
-							</p>
-						</div>
-						<div
-							class="lg:flex block py-3 w-full gap-x-4 justify-end lg:items-center place-items-end px-3"
-						>
-							<div class="text-start cursor-pointer h-full gap-x-2">Privacy Policy</div>
-							<div class="text-start cursor-pointer h-full gap-x-2">Terms of Service</div>
-							<div class="text-start cursor-pointer h-full gap-x-2">Contact Us</div>
-							<div class="text-start cursor-pointer h-full gap-x-2">Help</div>
-							<div class="text-start cursor-pointer h-full gap-x-2">About Us</div>
-							<div class="text-start cursor-pointer h-full gap-x-2">Blog</div>
-							<div class="text-start cursor-pointer h-full gap-x-2">Careers</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</footer>
-	{/if}
 </div>

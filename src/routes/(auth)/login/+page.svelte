@@ -21,7 +21,7 @@
 	});
 </script>
 
-<Seo title="Vikstores | Login" description="login" keywords="vikstores, login" />
+<Seo title="Vixstores | Login" description="login" keywords="vixstores, login" />
 
 <Form bind:ref={formData}>
 	<main class="h-screen overflow-hidden mx-auto flex justify-center items-center">
@@ -51,7 +51,6 @@
 							let authData = await pocketbase
 								.collection('users')
 								.authWithPassword(userData.email, userData.password);
-							console.log(authData);
 							if (authData) {
 								notify('Success', 'Logged in successfully');
 								window.location.href = '/';

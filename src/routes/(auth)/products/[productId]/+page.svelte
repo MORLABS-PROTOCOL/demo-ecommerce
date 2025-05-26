@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import {
 		addToCart,
-		addToWishList,
+		modifyWishList,
 		calculateNewPrice,
 		categories,
 		currency,
@@ -37,20 +37,15 @@
 		newPrice = calculateNewPrice(product?.price, product?.discount_percentage);
 		productsByCategory = await getProductsByCategory(product.category, 5);
 		products = productsByCategory;
-		console.log(productsByCategory);
 		await refreshWishList();
 		let cartItems = await getCart();
-		console.log(
-			'Cart Items: ',
-			cartItems[0].items.find((item) => item.product.id === productId)
-		);
 	});
 </script>
 
 <Seo
 	title={product?.title}
 	description={product?.description}
-	keywords="vikstores, {product?.description}"
+	keywords="vixstores, {product?.description}"
 />
 
 <div class="flex flex-col md:flex-row gap-10 p-6">
@@ -83,18 +78,16 @@
 			</h1>
 			<button
 				onclick={async () => {
-					console.log(pocketbase.authStore.record);
 					validateAuthState();
-					let wishlist = await addToWishList(productId);
-					console.log(wishlist);
+					let wishlist = await modifyWishList(productId);
 				}}
 				class="relative inline-block duration-300 hover:shadow-xl hover:scale-100 rounded-full hover:shadow-blue-500 hover:border hover:border-blue-700"
 			>
 				<div class="relative p-2 rounded-full">
-					{#if wishList.items.includes(productId)}
-						<Heart color="red" />
+					{#if wishList.items.some((item: { id: string }) => item.id === productId)}
+						<Heart fillColor="#fd0d0d" strokeColor="#fd0d0d" />
 					{:else}
-						<Heart color="none" />
+						<Heart />
 					{/if}
 				</div>
 			</button>
@@ -174,7 +167,6 @@
 		<!-- Add to Cart Button -->
 		<button
 			onclick={async () => {
-				console.log(quantity);
 				let authState = validateAuthState();
 				if (!authState) {
 					return;

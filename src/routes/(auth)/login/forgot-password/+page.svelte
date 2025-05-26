@@ -17,9 +17,9 @@
 </script>
 
 <Seo
-	title="Vikstores | Forgot Password"
+	title="vixstores | Forgot Password"
 	description="Forgot Password"
-	keywords="vikstores, forgot password"
+	keywords="vixstores, forgot password"
 />
 
 <Form bind:ref={formData} class="">
@@ -38,7 +38,6 @@
 					<button
 						class="w-full text-center bg-blue-700 p-3 font-bold rounded-lg text-white"
 						onclick={async () => {
-							console.log(userData.email);
 							try {
 								let passwordReset = await pocketbase
 									.collection('users')
