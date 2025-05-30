@@ -1,6 +1,14 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { getCart, cart, currency, validateAuthState, removeFromCart } from '$lib/controls.svelte';
+	import {
+		getCart,
+		cart,
+		currency,
+		validateAuthState,
+		removeFromCart,
+		makePayment,
+		pocketbase
+	} from '$lib/controls.svelte';
 	import Seo from '$lib/components/Seo.svelte';
 	import { TrashCan } from 'carbon-icons-svelte';
 
@@ -104,7 +112,12 @@
 				>Details</a
 			> -->
 			</p>
-			<button class="w-full bg-black text-white py-3 rounded-lg text-center font-medium"
+			<button
+				onclick={async () => {
+					let redirectUrl = await makePayment(pocketbase?.authStore?.record.email, cart.total);
+					window.location.href = redirectUrl.data.authorization_url;
+				}}
+				class="w-full bg-black text-white py-3 rounded-lg text-center font-medium"
 				>Checkout Now</button
 			>
 		</div>

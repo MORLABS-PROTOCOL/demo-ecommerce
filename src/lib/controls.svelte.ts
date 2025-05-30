@@ -3,7 +3,10 @@ import { page } from "$app/state"
 import Client, { type ListResult, type RecordModel } from "pocketbase"
 import { writable, type Writable } from "svelte/store"
 import { PUBLIC_SDK_URL } from "$env/static/public"
-
+import * as dotenv from "dotenv";
+if (!dev) {
+    dotenv.config();
+}
 export let pocketbase: Client;
 if (dev) {
     pocketbase = new Client(`${PUBLIC_SDK_URL}`)
@@ -319,12 +322,25 @@ export async function addToNewsLetter(email: string) {
         throw error;
     }
 }
-let authToken = "dfj4ory98ofhwofp9uo9rhfor7ui"
+// export async function makePayment(email: string, amount: number) {
+//     try {
+//         let transaction = await fetch("https://api.paystack.co/transaction/initialize", {
+//             headers: {
+//                 "Authorization": `Bearer sk_test_beb6fe8aa9970a7a6ed92d8a81631b2900e81ed9`, 'Content-Type': 'application/json'
+//             }, method: "POST",
+//             body: JSON.stringify({ email, amount: amount * 100 })
+//         })
+//         return transaction.json();
+//     } catch (error) {
+//         console.error("Error making payment:", error);
+//         throw error;
+//     }
+// }
 export async function makePayment(email: string, amount: number) {
     try {
         let transaction = await fetch("https://api.paystack.co/transaction/initialize", {
             headers: {
-                "Authorization": `Bearer ${authToken}`, 'Content-Type': 'application/json'
+                "Authorization": `Bearer ${process.env.PAYSTACK_SECRETKEY}`, 'Content-Type': 'application/json'
             }, method: "POST",
             body: JSON.stringify({ email, amount: amount * 100 })
         })
