@@ -2,12 +2,12 @@ import { browser, dev } from "$app/environment"
 import { page } from "$app/state"
 import Client, { type ListResult, type RecordModel } from "pocketbase"
 import { writable, type Writable } from "svelte/store"
-import { SDK_URL, PAYSTACK_SECRET_KEY } from "$env/static/private"
+import { PUBLIC_PAYSTACK_SECRET_KEY, PUBLIC_SDK_URL } from "$env/static/public"
 
 export let pocketbase: Client;
 if (dev) {
-
-    pocketbase = new Client(`${SDK_URL}`)
+    console.log(PUBLIC_SDK_URL, PUBLIC_PAYSTACK_SECRET_KEY)
+    pocketbase = new Client(`${PUBLIC_SDK_URL}`)
 } else {
     pocketbase = new Client(`https://manage.morlabsprotocol.com`)
 }
@@ -324,7 +324,7 @@ export async function addToNewsLetter(email: string) {
 //     try {
 //         let transaction = await fetch("https://api.paystack.co/transaction/initialize", {
 //             headers: {
-//                 "Authorization": `Bearer ${PAYSTACK_SECRET_KEY}`, 'Content-Type': 'application/json'
+//                 "Authorization": `Bearer ${PUBLIC_PAYSTACK_SECRET_KEY}`, 'Content-Type': 'application/json'
 //             }, method: "POST",
 //             body: JSON.stringify({ email, amount: amount * 100 })
 //         })
@@ -338,7 +338,7 @@ export async function makePayment(email: string, amount: number) {
     try {
         let transaction = await fetch("https://api.paystack.co/transaction/initialize", {
             headers: {
-                "Authorization": `Bearer ${PAYSTACK_SECRET_KEY}`, 'Content-Type': 'application/json'
+                "Authorization": `Bearer ${PUBLIC_PAYSTACK_SECRET_KEY}`, 'Content-Type': 'application/json'
             }, method: "POST",
             body: JSON.stringify({ email, amount: amount * 100 })
         })
