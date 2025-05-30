@@ -328,10 +328,9 @@ export async function makePayment(email: string, amount: number) {
             }, method: "POST",
             body: JSON.stringify({ email, amount: amount * 100 })
         })
+        return transaction.json();
     } catch (error) {
         console.error("Error making payment:", error);
         throw error;
-    } finally {
-        console.log("Payment Status")
     }
 }

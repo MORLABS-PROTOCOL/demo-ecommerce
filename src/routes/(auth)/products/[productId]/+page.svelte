@@ -89,7 +89,7 @@
 					{#if product?.discount_percentage}
 						<p class="text-xl font-bold text-gray-900">${newPrice.toFixed(2)}</p>
 						<p class="line-through text-md font-medium text-gray-500">
-							${product.price.toFixed(2)}
+							${product.price.toLocaleString()}
 						</p>
 					{:else}
 						<p class="text-xl font-bold text-gray-900">
