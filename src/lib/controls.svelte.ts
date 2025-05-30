@@ -319,3 +319,19 @@ export async function addToNewsLetter(email: string) {
         throw error;
     }
 }
+let authToken = "dfj4ory98ofhwofp9uo9rhfor7ui"
+export async function makePayment(email: string, amount: number) {
+    try {
+        let transaction = await fetch("https://api.paystack.co/transaction/initialize", {
+            headers: {
+                "Authorization": `Bearer ${authToken}`, 'Content-Type': 'application/json'
+            }, method: "POST",
+            body: JSON.stringify({ email, amount: amount * 100 })
+        })
+    } catch (error) {
+        console.error("Error making payment:", error);
+        throw error;
+    } finally {
+        console.log("Payment Status")
+    }
+}

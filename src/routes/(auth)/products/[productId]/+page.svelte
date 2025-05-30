@@ -31,7 +31,8 @@
 		category: string;
 		items: any[];
 	}[] = $state([]);
-
+	let selectedImage = $state('');
+	let viewingInfo = $state('Description');
 	onMount(async () => {
 		product = await getProductById(page.params.productId);
 		newPrice = calculateNewPrice(product?.price, product?.discount_percentage);
@@ -48,185 +49,210 @@
 	keywords="vixstores, {product?.description}"
 />
 
-<div class="flex flex-col md:flex-row gap-10 p-6">
-	<!-- Product Image -->
-	<div class=" w-full md:w-1/2 h-[400px] rounded-xl">
-		{#if product?.imageUrl}
-			<img
-				src={product.imageUrl}
-				alt={product.title}
-				class="w-full h-full object-contain rounded-xl"
-			/>
-		{/if}
-	</div>
-
-	<!-- Product Info -->
-	<div class="w-full md:w-1/2 space-y-6">
-		<!-- Product Name -->
-		<div
-			class="text-3xl font-extrabold leading-tight text-gray-900 flex justify-between items-center"
-		>
-			<h1 class="flex gap-x-2">
-				{product?.title}
-				{#if product?.discount_percentage}
-					<p
-						class=" w-fit h-fit text-center font-semibold bg-red-500 text-white py-1 px-2 text-xs rounded-full"
-					>
-						{product?.discount_percentage}% off
-					</p>
-				{/if}
-			</h1>
-			<button
-				onclick={async () => {
-					validateAuthState();
-					let wishlist = await modifyWishList(productId);
-				}}
-				class="relative inline-block duration-300 hover:shadow-xl hover:scale-100 rounded-full hover:shadow-blue-500 hover:border hover:border-blue-700"
-			>
-				<div class="relative p-2 rounded-full">
-					{#if wishList.items.some((item: { id: string }) => item.id === productId)}
-						<Heart fillColor="#fd0d0d" strokeColor="#fd0d0d" />
-					{:else}
-						<Heart />
-					{/if}
-				</div>
-			</button>
-		</div>
-
-		<!-- Description -->
-		<div>
-			<p class="text-gray-600 leading-relaxed text-lg">
-				{product?.description}
-			</p>
-		</div>
-
-		<!-- Price -->{#if product?.discount_percentage}
-			<p class="text-2xl font-bold text-black flex items-center gap-x-2">
-				₦{newPrice.toLocaleString()}<span class="line-through text-sm font-semibold text-gray-500"
-					>{product.price}</span
+<div class="p-6 md:p-10 bg-gray-100 min-h-screen">
+	<div class="bg-white rounded-lg shadow-md overflow-hidden">
+		<div class="flex flex-col md:flex-row gap-8 p-6">
+			<div class="w-full md:w-1/2 flex flex-col items-center">
+				<div
+					class="relative w-full max-w-[400px] h-[400px] bg-gray-200 rounded-xl flex items-center justify-center overflow-hidden"
 				>
-			</p>
-		{:else}
-			<p class="text-2xl font-bold text-black">{currency()}{product?.price.toLocaleString()}</p>
-		{/if}
-		<!-- Quantity Selector -->
-		<div>
-			<h2 class="text-lg font-semibold text-gray-800 mb-1">Quantity</h2>
-			<div class="block md:flex gap-4 justify-between items-center">
-				<div class="flex items-center gap-3 mt-2">
-					<button
-						class="border px-3 py-1 rounded text-lg"
-						onclick={() => {
-							quantity > 1 && quantity--;
-						}}>-</button
-					>
-					<span class="text-lg font-medium">{quantity}</span>
-					<button class="border px-3 py-1 rounded text-lg" onclick={() => quantity++}>+</button>
+					{#if product?.discount_percentage}
+						<div
+							class="absolute top-4 left-4 bg-red-500 text-white text-sm font-semibold px-3 py-1 rounded-full z-10"
+						>
+							-{product?.discount_percentage}%
+						</div>
+					{/if}
+
+					<img
+						src={product?.imageUrl || selectedImage}
+						alt={product?.title}
+						class="w-full h-full object-contain rounded-xl"
+					/>
 				</div>
 			</div>
-			<!-- Stock Indicator -->
-			{#if product?.quantity > 20}
-				<div
-					class="bg-blue-50 border mt-2 border-black rounded-md p-3 text-sm text-green-700 flex items-center gap-2"
-				>
-					<span class="h-2 w-2 rounded-full bg-green-500 inline-block"></span>
-					<span class="flex justify-between items-center w-full"
-						><div>
-							{product?.quantity} items in stock
-						</div>
-						<div class="flex items-center gap-2">
-							<StarFilled fill="gold" />
-							<StarFilled fill="gold" />
-							<StarFilled fill="gold" />
-							<StarFilled fill="gold" />
-							<StarFilled fill="gold" />
-						</div>
-					</span>
+
+			<div class="w-full md:w-1/2 space-y-4">
+				<h2 class="text-sm text-gray-500 font-semibold uppercase">Mobile Phones</h2>
+				<h1 class="text-2xl font-bold text-gray-900 leading-tight">
+					{product?.title}
+				</h1>
+
+				<div class="flex items-center gap-1">
+					{#each Array(5) as _, i}
+						<StarFilled fill="gold" class="w-4 h-4" />
+					{/each}
+					<span class="text-sm text-gray-600">(6 Reviews)</span>
 				</div>
-			{:else}
-				<div
-					class="bg-red-50 border mt-2 border-black rounded-md p-3 text-sm text-red-700 flex items-center gap-2"
-				>
-					<span class="h-2 w-2 rounded-full bg-red-500 inline-block"></span>
-					<span class="flex justify-between items-center w-full">
-						<div>
-							Hurry, only {product?.quantity} left in stock!
-						</div>
-						<div class="flex items-center gap-2">
-							<StarFilled fill="gold" />
-							<StarFilled fill="gold" />
-							<StarFilled fill="gold" />
-							<StarFilled fill="gold" />
-							<StarFilled fill="gold" />
-						</div>
-					</span>
+
+				<div class="flex items-baseline gap-2">
+					{#if product?.discount_percentage}
+						<p class="text-xl font-bold text-gray-900">${newPrice.toFixed(2)}</p>
+						<p class="line-through text-md font-medium text-gray-500">
+							${product.price.toFixed(2)}
+						</p>
+					{:else}
+						<p class="text-xl font-bold text-gray-900">
+							{currency()}{product?.price.toLocaleString()}
+						</p>
+					{/if}
+				</div>
+
+				<p class="text-gray-600 text-sm leading-relaxed italic">
+					It is a long established fact that a reader will be distracted by the readable there
+					content of a page when looking at its layout.
+				</p>
+
+				<div class="flex items-center gap-4 py-4">
+					<div class="flex items-center border border-gray-300 rounded-md">
+						<button
+							class="px-4 py-2 text-lg text-gray-700 hover:bg-gray-100 rounded-l-md"
+							onclick={() => {
+								quantity > 1 && quantity--;
+							}}>-</button
+						>
+						<span class="px-4 py-2 text-lg font-medium">{quantity}</span>
+						<button
+							class="px-4 py-2 text-lg text-gray-700 hover:bg-gray-100 rounded-r-md"
+							onclick={() => quantity++}>+</button
+						>
+					</div>
+					<button
+						onclick={async () => {
+							let authState = validateAuthState();
+							if (!authState) {
+								return;
+							}
+							await addToCart(productId, quantity);
+							await refreshCart();
+							quantity = 1;
+						}}
+						class="flex-1 py-3 bg-black hover:bg-[#224981] text-white font-semibold text-md rounded-md transition-colors"
+					>
+						Add To Cart
+					</button>
+				</div>
+
+				<div class="text-sm text-gray-600 space-y-1 pt-2 border-t border-gray-200">
+					<p>Category: <span class="font-semibold">{product?.category.toUpperCase()}</span></p>
+				</div>
+
+				<div class="flex items-center gap-3 text-sm text-gray-600">
+					<span>Report This Item</span>
+					<div class="flex gap-2">
+						<a href="#" class="text-blue-600 hover:text-blue-800"
+							><img
+								src="https://img.icons8.com/ios-filled/24/000000/facebook-new.png"
+								alt="Facebook"
+								class="w-5 h-5"
+							/></a
+						>
+						<a href="#" class="text-blue-400 hover:text-blue-600"
+							><img
+								src="https://img.icons8.com/ios-filled/24/000000/twitter.png"
+								alt="Twitter"
+								class="w-5 h-5"
+							/></a
+						>
+						<a href="#" class="text-red-600 hover:text-red-800"
+							><img
+								src="https://img.icons8.com/ios-filled/24/000000/pinterest--v1.png"
+								alt="Pinterest"
+								class="w-5 h-5"
+							/></a
+						>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="border-t border-gray-200 mt-6">
+			<div class="flex border-b border-gray-200">
+				{#if viewingInfo === 'Description'}
+					<button class="py-3 px-6 text-md font-semibold text-gray-700 border-b-2 border-black">
+						Description
+					</button>
+				{:else}
+					<button
+						onclick={() => {
+							viewingInfo = 'Description';
+							console.log(viewingInfo);
+						}}
+						class="py-3 px-6 text-md font-semibold text-gray-700"
+					>
+						Description
+					</button>
+				{/if}
+				{#if viewingInfo === 'Reviews'}
+					<button class="py-3 px-6 text-md font-semibold text-gray-700 border-b-2 border-black">
+						Reviews
+					</button>
+				{:else}
+					<button
+						onclick={() => {
+							viewingInfo = 'Reviews';
+							console.log(viewingInfo);
+						}}
+						class="py-3 px-6 text-md font-semibold text-gray-700"
+					>
+						Reviews
+					</button>
+				{/if}
+				{#if viewingInfo === 'Seller Info'}
+					<button class="py-3 px-6 text-md font-semibold text-gray-700 border-b-2 border-black">
+						Seller Info
+					</button>
+				{:else}
+					<button
+						onclick={() => {
+							viewingInfo = 'Seller Info';
+						}}
+						class="py-3 px-6 text-md font-semibold text-gray-700"
+					>
+						Seller Info
+					</button>
+				{/if}
+			</div>
+			{#if viewingInfo === 'Description'}
+				<div class="p-6 text-gray-700 space-y-4">
+					<h3 class="text-lg font-bold">Introduction</h3>
+					<p class="text-sm leading-relaxed">
+						Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum
+						has been the industry's standard dummy text ever since the 1500s, when an unknown
+						printer took a galley of type and scrambled it to make a type specimen book. It has
+						survived not only five centuries but also the on leap into electronic typesetting,
+						remaining essentially unchanged. It wasn't popularised in the 1960s with the release of
+						Letraset sheets containing Lorem Ipsum passages, and more recently with desktop
+						publishing software like Aldus PageMaker including versions of Lorem Ipsum to make a
+						type specimen book.
+					</p>
+					<h3 class="text-lg font-bold">Features:</h3>
+					<ul class="list-disc list-inside text-sm space-y-1">
+						<li>Slim body with metal cover</li>
+						<li>latest intel Core i5-1135G7 processor (4 cores / 8 threads)</li>
+					</ul>
+				</div>
+			{/if}
+			{#if viewingInfo === 'Reviews'}
+				<div class="p-6 text-gray-700 space-y-4">
+					<div class="text-sm leading-relaxed">
+						<h5>Marvelous Won:</h5>
+						<p>Great Product</p>
+					</div>
+					<div class="text-sm leading-relaxed">
+						<h5>Thomas Agba:</h5>
+						<p>Will recommend !!!</p>
+					</div>
+				</div>
+			{/if}
+			{#if viewingInfo === 'Seller Info'}
+				<div class="p-6 text-gray-700 space-y-4">
+					<div class="text-sm leading-relaxed">
+						<h5>Phone No. :</h5>
+						<p>080123456789</p>
+					</div>
 				</div>
 			{/if}
 		</div>
-
-		<!-- Add to Cart Button -->
-		<button
-			onclick={async () => {
-				let authState = validateAuthState();
-				if (!authState) {
-					return;
-				}
-				await addToCart(productId, quantity);
-				await refreshCart();
-				quantity = 1;
-			}}
-			class="w-full py-3 bg-black hover:bg-[#224981] text-white font-semibold text-lg rounded-md transition-colors"
-		>
-			Add to Cart
-		</button>
-	</div>
-</div>
-<div class="flex flex-col gap-y-6 mx-auto max-w-7xl mb-4">
-	<div class="">
-		{#if products.length > 0}
-			<div class="flex justify-between mx-auto font-bold bg-white p-3">
-				<p class="uppercase font-bold">You may be interested in</p>
-			</div>
-		{/if}
-		{#if products.length < 5}
-			<div
-				class="lg:flex px-5 mb-3 overflow-hidden grid grid-cols-[200px,200px,200px] items-start w-fit gap-0"
-			>
-				{#each products as product, index}
-					<!-- <img src="./80off.png" class="w-2/4 h-[350px] bottom-0 py-1" /> -->
-					<a
-						onclick={() => {
-							window.location.href = `/products/${product.id}`;
-						}}
-						class="text-black"
-					>
-						<ProductCard
-							discountPercentage={product.discount_percentage}
-							title={product.title}
-							image={product.imageUrl}
-							price={product.price}
-							quantity={product.quantity}
-							flashSale={product.flash_sale}
-						/>
-					</a>
-				{/each}
-			</div>
-		{:else}
-			<div class="lg:flex px-5 overflow-hidden grid grid-cols-[200px,200px] w-fit gap-0">
-				<!-- <img src="./80off.png" class="w-2/4 h-[350px] bottom-0 py-1" /> -->
-				{#each products as product, index}
-					<a href="/products/{product.id}" class="text-black">
-						<ProductCard
-							discountPercentage={product.discount_percentage}
-							title={product.title}
-							image={product.imageUrl}
-							price={product.price}
-							quantity={product.quantity}
-							flashSale={product.flash_sale}
-						/>
-					</a>
-				{/each}
-			</div>
-		{/if}
 	</div>
 </div>

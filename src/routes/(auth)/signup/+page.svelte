@@ -68,7 +68,7 @@
 					class="w-full text-center bg-blue-700 p-3 font-bold rounded-lg text-white"
 					onclick={async () => {
 						try {
-							const authData = await pocketbase.collection('users').create({
+							let authData = await pocketbase.collection('users').create({
 								username: userData.userName,
 								email: userData.email,
 								password: userData.password,
