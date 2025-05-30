@@ -3,10 +3,7 @@ import { page } from "$app/state"
 import Client, { type ListResult, type RecordModel } from "pocketbase"
 import { writable, type Writable } from "svelte/store"
 import { SDK_URL, PAYSTACK_SECRET_KEY } from "$env/static/private"
-import * as dotenv from "dotenv";
-if (!dev) {
-    dotenv.config();
-}
+
 export let pocketbase: Client;
 if (dev) {
 
