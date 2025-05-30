@@ -54,7 +54,7 @@
 		<div class="flex flex-col md:flex-row gap-8 p-6">
 			<div class="w-full md:w-1/2 flex flex-col items-center">
 				<div
-					class="relative w-full max-w-[400px] h-[400px] bg-gray-200 rounded-xl flex items-center justify-center overflow-hidden"
+					class="relative w-full max-w-[400px] h-[400px] rounded-xl flex items-center justify-center overflow-hidden"
 				>
 					{#if product?.discount_percentage}
 						<div
