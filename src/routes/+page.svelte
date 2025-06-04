@@ -41,7 +41,7 @@
 </script>
 
 <Seo title="Vixstores | Home" description="home" keywords="vixstores" />
-
+<Carousel images={adImages} />
 <main class="mx-auto bg-[#f8f8f8]">
 	<div class="max-w-7xl mx-auto">
 		<!-- {#each adImages as ad}
@@ -49,7 +49,7 @@
 				<img src={ad.imageUrl} alt="Ad Image" class="w-full h-full" />
 			</div>
 		{/each} -->
-		<Carousel images={adImages} />
+
 		<div class="  p-5 w-full">
 			<div class="flex justify-evenly items-center">
 				<div></div>

@@ -6,7 +6,7 @@ import { PUBLIC_PAYSTACK_SECRET_KEY, PUBLIC_SDK_URL } from "$env/static/public"
 
 export let pocketbase: Client;
 if (dev) {
-    console.log(PUBLIC_SDK_URL, PUBLIC_PAYSTACK_SECRET_KEY)
+
     pocketbase = new Client(`${PUBLIC_SDK_URL}`)
 } else {
     pocketbase = new Client(`https://manage.morlabsprotocol.com`)

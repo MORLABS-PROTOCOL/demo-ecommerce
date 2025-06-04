@@ -32,7 +32,7 @@
 </script>
 
 {#if images && images.length > 0}
-	<div class="relative w-full flex items-center justify-center h-64">
+	<div class="relative w-screen flex items-center h-screen">
 		<!-- Prev Button -->
 		<button
 			class="absolute left-2 z-10 bg-white/70 hover:bg-white rounded-full p-2 shadow"
@@ -47,7 +47,7 @@
 			<img
 				src={images[current].imageUrl}
 				alt={images[current].alt || `Image ${current + 1}`}
-				class="w-full h-64 object-cover rounded"
+				class="w-full h-full object-cover rounded"
 				in:fly={{ x: 100 * direction, duration: 300 }}
 				out:fly={{ x: -100 * direction, duration: 300 }}
 			/>
