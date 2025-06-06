@@ -87,9 +87,9 @@
 
 				<div class="flex items-baseline gap-2">
 					{#if product?.discount_percentage}
-						<p class="text-xl font-bold text-gray-900">${newPrice.toFixed(2)}</p>
+						<p class="text-xl font-bold text-gray-900">{currency()}{newPrice.toLocaleString()}</p>
 						<p class="line-through text-md font-medium text-gray-500">
-							${product.price.toLocaleString()}
+							{currency()}{product.price.toLocaleString()}
 						</p>
 					{:else}
 						<p class="text-xl font-bold text-gray-900">

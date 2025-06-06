@@ -75,21 +75,57 @@
 	});
 	let formData: HTMLFormElement | undefined = $state();
 	let searchTerm: string = $state('');
+	let selectedCountry: string = $state('Nigeria');
+	let selectedLanguage: string = $state('English');
+	let selectedCurrency: string = $state('NGN');
 </script>
 
 <div class="font-jost overflow-hidden">
 	<main class=" mx-auto">
 		{#if page.url.pathname !== '/login' && page.url.pathname !== '/signup' && page.url.pathname !== '/login/forgot-password'}
 			<!-- Top Info Bar -->
-			<div
-				class="bg-[#f8f8f8] text-xs max-w-7xl mx-auto text-gray-500 font-semibold py-2 px-4 flex justify-between items-center"
-			>
-				<div>{user.country} | {user.preferred_currency}</div>
-				<div class="flex gap-x-2 items-center text-black">
-					<ShoppingBag class="w-4 h-4" />
-					<span>Become a seller</span>
+			<div class="text-xs w-screen mx-auto text-gray-500 font-semibold py-2 px-4">
+				<div class="flex max-w-6xl justify-between mx-auto items-center">
+					<ul class="flex justify-start w-full items-center gap-x-4 text-black">
+						<li><a href="/profile" class="text-black">Account</a></li>
+						<li><a href="/orders/track" class="text-black">Track Order</a></li>
+						<li><a href="/support" class="text-black">Support</a></li>
+					</ul>
+					<ul class="flex items-center gap-x-4 ml-auto">
+						<li>
+							<select class="bg-transparent text-black font-semibold" bind:value={selectedCountry}>
+								<option value="Nigeria">Nigeria</option>
+								<option value="Ghana">Ghana</option>
+								<option value="Kenya">Kenya</option>
+								<!-- Add more countries as needed -->
+							</select>
+						</li>
+						<li>
+							<select class="bg-transparent text-black font-semibold" bind:value={selectedLanguage}>
+								<option value="English">English</option>
+								<option value="French">French</option>
+								<option value="Swahili">Swahili</option>
+								<!-- Add more languages as needed -->
+							</select>
+						</li>
+						<li>
+							<select
+								class="bg-transparent text-black font-semibold"
+								bind:value={selectedCurrency}
+								onchange={(e) => {
+									user.preferred_currency = e.target?.value;
+								}}
+							>
+								<option value="NGN">NGN</option>
+								<option value="GHS">GHS</option>
+								<option value="KES">KES</option>
+								<!-- Add more currencies as needed -->
+							</select>
+						</li>
+					</ul>
 				</div>
 			</div>
+			<hr class="border-gray-200 max-w-screen mx-auto" />
 
 			<!-- Main Header Section -->
 			<div class="flex max-w-7xl mx-auto justify-between items-center py-4 gap-4">
@@ -288,26 +324,28 @@
 					</div>
 				</Form>
 			{/if}
-			<div
-				class="md:flex md:justify-between block w-full font-semibold max-w-screen h-fit py-3 mb-2 text-white bg-[#1e3a8a]"
-			>
-				<button
-					onclick={() => {
-						showCategories = !showCategories;
-					}}
-					class="flex h-fit w-full items-center justify-start px-5 gap-x-3"
-				>
-					<HamburgerMenu />Browse all categories
-				</button>
-				<div class="hidden px-4 w-full md:flex justify-end">
-					<ul class="md:flex hidden items-center gap-x-4">
-						<li class="flex justify-center items-center gap-x-2"><Orders /> Orders</li>
-						<li class="flex justify-center items-center gap-x-2"><CustomerCare /> Support</li>
-					</ul>
+			<div class=" w-full font-semibold min-w-screen h-fit text-white bg-[#224981]">
+				<div class="md:flex md:justify-between block max-w-6xl mx-auto">
+					<div class="w-[300px] md:text-black h-auto md:pt-2">
+						<button
+							onclick={() => {
+								showCategories = !showCategories;
+							}}
+							class="flex h-fit w-full md:bg-white items-center justify-start px-5 py-3 rounded-t-lg gap-x-3"
+						>
+							<HamburgerMenu />Browse all categories
+						</button>
+					</div>
+					<div class="hidden px-4 w-full md:flex justify-end">
+						<ul class="md:flex hidden items-center gap-x-4">
+							<li class="flex justify-center items-center gap-x-2"><Orders /> Orders</li>
+							<li class="flex justify-center items-center gap-x-2"><CustomerCare /> Support</li>
+						</ul>
+					</div>
 				</div>
 			</div>
 		{/if}
-		<div class="bg-[#f8f8f8]">
+		<div class="bg-[#eeeeee]">
 			{@render children()}
 		</div>
 

@@ -71,7 +71,7 @@ export async function pullAds(): Promise<RecordModel[]> {
 }
 
 export async function getAllProducts(): Promise<RecordModel[]> {
-    let records = await pocketbase.collection("products").getList(1, 6, { requestKey: Date.now().toString() })
+    let records = await pocketbase.collection("products").getList(1, 4, { requestKey: Date.now().toString() })
     let products = records.items.map((p) => {
         return {
             ...p, imageUrl: pocketbase.files.getURL(p, p.product_image)
@@ -348,3 +348,27 @@ export async function makePayment(email: string, amount: number) {
         throw error;
     }
 }
+
+
+// async function removeBg(imageURL: string): Promise<ArrayBuffer> {
+//     if (!imageURL) {
+//         throw new Error("Image URL is required");
+//     }
+//     const formData = new FormData();
+//     formData.append("size", "auto");
+//     formData.append("image_url", imageURL);
+
+//     const response = await fetch("https://api.remove.bg/v1.0/removebg", {
+//         method: "POST",
+//         headers: { "X-Api-Key": "INSERT_YOUR_API_KEY_HERE" },
+//         body: formData,
+//     });
+
+//     if (response.ok) {
+//         return await response.arrayBuffer();
+//     } else {
+//         throw new Error(`${response.status}: ${response.statusText}`);
+//     }
+// }
+
+// const rbgResultData = await removeBg("https://www.remove.bg/example.jpg");
