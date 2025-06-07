@@ -2,15 +2,12 @@ import { browser, dev } from "$app/environment"
 import { page } from "$app/state"
 import Client, { type ListResult, type RecordModel } from "pocketbase"
 import { writable, type Writable } from "svelte/store"
-import { PUBLIC_PAYSTACK_SECRET_KEY, PUBLIC_SDK_URL } from "$env/static/public"
+import { PUBLIC_PAYSTACK_SECRET_KEY} from "$env/static/public"
 
 export let pocketbase: Client;
-if (dev) {
 
-    pocketbase = new Client(`${PUBLIC_SDK_URL}`)
-} else {
-    pocketbase = new Client(`https://manage.morlabsprotocol.com`)
-}
+pocketbase = new Client(`https://manage.morlabsprotocol.com`)
+
 export let user: {
     country: string
     name: string

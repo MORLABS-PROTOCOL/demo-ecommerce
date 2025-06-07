@@ -13,15 +13,18 @@
 	});
 </script>
 
+
+
 <div
-	class="group relative md:w-[310px] w-[518px] h-auto md:h-[442px] bg-white p-4 border transition-shadow duration-300"
+	class="group relative md:w-[310px] w-[518px] gap-5 h-auto md:h-[502px] bg-white p-5 border transition-shadow duration-300"
 >
+
 	<!-- Product Image with NEW Badge -->
 	<div class="relative aspect-square w-full mb-4 flex items-center justify-center">
-		<img src={image} alt={title} class="w-full h-full object-contain" />
+		<img src={image} alt={title} class="w-[100%] h-[80%] mt-14 object-contain" />
 		{#if flashSale}
 			<p
-				class="absolute top-2 left-2 text-xs font-semibold text-white bg-yellow-400 px-3 py-1 rounded-full z-10"
+				class="absolute px-3 top-2 left-2 text-xs font-semibold text-white bg-green-500 px-3 py-1 rounded-full z-10"
 			>
 				NEW
 			</p>
@@ -37,7 +40,7 @@
 
 	<!-- Heart Wishlist Button -->
 	<div
-		class="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+		class="absolute top-[10%] right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
 	>
 		<button
 			class="bg-white shadow-md p-2 rounded-full hover:bg-gray-50 transition-colors"
@@ -49,28 +52,62 @@
 
 	<div class="space-y-2">
 		<!-- Title -->
+		
+
+		<!-- Rating -->
+		<div class="flex items-center mt-[26%]">
+			{#each Array(5) as _, i}
+				<StarFilled size={17} fill="gold" class="mr-0.5" />
+			{/each}
+		</div>
+
 		<a href="/product/{productId}" class="block">
-			<h3 class="text-sm font-medium text-gray-900 line-clamp-2 transition-colors">
+			<h3 class="text-xl font-medium text-gray-900 line-clamp-2 transition-colors">
 				{title}
 			</h3>
 		</a>
 
-		<!-- Rating -->
-		<div class="flex items-center">
-			{#each Array(5) as _, i}
-				<StarFilled size={16} fill="gold" class="mr-0.5" />
-			{/each}
-		</div>
-
 		<!-- Pricing -->
 		<div class="flex items-center gap-2">
 			{#if discountPercentage}
-				<p class="text-lg font-bold text-red-600">{currency()}{newPrice.toLocaleString()}</p>
-				<p class="text-sm text-gray-400 line-through">{currency()}{price.toLocaleString()}</p>
+			<p class="text-xl text-gray-400 line-through">{currency()}{price.toLocaleString()}</p>
+				<p class="text-xl font-bold text-red-600">{currency()}{price.toLocaleString()}</p>
+				
 			{:else}
 				<p class="text-lg font-bold text-gray-900">{currency()}{price.toLocaleString()}</p>
 			{/if}
 		</div>
+
+		{#if quantity > 0}
+		<div class="w-full mt-2">
+			<div class="flex justify-between text-xs mb-1">
+				<span class="text-gray-500">Stock</span>
+				<span class="text-gray-700 font-medium">{quantity} left</span>
+			</div>
+			<div class="w-full bg-gray-200 rounded-full h-2">
+				<div
+					class="
+						h-2 rounded-full transition-all duration-300
+						{quantity < 20 ? 'bg-yellow-400' : 'bg-green-500'}
+					"
+					style="width: {Math.min(100, (quantity / 100) * 100)}%;"
+				></div>
+			</div>
+		</div>
+	{:else}
+		<div class="w-full mt-2">
+			<div class="flex justify-between text-xs mb-1">
+				<span class="text-gray-500">Stock</span>
+				<span class="text-red-600 font-medium">0 left</span>
+			</div>
+			<div class="w-full bg-gray-200 rounded-full h-2">
+				<div
+					class="bg-red-500 h-2 rounded-full transition-all duration-300"
+					style="width: 100%;"
+				></div>
+			</div>
+		</div>
+	{/if}
 
 		<!-- Stock Info -->
 		{#if quantity < 1}
