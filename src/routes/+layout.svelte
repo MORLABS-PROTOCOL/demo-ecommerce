@@ -164,7 +164,7 @@
 
 					<button
 						type="submit"
-						class="h-10 px-4 bg-blue-900 text-white font-semibold hover:bg-blue-800 border border-blue-900"
+						class="h-10 px-4 bg-[#224981] text-white font-semibold hover:bg-[#224981] border border-blue-900"
 					>
 						Search
 					</button>
@@ -318,7 +318,7 @@
 							placeholder="Search..."
 							class="flex-grow h-10 px-3 border border-gray-300 focus:outline-none"
 						/>
-						<button type="submit" class="h-10 px-3 bg-blue-900 text-white font-semibold rounded">
+						<button type="submit" class="h-10 px-3 bg-[#224981] text-white font-semibold rounded">
 							Search
 						</button>
 					</div>
@@ -350,7 +350,7 @@
 		</div>
 
 		{#if page.url.pathname !== '/login' && page.url.pathname !== '/signup' && page.url.pathname !== '/login/forgot-password'}
-			<footer class="bg-blue-700 text-white pt-10 pb-4 px-4">
+			<footer class="bg-[#224981] text-white pt-10 pb-4 px-4">
 				<!-- Newsletter Subscription Section -->
 				<div
 					class="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 pb-8 border-b border-blue-500"
@@ -380,7 +380,7 @@
 						/>
 						<button
 							type="submit"
-							class="bg-white text-blue-700 font-semibold px-5 py-2 rounded hover:bg-blue-100 transition"
+							class="bg-white text-blue-700 font-semibold px-5 py-2 rounded hover:bg-[#224981] transition"
 						>
 							Subscribe
 						</button>

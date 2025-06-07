@@ -6,7 +6,7 @@
 	import Heart from './Icons/Heart.svelte';
 
 	let { price, title, quantity, flashSale, image, discountPercentage, productId } = $props();
-	let newPrice: number = 0;
+	let newPrice: number = $state(0);
 
 	onMount(() => {
 		newPrice = calculateNewPrice(price, discountPercentage);
@@ -17,7 +17,7 @@
 	class="group relative md:w-[310px] w-[200px] mb-2 mx-auto gap-5 h-[420px] md:h-[502px] bg-white p-5 border transition-shadow duration-300"
 >
 	<div class="w-full mt-2">
-		{#if quantity < 10}
+		{#if quantity > 0}
 			<div class="flex justify-between text-xs mb-1">
 				<span class="text-gray-500">Stock</span>
 				<span class="text-gray-700 font-medium">{quantity} left</span>
@@ -42,7 +42,7 @@
 			>
 				NEW
 			</p>
-			{#if discountPercentage}
+			{#if discountPercentage > 0}
 				<p
 					class="absolute top-2 right-2 text-xs font-semibold text-white bg-red-500 px-3 py-1 rounded-full z-10"
 				>
@@ -82,11 +82,12 @@
 		</a>
 
 		<!-- Pricing -->
-		{#if quantity >= 1}
+		{#if quantity > 0}
 			<div class="flex flex-wrap items-center gap-2">
-				{#if discountPercentage}
+				{#if discountPercentage > 0}
+					{console.log(discountPercentage)}
+					<p class="text-xl font-bold">{currency()}{newPrice.toLocaleString()}</p>
 					<p class="text-xl text-gray-400 line-through">{currency()}{price.toLocaleString()}</p>
-					<p class="text-xl font-bold text-red-600">{currency()}{price.toLocaleString()}</p>
 				{:else}
 					<p class="text-lg font-bold text-gray-900">{currency()}{price.toLocaleString()}</p>
 				{/if}

@@ -75,9 +75,7 @@
 						<p class="uppercase text-2xl font-semibold">New Arrivals</p>
 						<a href="/products/category/new-arrivals" class="text-black">View More {'>'}</a>
 					</div>
-					<div
-						class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-hidden w-full"
-					>
+					<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 overflow-hidden w-full">
 						{#each products as product}
 							<ProductCard
 								discountPercentage={product.discount_percentage}
@@ -101,9 +99,7 @@
 								<p class="uppercase text-2xl font-semibold">Electronics</p>
 								<a href="/products/category/electronics" class="text-black">View More {'>'}</a>
 							</div>
-							<div
-								class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full md:overflow-hidden"
-							>
+							<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full md:overflow-hidden">
 								{#each electronics as product}
 									<!-- <img src="./80off.png" class="w-2/4 h-[350px] bottom-0 py-1" /> -->
 									<ProductCard
@@ -158,7 +154,7 @@
 
 				<div class="bg-pink-300 flex justify-center items-center mb-10 p-12">
 					<div class="max-w-5xl">
-						<div class="flex flex-col md:flex-row gap-x-10 justify-evenly items-center py-6">
+						<div class="flex md:flex-row gap-x-4 md:gap-x-10 justify-evenly items-center py-6">
 							<div
 								class="bg-white rounded-full flex flex-col justify-center items-center w-20 h-20 text-3xl font-bold shadow"
 							>
