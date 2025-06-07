@@ -14,7 +14,7 @@
 </script>
 
 <div
-	class="group relative md:w-[310px] w-[518px] gap-5 h-auto md:h-[502px] bg-white p-5 border transition-shadow duration-300"
+	class="group relative md:w-[310px] w-screen gap-5 h-auto md:h-[502px] bg-white p-5 border transition-shadow duration-300"
 >
 	<!-- Product Image with NEW Badge -->
 	<div class="relative aspect-square w-full mb-4 flex items-center justify-center">
@@ -57,7 +57,7 @@
 			{/each}
 		</div>
 
-		<a href="/product/{productId}" class="block">
+		<a href="/products/{productId}" class="block">
 			<h3 class="text-xl font-medium text-gray-900 line-clamp-2 transition-colors">
 				{title}
 			</h3>

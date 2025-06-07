@@ -69,7 +69,7 @@
 						</div>
 					{/each}
 				</div>
-				<div class="">
+				<div class="mb-10">
 					<div class="flex justify-between items-center font-bold p-3">
 						<p class="uppercase text-2xl font-semibold">New Arrivals</p>
 						<a href="/products/category/new-arrivals" class="text-black">View More {'>'}</a>
@@ -97,34 +97,29 @@
 				<div>
 					<!--Get Products by Category-->
 
-					<div class="mb-4">
-						<div class="flex flex-col gap-y-6">
-							{#if electronics.length > 0}
-								<div class="flex justify-between items-center font-bold p-3">
-									<p class="uppercase text-2xl font-semibold">Electronics</p>
-									<a href="/products/category/electronics" class="text-black">View More {'>'}</a>
-								</div>
-							{/if}
-
-							<div class="">
-								<div
-									class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full md:overflow-hidden"
-								>
-									{#each electronics as product}
-										<!-- <img src="./80off.png" class="w-2/4 h-[350px] bottom-0 py-1" /> -->
-										<a href="/products/{product.id}" class="text-black">
-											<ProductCard
-												productId={product.id}
-												discountPercentage={product.discount_percentage}
-												title={product.title}
-												image={product.imageUrl}
-												price={product.price}
-												quantity={product.quantity}
-												flashSale={product.flash_sale}
-											/>
-										</a>
-									{/each}
-								</div>
+					<div class="mb-10">
+						<div class="">
+							<div class="flex justify-between items-center font-bold p-3">
+								<p class="uppercase text-2xl font-semibold">Electronics</p>
+								<a href="/products/category/electronics" class="text-black">View More {'>'}</a>
+							</div>
+							<div
+								class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full md:overflow-hidden"
+							>
+								{#each electronics as product}
+									<!-- <img src="./80off.png" class="w-2/4 h-[350px] bottom-0 py-1" /> -->
+									<a href="/products/{product.id}" class="text-black">
+										<ProductCard
+											productId={product.id}
+											discountPercentage={product.discount_percentage}
+											title={product.title}
+											image={product.imageUrl}
+											price={product.price}
+											quantity={product.quantity}
+											flashSale={product.flash_sale}
+										/>
+									</a>
+								{/each}
 							</div>
 						</div>
 					</div>

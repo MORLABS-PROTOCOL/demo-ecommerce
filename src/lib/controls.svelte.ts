@@ -143,8 +143,17 @@ export function calculateNewPrice(price: number, discountPercentage: number): nu
 }
 
 export async function getCart() {
-    let cart = await pocketbase.collection("carts").getFullList({ filter: `userId="${pocketbase.authStore.record?.id}" && status="pending"`, requestKey: Date.now().toString() });
-    return cart
+    if (pocketbase.authStore.isValid) {
+        // User is logged in, fetch cart from PocketBase
+        let cart = await pocketbase.collection("carts").getFullList({ filter: `userId="${pocketbase.authStore.record?.id}" && status="pending"`, requestKey: Date.now().toString() });
+        return cart;
+    } else if (browser) {
+        // User not logged in, get cart from localStorage
+        const localCart = localStorage.getItem("cartItems");
+        return localCart ? JSON.parse(localCart) : [];
+    } else {
+        return [];
+    }
 }
 
 
