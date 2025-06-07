@@ -13,12 +13,9 @@
 	});
 </script>
 
-
-
 <div
 	class="group relative md:w-[310px] w-[518px] gap-5 h-auto md:h-[502px] bg-white p-5 border transition-shadow duration-300"
 >
-
 	<!-- Product Image with NEW Badge -->
 	<div class="relative aspect-square w-full mb-4 flex items-center justify-center">
 		<img src={image} alt={title} class="w-[100%] h-[80%] mt-14 object-contain" />
@@ -52,7 +49,6 @@
 
 	<div class="space-y-2">
 		<!-- Title -->
-		
 
 		<!-- Rating -->
 		<div class="flex items-center mt-[26%]">
@@ -70,47 +66,30 @@
 		<!-- Pricing -->
 		<div class="flex items-center gap-2">
 			{#if discountPercentage}
-			<p class="text-xl text-gray-400 line-through">{currency()}{price.toLocaleString()}</p>
+				<p class="text-xl text-gray-400 line-through">{currency()}{price.toLocaleString()}</p>
 				<p class="text-xl font-bold text-red-600">{currency()}{price.toLocaleString()}</p>
-				
 			{:else}
 				<p class="text-lg font-bold text-gray-900">{currency()}{price.toLocaleString()}</p>
 			{/if}
 		</div>
 
 		{#if quantity > 0}
-		<div class="w-full mt-2">
-			<div class="flex justify-between text-xs mb-1">
-				<span class="text-gray-500">Stock</span>
-				<span class="text-gray-700 font-medium">{quantity} left</span>
-			</div>
-			<div class="w-full bg-gray-200 rounded-full h-2">
-				<div
-					class="
+			<div class="w-full mt-2">
+				<div class="flex justify-between text-xs mb-1">
+					<span class="text-gray-500">Stock</span>
+					<span class="text-gray-700 font-medium">{quantity} left</span>
+				</div>
+				<div class="w-full bg-gray-200 rounded-full h-2">
+					<div
+						class="
 						h-2 rounded-full transition-all duration-300
 						{quantity < 20 ? 'bg-yellow-400' : 'bg-green-500'}
 					"
-					style="width: {Math.min(100, (quantity / 100) * 100)}%;"
-				></div>
+						style="width: {Math.min(100, (quantity / 100) * 100)}%;"
+					></div>
+				</div>
 			</div>
-		</div>
-	{:else}
-		<div class="w-full mt-2">
-			<div class="flex justify-between text-xs mb-1">
-				<span class="text-gray-500">Stock</span>
-				<span class="text-red-600 font-medium">0 left</span>
-			</div>
-			<div class="w-full bg-gray-200 rounded-full h-2">
-				<div
-					class="bg-red-500 h-2 rounded-full transition-all duration-300"
-					style="width: 100%;"
-				></div>
-			</div>
-		</div>
-	{/if}
-
-		<!-- Stock Info -->
-		{#if quantity < 1}
+		{:else}
 			<p
 				class="inline-flex items-center text-xs font-medium text-red-600 bg-red-50 px-2.5 py-1 rounded-full"
 			>
@@ -118,37 +97,6 @@
 			</p>
 		{/if}
 	</div>
-	<!-- Stock Progress Bar -->
-	{#if quantity > 0}
-		<div class="w-full mt-2">
-			<div class="flex justify-between text-xs mb-1">
-				<span class="text-gray-500">Stock</span>
-				<span class="text-gray-700 font-medium">{quantity} left</span>
-			</div>
-			<div class="w-full bg-gray-200 rounded-full h-2">
-				<div
-					class="
-						h-2 rounded-full transition-all duration-300
-						{quantity < 20 ? 'bg-yellow-400' : 'bg-green-500'}
-					"
-					style="width: {Math.min(100, (quantity / 100) * 100)}%;"
-				></div>
-			</div>
-		</div>
-	{:else}
-		<div class="w-full mt-2">
-			<div class="flex justify-between text-xs mb-1">
-				<span class="text-gray-500">Stock</span>
-				<span class="text-red-600 font-medium">0 left</span>
-			</div>
-			<div class="w-full bg-gray-200 rounded-full h-2">
-				<div
-					class="bg-red-500 h-2 rounded-full transition-all duration-300"
-					style="width: 100%;"
-				></div>
-			</div>
-		</div>
-	{/if}
 
 	<!-- Add to Cart Button -->
 	<div
