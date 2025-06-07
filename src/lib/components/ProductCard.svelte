@@ -14,7 +14,7 @@
 </script>
 
 <div
-	class="group relative md:w-[310px] w-[200px] mx-auto gap-5 h-[400px] md:h-[502px] bg-white p-5 border transition-shadow duration-300"
+	class="group relative md:w-[310px] w-[200px] mb-2 mx-auto gap-5 h-[420px] md:h-[502px] bg-white p-5 border transition-shadow duration-300"
 >
 	<!-- Product Image with NEW Badge -->
 	<div class="relative aspect-square w-full mb-4 flex items-center justify-center">
@@ -58,13 +58,13 @@
 		</div>
 
 		<a href="/products/{productId}" class="block">
-			<h3 class="text-xl font-medium text-gray-900 line-clamp-2 transition-colors">
+			<h3 class="text-xl font-medium text-gray-900 line-clamp-2 flex-wrap flex transition-colors">
 				{title}
 			</h3>
 		</a>
 
 		<!-- Pricing -->
-		<div class="flex items-center gap-2">
+		<div class="flex flex-wrap items-center gap-2">
 			{#if discountPercentage}
 				<p class="text-xl text-gray-400 line-through">{currency()}{price.toLocaleString()}</p>
 				<p class="text-xl font-bold text-red-600">{currency()}{price.toLocaleString()}</p>
@@ -91,9 +91,9 @@
 			</div>
 		{:else}
 			<p
-				class="inline-flex items-center text-xs font-medium text-red-600 bg-red-50 px-2.5 py-1 rounded-full"
+				class="inline-flex items-center text-xs font-medium text-red-600 bg-red-50 px-2 rounded-full"
 			>
-				<Exit class="mr-1" /> Out of stock
+				<Exit /> Out of stock
 			</p>
 		{/if}
 	</div>

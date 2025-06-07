@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Carousel from '$lib/components/Carousel.svelte';
 	import ProductCard from '$lib/components/ProductCard.svelte';
+	import ProductCardHorizontal from '$lib/components/ProductCardHorizontal.svelte';
 	import Seo from '$lib/components/Seo.svelte';
 	import {
 		getAllProducts,
@@ -59,7 +60,7 @@
 
 			<div class="flex flex-col gap-y-6">
 				<div
-					class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 w-full items-center py-6 border-t border-b border-gray-200"
+					class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 w-full items-center py-6 border-t border-b border-gray-200"
 				>
 					{#each [{ src: '/google-logo.png', alt: 'Google' }, { src: '/facebook-logo.png', alt: 'Facebook' }, { src: '/tesla-logo.png', alt: 'Tesla' }, { src: '/oneplus-logo.png', alt: 'OnePlus' }, { src: '/nexus-logo.png', alt: 'Nexus' }, { src: '/apple-logo.png', alt: 'Apple' }, { src: '/microsoft-logo.png', alt: 'Microsoft' }, { src: '/lenovo-logo.png', alt: 'Lenovo' }, { src: '/huwawei-logo.png', alt: 'Huwawei' }, { src: '/firefox-logo.png', alt: 'Firefox' }, { src: '/brave-logo.png', alt: 'Brave' }, { src: '/tencent-logo.png', alt: 'Tencent' }] as logo, i}
 						<div
@@ -92,7 +93,6 @@
 						{/each}
 					</div>
 				</div>
-				<!-- Logo Wall: 6 columns on large, 4 on md, 2 default -->
 
 				<div>
 					<!--Get Products by Category-->
@@ -125,7 +125,29 @@
 					</div>
 				</div>
 
-				<img src="/ads-3.png" alt="Ad" class="w-full h-full object-cover rounded" />
+				<img src="/ads-3.png" alt="Ad" class="w-full h-full object-cover rounded mb-10" />
+
+				<div class="mb-10">
+					<div class="flex justify-between items-center font-bold p-3">
+						<p class="uppercase text-2xl font-semibold">Top Selling Products</p>
+						<a href="/products/category/new-arrivals" class="text-black">View More {'>'}</a>
+					</div>
+					<div class="grid grid-cols-2 gap-4 overflow-hidden w-full">
+						{#each electronics as product}
+							<a href="/products/{product.id}" class="text-black flex-shrink-0">
+								<ProductCardHorizontal
+									discountPercentage={product.discount_percentage}
+									title={product.title}
+									image={product.imageUrl}
+									price={product.price}
+									quantity={product.quantity}
+									flashSale={product.flash_sale}
+									productId={product.id}
+								/>
+							</a>
+						{/each}
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
