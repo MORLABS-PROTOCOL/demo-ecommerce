@@ -132,10 +132,25 @@
 						<p class="uppercase text-2xl font-semibold">Top Selling Products</p>
 						<a href="/products/category/new-arrivals" class="text-black">View More {'>'}</a>
 					</div>
-					<div class="grid grid-cols-2 gap-4 overflow-hidden w-full">
+					<div class="md:grid grid-cols-2 gap-4 overflow-hidden w-ful hidden">
 						{#each electronics as product}
 							<a href="/products/{product.id}" class="text-black flex-shrink-0">
 								<ProductCardHorizontal
+									discountPercentage={product.discount_percentage}
+									title={product.title}
+									image={product.imageUrl}
+									price={product.price}
+									quantity={product.quantity}
+									flashSale={product.flash_sale}
+									productId={product.id}
+								/>
+							</a>
+						{/each}
+					</div>
+					<div class="grid grid-cols-2 gap-4 overflow-hidden w-ful md:hidden">
+						{#each electronics as product}
+							<a href="/products/{product.id}" class="text-black flex-shrink-0">
+								<ProductCard
 									discountPercentage={product.discount_percentage}
 									title={product.title}
 									image={product.imageUrl}
