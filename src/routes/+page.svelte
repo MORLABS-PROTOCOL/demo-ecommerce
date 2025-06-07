@@ -132,7 +132,7 @@
 						<p class="uppercase text-2xl font-semibold">Top Selling Products</p>
 						<a href="/products/category/new-arrivals" class="text-black">View More {'>'}</a>
 					</div>
-					<div class="md:grid grid-cols-2 gap-4 overflow-hidden w-ful hidden">
+					<div class="md:grid grid-cols-2 gap-4 overflow-hidden w-full hidden">
 						{#each electronics as product}
 							<a href="/products/{product.id}" class="text-black flex-shrink-0">
 								<ProductCardHorizontal
@@ -147,7 +147,7 @@
 							</a>
 						{/each}
 					</div>
-					<div class="grid grid-cols-2 gap-4 overflow-hidden w-ful md:hidden">
+					<div class="grid grid-cols-2 gap-4 overflow-hidden w-full md:hidden">
 						{#each electronics as product}
 							<a href="/products/{product.id}" class="text-black flex-shrink-0">
 								<ProductCard
