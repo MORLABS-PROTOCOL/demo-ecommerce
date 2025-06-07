@@ -148,6 +148,44 @@
 						{/each}
 					</div>
 				</div>
+
+				<div class="bg-pink-300 px-12">
+					<div class="max-w-5xl">
+						<div class="flex flex-col md:flex-row gap-4 justify-evenly items-center py-6">
+							<div
+								class="bg-white rounded-full flex flex-col justify-center items-center w-20 h-20 text-3xl font-bold shadow"
+							>
+								<span>12</span>
+								<span class="block text-xs font-normal mt-1">Days</span>
+							</div>
+							<div
+								class="bg-white rounded-full flex flex-col justify-center items-center w-20 h-20 text-3xl font-bold shadow"
+							>
+								<span>05</span>
+								<span class="block text-xs font-normal mt-1">Hours</span>
+							</div>
+							<div
+								class="bg-white rounded-full flex flex-col justify-center items-center w-20 h-20 text-3xl font-bold shadow"
+							>
+								<span>34</span>
+								<span class="block text-xs font-normal mt-1">Minutes</span>
+							</div>
+							<div
+								class="bg-white rounded-full flex flex-col justify-center items-center w-20 h-20 text-3xl font-bold shadow"
+							>
+								<span>56</span>
+								<span class="block text-xs font-normal mt-1">Seconds</span>
+							</div>
+						</div>
+						<div class="flex justify-center mt-4">
+							<button
+								class="bg-black text-white px-8 py-3 rounded-full font-semibold hover:bg-gray-800 transition"
+							>
+								Flash Sales
+							</button>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
