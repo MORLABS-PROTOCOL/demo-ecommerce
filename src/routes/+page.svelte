@@ -23,8 +23,9 @@
 	let groceries = $state([]);
 
 	onMount(async () => {
-		electronics = await getProductsByCategory('electronics');
-		fashion = await getProductsByCategory('fashion');
+		electronics = await getProductsByCategory('electronics', 8);
+		fashion = await getProductsByCategory('fashion', 4);
+		console.log('Electronics:', electronics);
 		for (const category of categories) {
 			const prods = await getProductsByCategory(category);
 
@@ -57,7 +58,22 @@
 			{/each} -->
 
 			<div class="flex flex-col gap-y-6">
+				<div
+					class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 w-full items-center py-6 border-t border-b border-gray-200"
+				>
+					{#each [{ src: '/google-logo.png', alt: 'Google' }, { src: '/facebook-logo.png', alt: 'Facebook' }, { src: '/tesla-logo.png', alt: 'Tesla' }, { src: '/oneplus-logo.png', alt: 'OnePlus' }, { src: '/nexus-logo.png', alt: 'Nexus' }, { src: '/apple-logo.png', alt: 'Apple' }, { src: '/microsoft-logo.png', alt: 'Microsoft' }, { src: '/lenovo-logo.png', alt: 'Lenovo' }, { src: '/huwawei-logo.png', alt: 'Huwawei' }, { src: '/firefox-logo.png', alt: 'Firefox' }, { src: '/brave-logo.png', alt: 'Brave' }, { src: '/tencent-logo.png', alt: 'Tencent' }] as logo, i}
+						<div
+							class="flex justify-center items-center bg-white h-24 border-gray-200 border-r last:border-r-0"
+						>
+							<img src={logo.src} alt={logo.alt} class="max-h-16 max-w-full object-contain" />
+						</div>
+					{/each}
+				</div>
 				<div class="">
+					<div class="flex justify-between items-center font-bold p-3">
+						<p class="uppercase text-2xl font-semibold">New Arrivals</p>
+						<a href="/products/category/new-arrivals" class="text-black">View More {'>'}</a>
+					</div>
 					<div
 						class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-hidden w-full"
 					>
@@ -76,47 +92,45 @@
 						{/each}
 					</div>
 				</div>
+				<!-- Logo Wall: 6 columns on large, 4 on md, 2 default -->
 
 				<div>
 					<!--Get Products by Category-->
 
 					<div class="mb-4">
 						<div class="flex flex-col gap-y-6">
-							{#each electronics as products, index}
-								<div class="">
-									{#if products.items.length > 0}
-										<div class="flex justify-between items-center font-bold p-3">
-											<p class="uppercase text-2xl font-semibold">Electronics</p>
-											<a
-												href="/products/category/{categories[index].toLowerCase()}"
-												class="text-black">View More {'>'}</a
-											>
-										</div>
-									{/if}
-
-									<div
-										class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full md:overflow-hidden"
-									>
-										{#each products.items as product}
-											<!-- <img src="./80off.png" class="w-2/4 h-[350px] bottom-0 py-1" /> -->
-											<a href="/products/{product.id}" class="text-black">
-												<ProductCard
-													productId={product.id}
-													discountPercentage={product.discount_percentage}
-													title={product.title}
-													image={product.imageUrl}
-													price={product.price}
-													quantity={product.quantity}
-													flashSale={product.flash_sale}
-												/>
-											</a>
-										{/each}
-									</div>
+							{#if electronics.length > 0}
+								<div class="flex justify-between items-center font-bold p-3">
+									<p class="uppercase text-2xl font-semibold">Electronics</p>
+									<a href="/products/category/electronics" class="text-black">View More {'>'}</a>
 								</div>
-							{/each}
+							{/if}
+
+							<div class="">
+								<div
+									class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full md:overflow-hidden"
+								>
+									{#each electronics as product}
+										<!-- <img src="./80off.png" class="w-2/4 h-[350px] bottom-0 py-1" /> -->
+										<a href="/products/{product.id}" class="text-black">
+											<ProductCard
+												productId={product.id}
+												discountPercentage={product.discount_percentage}
+												title={product.title}
+												image={product.imageUrl}
+												price={product.price}
+												quantity={product.quantity}
+												flashSale={product.flash_sale}
+											/>
+										</a>
+									{/each}
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
+
+				<img src="/ads-3.png" alt="Ad" class="w-full h-full object-cover rounded" />
 			</div>
 		</div>
 	</div>

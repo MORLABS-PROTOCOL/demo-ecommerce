@@ -13,7 +13,8 @@
 		refreshCart,
 		refreshWishList,
 		validateAuthState,
-		wishList
+		wishList,
+		cart
 	} from '$lib/controls.svelte';
 	import { page } from '$app/state';
 	import ProductCard from '$lib/components/ProductCard.svelte';
@@ -33,13 +34,16 @@
 	}[] = $state([]);
 	let selectedImage = $state('');
 	let viewingInfo = $state('Description');
+	let cartItems = $state([]);
 	onMount(async () => {
 		product = await getProductById(page.params.productId);
 		newPrice = calculateNewPrice(product?.price, product?.discount_percentage);
 		productsByCategory = await getProductsByCategory(product.category, 5);
 		products = productsByCategory;
 		await refreshWishList();
-		let cartItems = await getCart();
+
+		cartItems = await getCart();
+		console.log('Cart Items:', cartItems);
 	});
 </script>
 
@@ -97,41 +101,88 @@
 						</p>
 					{/if}
 				</div>
-
-				<p class="text-gray-600 text-sm leading-relaxed italic">
-					It is a long established fact that a reader will be distracted by the readable there
-					content of a page when looking at its layout.
-				</p>
-
-				<div class="flex items-center gap-4 py-4">
-					<div class="flex items-center border border-gray-300 rounded-md">
-						<button
-							class="px-4 py-2 text-lg text-gray-700 hover:bg-gray-100 rounded-l-md"
-							onclick={() => {
-								quantity > 1 && quantity--;
-							}}>-</button
-						>
-						<span class="px-4 py-2 text-lg font-medium">{quantity}</span>
-						<button
-							class="px-4 py-2 text-lg text-gray-700 hover:bg-gray-100 rounded-r-md"
-							onclick={() => quantity++}>+</button
-						>
+				{console.log(cartItems)}
+				{#if cartItems && cartItems.find((item) => item.productId === productId)}
+					<!-- Product is already in cart: show quantity controls only -->
+					<div class="flex items-center gap-4 py-4">
+						<div class="flex items-center border border-gray-300 rounded-md">
+							<button
+								class="px-4 py-2 text-lg text-gray-700 hover:bg-gray-100 rounded-l-md"
+								onclick={async () => {
+									let item = cartItems.find((item) => item.productId === productId);
+									if (item && item.quantity > 1) {
+										item.quantity--;
+										quantity = item.quantity;
+										if (pocketbase.authStore.isValid) {
+											await addToCart(productId, quantity, true); // true = update
+											await refreshCart();
+										} else {
+											localStorage.setItem('cartItems', JSON.stringify(cartItems));
+										}
+									}
+								}}>-</button
+							>
+							<span class="px-4 py-2 text-lg font-medium">
+								{cartItems.find((item) => item.productId === productId)?.quantity}
+							</span>
+							<button
+								class="px-4 py-2 text-lg text-gray-700 hover:bg-gray-100 rounded-r-md"
+								onclick={async () => {
+									let item = cartItems.find((item) => item.productId === productId);
+									if (item) {
+										item.quantity++;
+										quantity = item.quantity;
+										if (pocketbase.authStore.isValid) {
+											await addToCart(productId, quantity, true);
+											await refreshCart();
+										} else {
+											localStorage.setItem('cartItems', JSON.stringify(cartItems));
+										}
+									}
+								}}>+</button
+							>
+						</div>
 					</div>
-					<button
-						onclick={async () => {
-							let authState = validateAuthState();
-							if (!authState) {
-								return;
-							}
-							await addToCart(productId, quantity);
-							await refreshCart();
-							quantity = 1;
-						}}
-						class="flex-1 py-3 bg-black hover:bg-[#224981] text-white font-semibold text-md rounded-md transition-colors"
-					>
-						Add To Cart
-					</button>
-				</div>
+				{:else}
+					<!-- Product not in cart: show add to cart button and quantity controls -->
+					<div class="flex items-center gap-4 py-4">
+						<div class="flex items-center border border-gray-300 rounded-md">
+							<button
+								class="px-4 py-2 text-lg text-gray-700 hover:bg-gray-100 rounded-l-md"
+								onclick={() => {
+									quantity > 1 && quantity--;
+								}}>-</button
+							>
+							<span class="px-4 py-2 text-lg font-medium">{quantity}</span>
+							<button
+								class="px-4 py-2 text-lg text-gray-700 hover:bg-gray-100 rounded-r-md"
+								onclick={() => quantity++}>+</button
+							>
+						</div>
+						<button
+							onclick={async () => {
+								let authState = pocketbase.authStore.isValid;
+								if (!authState) {
+									let cartItemsLocal: any = localStorage.getItem('cartItems');
+									if (!cartItemsLocal) {
+										cartItemsLocal = [];
+									} else {
+										cartItemsLocal = JSON.parse(cartItemsLocal);
+									}
+									cartItemsLocal.push({ productId, quantity });
+									localStorage.setItem('cartItems', JSON.stringify(cartItemsLocal));
+									cartItems = cartItemsLocal;
+								}
+								await addToCart(productId, quantity);
+								await refreshCart();
+								quantity = 1;
+							}}
+							class="flex-1 py-3 bg-black hover:bg-[#224981] text-white font-semibold text-md rounded-md transition-colors"
+						>
+							Add To Cart
+						</button>
+					</div>
+				{/if}
 
 				<div class="text-sm text-gray-600 space-y-1 pt-2 border-t border-gray-200">
 					<p>Category: <span class="font-semibold">{product?.category.toUpperCase()}</span></p>
@@ -217,14 +268,7 @@
 				<div class="p-6 text-gray-700 space-y-4">
 					<h3 class="text-lg font-bold">Introduction</h3>
 					<p class="text-sm leading-relaxed">
-						Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum
-						has been the industry's standard dummy text ever since the 1500s, when an unknown
-						printer took a galley of type and scrambled it to make a type specimen book. It has
-						survived not only five centuries but also the on leap into electronic typesetting,
-						remaining essentially unchanged. It wasn't popularised in the 1960s with the release of
-						Letraset sheets containing Lorem Ipsum passages, and more recently with desktop
-						publishing software like Aldus PageMaker including versions of Lorem Ipsum to make a
-						type specimen book.
+						{product?.description}
 					</p>
 					<h3 class="text-lg font-bold">Features:</h3>
 					<ul class="list-disc list-inside text-sm space-y-1">

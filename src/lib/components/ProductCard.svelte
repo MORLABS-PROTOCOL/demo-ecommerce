@@ -118,6 +118,37 @@
 			</p>
 		{/if}
 	</div>
+	<!-- Stock Progress Bar -->
+	{#if quantity > 0}
+		<div class="w-full mt-2">
+			<div class="flex justify-between text-xs mb-1">
+				<span class="text-gray-500">Stock</span>
+				<span class="text-gray-700 font-medium">{quantity} left</span>
+			</div>
+			<div class="w-full bg-gray-200 rounded-full h-2">
+				<div
+					class="
+						h-2 rounded-full transition-all duration-300
+						{quantity < 20 ? 'bg-yellow-400' : 'bg-green-500'}
+					"
+					style="width: {Math.min(100, (quantity / 100) * 100)}%;"
+				></div>
+			</div>
+		</div>
+	{:else}
+		<div class="w-full mt-2">
+			<div class="flex justify-between text-xs mb-1">
+				<span class="text-gray-500">Stock</span>
+				<span class="text-red-600 font-medium">0 left</span>
+			</div>
+			<div class="w-full bg-gray-200 rounded-full h-2">
+				<div
+					class="bg-red-500 h-2 rounded-full transition-all duration-300"
+					style="width: 100%;"
+				></div>
+			</div>
+		</div>
+	{/if}
 
 	<!-- Add to Cart Button -->
 	<div

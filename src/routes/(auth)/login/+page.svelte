@@ -6,7 +6,9 @@
 		notify,
 		pageSettings,
 		pocketbase,
-		validateAuthState
+		validateAuthState,
+		addToCart,
+		refreshCart
 	} from '$lib/controls.svelte';
 	import { FormGroup, Modal, PasswordInput, TextInput, Form } from 'carbon-components-svelte';
 	import { onMount } from 'svelte';
@@ -53,7 +55,21 @@
 								.authWithPassword(userData.email, userData.password);
 							if (authData) {
 								notify('Success', 'Logged in successfully');
-								window.location.href = '/';
+								const cartItems = localStorage.getItem('cartItems');
+								if (cartItems) {
+									const items = JSON.parse(cartItems);
+									try {
+										for (const item of items) {
+											await addToCart(item.productId, item.quantity);
+										}
+										localStorage.removeItem('cartItems');
+									} catch (e) {
+										notify('Error', 'Failed to sync cart items', 'error');
+									} finally {
+										await refreshCart();
+										window.location.href = '/';
+									}
+								}
 							}
 						} catch (error) {
 							notify('Error', `Invalid Login Credentials`, 'error');

@@ -128,7 +128,7 @@
 			<hr class="border-gray-200 max-w-screen mx-auto" />
 
 			<!-- Main Header Section -->
-			<div class="flex max-w-7xl mx-auto justify-between items-center py-4 gap-4">
+			<div class="flex max-w-6xl mx-auto justify-between items-center py-4 gap-4">
 				<!-- Logo -->
 				<a href="/" class="flex-shrink-0">
 					<img src={pageSettings.logoUrl} alt="logo" class="h-[80px] w-auto object-contain" />
@@ -248,7 +248,7 @@
 							<ShoppingCart size={20} />
 							<span
 								class="absolute -top-1 -right-1 text-xs bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
-								>0</span
+								>{cart?.length || 0}</span
 							>
 						</a>
 					{/if}
