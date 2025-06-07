@@ -16,6 +16,29 @@
 <div
 	class="group relative md:w-[310px] w-[200px] mb-2 mx-auto gap-5 h-[420px] md:h-[502px] bg-white p-5 border transition-shadow duration-300"
 >
+	{#if quantity > 0}
+		<div class="w-full mt-2">
+			<div class="flex justify-between text-xs mb-1">
+				<span class="text-gray-500">Stock</span>
+				<span class="text-gray-700 font-medium">{quantity} left</span>
+			</div>
+			<div class="w-full bg-gray-200 rounded-full h-2">
+				<div
+					class="
+						h-2 rounded-full transition-all duration-300
+						{quantity < 20 ? 'bg-yellow-400' : 'bg-green-500'}
+					"
+					style="width: {Math.min(100, (quantity / 100) * 100)}%;"
+				></div>
+			</div>
+		</div>
+	{:else}
+		<p
+			class="inline-flex items-center text-xs font-medium text-red-600 bg-red-50 px-2 rounded-full"
+		>
+			<Exit /> Out of stock
+		</p>
+	{/if}
 	<!-- Product Image with NEW Badge -->
 	<div class="relative aspect-square w-full mb-4 flex items-center justify-center">
 		<img src={image} alt={title} class="w-[100%] h-[80%] mt-14 object-contain" />
@@ -72,30 +95,6 @@
 				<p class="text-lg font-bold text-gray-900">{currency()}{price.toLocaleString()}</p>
 			{/if}
 		</div>
-
-		{#if quantity > 0}
-			<div class="w-full mt-2">
-				<div class="flex justify-between text-xs mb-1">
-					<span class="text-gray-500">Stock</span>
-					<span class="text-gray-700 font-medium">{quantity} left</span>
-				</div>
-				<div class="w-full bg-gray-200 rounded-full h-2">
-					<div
-						class="
-						h-2 rounded-full transition-all duration-300
-						{quantity < 20 ? 'bg-yellow-400' : 'bg-green-500'}
-					"
-						style="width: {Math.min(100, (quantity / 100) * 100)}%;"
-					></div>
-				</div>
-			</div>
-		{:else}
-			<p
-				class="inline-flex items-center text-xs font-medium text-red-600 bg-red-50 px-2 rounded-full"
-			>
-				<Exit /> Out of stock
-			</p>
-		{/if}
 	</div>
 
 	<!-- Add to Cart Button -->
