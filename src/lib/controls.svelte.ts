@@ -233,32 +233,39 @@ export function shuffleArray<T>(array: T[]): T[] {
 let wishlist = $state({ items: [] });
 
 export async function modifyWishList(productId: string) {
-    const user = await pocketbase.collection("users").getFullList({ filter: `id="${pocketbase.authStore.record?.id}"`, requestKey: Date.now().toString() })
-    const product = await pocketbase.collection("products").getOne(productId, { requestKey: Date.now().toString() })
-    const productImage = pocketbase.files.getURL(product, product.product_image)
-    const productDetails = {
-        id: product.id,
-        name: product.title,
-        productImage: productImage,
-        price: product.discount_percentage < 1 ? product.price : calculateNewPrice(product.price, product.discount_percentage),
-        oldPrice: product.price,
-        discount: product.discount_percentage < 1 ? 0 : product.discount_percentage
-    }
-    if (user[0].wishlist === null) user[0].wishlist = [];
-    if (user[0].wishlist.some((item: { id: string }) => item.id === productId)) {
-        user[0].wishlist = user[0].wishlist.filter((item: { id: string }) => item.id !== productId);
-        await pocketbase.collection("users").update(pocketbase.authStore.record?.id as string, {
-            wishlist: user[0].wishlist
-        }, { requestKey: Date.now().toString() });
+    if (pocketbase.authStore.isValid) {
+        const user = await pocketbase.collection("users").getFullList({ filter: `id="${pocketbase.authStore.record?.id}"`, requestKey: Date.now().toString() })
+        const product = await pocketbase.collection("products").getOne(productId, { requestKey: Date.now().toString() })
+        const productImage = pocketbase.files.getURL(product, product.product_image)
+        const productDetails = {
+            id: product.id,
+            name: product.title,
+            productImage: productImage,
+            price: product.discount_percentage < 1 ? product.price : calculateNewPrice(product.price, product.discount_percentage),
+            oldPrice: product.price,
+            discount: product.discount_percentage < 1 ? 0 : product.discount_percentage
+        }
+        if (user[0].wishlist === null) user[0].wishlist = [];
+        if (user[0].wishlist.some((item: { id: string }) => item.id === productId)) {
+            user[0].wishlist = user[0].wishlist.filter((item: { id: string }) => item.id !== productId);
+            await pocketbase.collection("users").update(pocketbase.authStore.record?.id as string, {
+                wishlist: user[0].wishlist
+            }, { requestKey: Date.now().toString() });
+        } else {
+            user[0].wishlist.push(productDetails);
+            await pocketbase.collection("users").update(pocketbase.authStore.record?.id as string, {
+                wishlist: user[0].wishlist
+            }, { requestKey: Date.now().toString() });
+        }
+        await refreshWishList()
+        wishList.items = user[0].wishlist;
+        return user[0].wishlist
     } else {
-        user[0].wishlist.push(productDetails);
-        await pocketbase.collection("users").update(pocketbase.authStore.record?.id as string, {
-            wishlist: user[0].wishlist
-        }, { requestKey: Date.now().toString() });
+        if (browser) {
+            notify("Error", "You must be logged in to modify your wishlist.", "error");
+            window.location.href = '/login';
+        }
     }
-    await refreshWishList()
-    wishList.items = user[0].wishlist;
-    return user[0].wishlist
 }
 
 

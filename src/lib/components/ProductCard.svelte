@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { calculateNewPrice, currency } from '$lib/controls.svelte';
+	import { calculateNewPrice, currency, modifyWishList } from '$lib/controls.svelte';
 	import { CheckmarkOutline, StarFilled } from 'carbon-icons-svelte';
 	import { onMount } from 'svelte';
 	import Exit from './Icons/Exit-sm.svelte';
@@ -65,6 +65,7 @@
 		<button
 			class="bg-white shadow-md p-2 rounded-full hover:bg-gray-50 transition-colors"
 			aria-label="Add to wishlist"
+			onclick={() => modifyWishList(productId)}
 		>
 			<Heart />
 		</button>

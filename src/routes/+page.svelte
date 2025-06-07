@@ -79,17 +79,15 @@
 						class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-hidden w-full"
 					>
 						{#each products as product}
-							<a href="/products/{product.id}" class="text-black flex-shrink-0">
-								<ProductCard
-									discountPercentage={product.discount_percentage}
-									title={product.title}
-									image={product.imageUrl}
-									price={product.price}
-									quantity={product.quantity}
-									flashSale={product.flash_sale}
-									productId={product.id}
-								/>
-							</a>
+							<ProductCard
+								discountPercentage={product.discount_percentage}
+								title={product.title}
+								image={product.imageUrl}
+								price={product.price}
+								quantity={product.quantity}
+								flashSale={product.flash_sale}
+								productId={product.id}
+							/>
 						{/each}
 					</div>
 				</div>
@@ -108,17 +106,15 @@
 							>
 								{#each electronics as product}
 									<!-- <img src="./80off.png" class="w-2/4 h-[350px] bottom-0 py-1" /> -->
-									<a href="/products/{product.id}" class="text-black">
-										<ProductCard
-											productId={product.id}
-											discountPercentage={product.discount_percentage}
-											title={product.title}
-											image={product.imageUrl}
-											price={product.price}
-											quantity={product.quantity}
-											flashSale={product.flash_sale}
-										/>
-									</a>
+									<ProductCard
+										productId={product.id}
+										discountPercentage={product.discount_percentage}
+										title={product.title}
+										image={product.imageUrl}
+										price={product.price}
+										quantity={product.quantity}
+										flashSale={product.flash_sale}
+									/>
 								{/each}
 							</div>
 						</div>
@@ -134,32 +130,28 @@
 					</div>
 					<div class="md:grid grid-cols-2 gap-4 overflow-hidden w-full hidden">
 						{#each electronics as product}
-							<a href="/products/{product.id}" class="text-black flex-shrink-0">
-								<ProductCardHorizontal
-									discountPercentage={product.discount_percentage}
-									title={product.title}
-									image={product.imageUrl}
-									price={product.price}
-									quantity={product.quantity}
-									flashSale={product.flash_sale}
-									productId={product.id}
-								/>
-							</a>
+							<ProductCardHorizontal
+								discountPercentage={product.discount_percentage}
+								title={product.title}
+								image={product.imageUrl}
+								price={product.price}
+								quantity={product.quantity}
+								flashSale={product.flash_sale}
+								productId={product.id}
+							/>
 						{/each}
 					</div>
 					<div class="grid grid-cols-2 gap-4 overflow-hidden w-full md:hidden">
 						{#each electronics as product}
-							<a href="/products/{product.id}" class="text-black flex-shrink-0">
-								<ProductCard
-									discountPercentage={product.discount_percentage}
-									title={product.title}
-									image={product.imageUrl}
-									price={product.price}
-									quantity={product.quantity}
-									flashSale={product.flash_sale}
-									productId={product.id}
-								/>
-							</a>
+							<ProductCard
+								discountPercentage={product.discount_percentage}
+								title={product.title}
+								image={product.imageUrl}
+								price={product.price}
+								quantity={product.quantity}
+								flashSale={product.flash_sale}
+								productId={product.id}
+							/>
 						{/each}
 					</div>
 				</div>
