@@ -16,7 +16,7 @@
 <div
 	class="group relative md:w-[310px] w-[200px] mb-2 mx-auto gap-5 h-[420px] md:h-[502px] bg-white p-5 border transition-shadow duration-300"
 >
-	{#if quantity > 0}
+	{#if quantity > 0 && quantity < 10}
 		<div class="w-full mt-2">
 			<div class="flex justify-between text-xs mb-1">
 				<span class="text-gray-500">Stock</span>
@@ -32,7 +32,7 @@
 				></div>
 			</div>
 		</div>
-	{:else}
+	{:else if quantity === 0}
 		<p
 			class="inline-flex items-center text-xs font-medium text-red-600 bg-red-50 px-2 rounded-full"
 		>
