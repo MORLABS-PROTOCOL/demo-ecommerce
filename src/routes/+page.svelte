@@ -60,7 +60,7 @@
 
 			<div class="flex flex-col gap-y-6">
 				<div
-					class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 w-full items-center py-6 border-t border-b border-gray-200"
+					class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 w-full items-center py-6 border-t border-b border-gray-200"
 				>
 					{#each [{ src: '/google-logo.png', alt: 'Google' }, { src: '/facebook-logo.png', alt: 'Facebook' }, { src: '/tesla-logo.png', alt: 'Tesla' }, { src: '/oneplus-logo.png', alt: 'OnePlus' }, { src: '/nexus-logo.png', alt: 'Nexus' }, { src: '/apple-logo.png', alt: 'Apple' }, { src: '/microsoft-logo.png', alt: 'Microsoft' }, { src: '/lenovo-logo.png', alt: 'Lenovo' }, { src: '/huwawei-logo.png', alt: 'Huwawei' }, { src: '/firefox-logo.png', alt: 'Firefox' }, { src: '/brave-logo.png', alt: 'Brave' }, { src: '/tencent-logo.png', alt: 'Tencent' }] as logo, i}
 						<div
