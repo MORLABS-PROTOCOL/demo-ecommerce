@@ -114,7 +114,7 @@
 										item.quantity--;
 										quantity = item.quantity;
 										if (pocketbase.authStore.isValid) {
-											await addToCart(productId, quantity, true); // true = update
+											await addToCart(productId, quantity); // true = update
 											await refreshCart();
 										} else {
 											localStorage.setItem('cartItems', JSON.stringify(cartItems));

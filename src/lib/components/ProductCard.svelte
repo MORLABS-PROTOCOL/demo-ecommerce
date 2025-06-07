@@ -14,7 +14,7 @@
 </script>
 
 <div
-	class="group relative md:w-[310px] w-screen gap-5 h-auto md:h-[502px] bg-white p-5 border transition-shadow duration-300"
+	class="group relative md:w-[310px] w-screen mx-auto gap-5 h-auto md:h-[502px] bg-white p-5 border transition-shadow duration-300"
 >
 	<!-- Product Image with NEW Badge -->
 	<div class="relative aspect-square w-full mb-4 flex items-center justify-center">
