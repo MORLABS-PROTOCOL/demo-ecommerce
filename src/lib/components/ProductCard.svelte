@@ -14,14 +14,14 @@
 </script>
 
 <div
-	class="group relative md:w-[310px] w-screen mx-auto gap-5 h-auto md:h-[502px] bg-white p-5 border transition-shadow duration-300"
+	class="group relative md:w-[310px] w-[200px] mx-auto gap-5 h-[400px] md:h-[502px] bg-white p-5 border transition-shadow duration-300"
 >
 	<!-- Product Image with NEW Badge -->
 	<div class="relative aspect-square w-full mb-4 flex items-center justify-center">
 		<img src={image} alt={title} class="w-[100%] h-[80%] mt-14 object-contain" />
 		{#if flashSale}
 			<p
-				class="absolute px-3 top-2 left-2 text-xs font-semibold text-white bg-green-500 px-3 py-1 rounded-full z-10"
+				class="absolute px-3 top-2 left-2 text-xs font-semibold text-white bg-green-500 py-1 rounded-full z-10"
 			>
 				NEW
 			</p>

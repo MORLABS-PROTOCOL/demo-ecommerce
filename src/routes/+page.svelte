@@ -75,7 +75,7 @@
 						<a href="/products/category/new-arrivals" class="text-black">View More {'>'}</a>
 					</div>
 					<div
-						class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-hidden w-full"
+						class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-hidden w-full"
 					>
 						{#each products as product}
 							<a href="/products/{product.id}" class="text-black flex-shrink-0">

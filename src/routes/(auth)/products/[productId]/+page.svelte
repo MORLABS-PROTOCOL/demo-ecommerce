@@ -118,6 +118,7 @@
 											await refreshCart();
 										} else {
 											localStorage.setItem('cartItems', JSON.stringify(cartItems));
+											await getCart();
 										}
 									}
 								}}>-</button
