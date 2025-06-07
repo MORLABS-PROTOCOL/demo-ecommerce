@@ -91,7 +91,7 @@
 						<li><a href="/orders/track" class="text-black">Track Order</a></li>
 						<li><a href="/support" class="text-black">Support</a></li>
 					</ul>
-					<ul class="flex items-center gap-x-4 ml-auto">
+					<ul class="md:flex hidden items-center gap-x-4 ml-auto">
 						<li>
 							<select class="bg-transparent text-black font-semibold" bind:value={selectedCountry}>
 								<option value="Nigeria">Nigeria</option>
