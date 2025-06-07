@@ -101,15 +101,15 @@
 						</p>
 					{/if}
 				</div>
-				{console.log(cartItems)}
-				{#if cartItems && cartItems.find((item) => item.productId === productId)}
+				{console.log('Cart Items: ', cartItems)}
+				{#if cartItems && cartItems.find((item) => item.id === productId)}
 					<!-- Product is already in cart: show quantity controls only -->
 					<div class="flex items-center gap-4 py-4">
 						<div class="flex items-center border border-gray-300 rounded-md">
 							<button
 								class="px-4 py-2 text-lg text-gray-700 hover:bg-gray-100 rounded-l-md"
 								onclick={async () => {
-									let item = cartItems.find((item) => item.productId === productId);
+									let item = cartItems.find((item) => item.id === productId);
 									if (item && item.quantity > 1) {
 										item.quantity--;
 										quantity = item.quantity;
@@ -124,12 +124,12 @@
 								}}>-</button
 							>
 							<span class="px-4 py-2 text-lg font-medium">
-								{cartItems.find((item) => item.productId === productId)?.quantity}
+								{cartItems.find((item) => item.id === productId)?.quantity}
 							</span>
 							<button
 								class="px-4 py-2 text-lg text-gray-700 hover:bg-gray-100 rounded-r-md"
 								onclick={async () => {
-									let item = cartItems.find((item) => item.productId === productId);
+									let item = cartItems.find((item) => item.id === productId);
 									if (item) {
 										item.quantity++;
 										quantity = item.quantity;
@@ -176,7 +176,7 @@
 								}
 								await addToCart(productId, quantity);
 								await refreshCart();
-								quantity = 1;
+								cartItems = await getCart();
 							}}
 							class="flex-1 py-3 bg-black hover:bg-[#224981] text-white font-semibold text-md rounded-md transition-colors"
 						>
