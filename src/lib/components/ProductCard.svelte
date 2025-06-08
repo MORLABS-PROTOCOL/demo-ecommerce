@@ -106,7 +106,7 @@
 		class="absolute inset-x-0 bottom-0 p-4 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
 	>
 		<button
-			class="w-full bg-blue-900 hover:bg-blue-800 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+			class="w-full bg-blue-700 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 transition-colors"
 		>
 			Add to Cart
 		</button>

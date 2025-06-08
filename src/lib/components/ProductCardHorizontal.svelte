@@ -6,7 +6,7 @@
 	import Heart from './Icons/Heart.svelte';
 
 	let { price, title, quantity, flashSale, image, discountPercentage, productId } = $props();
-	let newPrice: number = 0;
+	let newPrice: number = $state(0);
 
 	onMount(() => {
 		newPrice = calculateNewPrice(price, discountPercentage);
@@ -44,12 +44,18 @@
 
 		<!-- Pricing -->
 		<div class="flex items-center gap-2 mb-2">
-			<p class="text-sm md:text-base line-through text-gray-400">
-				{currency()}{price.toLocaleString()}
-			</p>
-			<p class="text-sm md:text-base font-bold text-red-600">
-				{currency()}{newPrice.toLocaleString()}
-			</p>
+			{#if discountPercentage > 0}
+				<p class="text-sm md:text-base line-through text-gray-400">
+					{currency()}{price.toLocaleString()}
+				</p>
+				<p class="text-sm md:text-base font-bold">
+					{currency()}{newPrice.toLocaleString()}
+				</p>
+			{:else}
+				<p class="text-sm md:text-base text-black font-bold">
+					{currency()}{price.toLocaleString()}
+				</p>
+			{/if}
 		</div>
 
 		<!-- Add to Cart Button -->

@@ -45,7 +45,7 @@
 	let { children } = $props();
 	let showCategories = $state(false);
 	let showSearchBar = $state(false);
-	let categories: string[] = [
+	let categories: string[] = $state([
 		'Electronics',
 		'Fashion',
 		'Home & Kitchen',
@@ -58,7 +58,8 @@
 		'Groceries',
 		'Office Supplies',
 		'Pet Supplies'
-	];
+	]);
+	let filteredCategories: string[] = $state(categories);
 	let email = $state('');
 	let userCartTotals: any;
 	let queryCategory: string = $state('All');
@@ -79,6 +80,14 @@
 	let selectedLanguage: string = $state('English');
 	let selectedCurrency: string = $state('NGN');
 </script>
+
+<svelte:window
+	on:keydown={(e) => {
+		if (showCategories && e.key === 'Escape') {
+			showCategories = false;
+		}
+	}}
+/>
 
 <div class="font-jost overflow-hidden">
 	<main class=" mx-auto">
@@ -164,7 +173,7 @@
 
 					<button
 						type="submit"
-						class="h-10 px-4 bg-[#224981] text-white font-semibold hover:bg-[#224981] border border-blue-900"
+						class="h-10 px-4 bg-blue-700 text-white font-semibold hover:bg-blue-700 border border-blue-700"
 					>
 						Search
 					</button>
@@ -252,39 +261,81 @@
 							>
 						</a>
 					{/if}
+
 					{#if showCategories}
 						<div
 							transition:fly={{ x: -300, duration: 300 }}
-							class="fixed top-0 left-0 z-50 min-h-screen w-full sm:w-1/4 bg-[#224981] transition-transform transform translate-x-0 sm:translate-x-0 ease-in-out"
+							class="fixed top-0 left-0 z-50 min-h-screen w-full sm:w-1/4 bg-white text-black transition-transform transform translate-x-0 sm:translate-x-0 ease-in-out"
 						>
 							<div class="p-3 w-full h-full overflow-y-auto">
 								<!-- Close button for large screens -->
 								<div class="hidden sm:flex justify-end pb-5 px-2">
-									<button class="font-bold text-white" onclick={() => (showCategories = false)}>
+									<button class="font-bold text-black" onclick={() => (showCategories = false)}>
 										<Exit />
 									</button>
 								</div>
 
 								<!-- Header for small screens -->
 								<h3
-									class="sm:hidden font-bold text-xl flex justify-center gap-x-2 items-center pb-5 text-white"
+									class="sm:hidden font-bold text-xl flex justify-center gap-x-2 items-center pb-5 text-black"
 								>
 									Browse all categories
 									<button onclick={() => (showCategories = false)}><Exit /></button>
 								</h3>
 
 								<hr class="border-gray-600" />
-
+								<!-- Category Search Bar -->
+								<div class="px-4 py-3">
+									<input
+										type="text"
+										placeholder="Search categories..."
+										class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
+										oninput={(e) => {
+											const value = e.target.value.toLowerCase();
+											filteredCategories = [
+												'Electronics',
+												'Fashion',
+												'Home & Kitchen',
+												'Beauty & Personal Care',
+												'Sports & Outdoors',
+												'Toys & Games',
+												'Books',
+												'Automotive',
+												'Health & Wellness',
+												'Groceries',
+												'Office Supplies',
+												'Pet Supplies'
+											].filter((cat) => cat.toLowerCase().includes(value));
+										}}
+									/>
+								</div>
 								<!-- Categories list -->
-								{#each categories as category}
-									<div class="flex justify-start items-center gap-x-2 p-3">
-										<a
-											href="/products/category/{category.toLowerCase()}"
-											onclick={() => (showCategories = false)}
-											class="text-white font-semibold text-sm">{category}</a
-										>
+								{#each filteredCategories as category}
+									<div class="flex justify-between items-center px-4 py-3 hover:bg-gray-100">
+										<!-- Left side: Icon + Category Name -->
+										<div class="flex items-center gap-x-3">
+											<!-- Placeholder for icon (replace with real icons using components or <img>) -->
+											<span class="text-gray-600">
+												<i class="fas fa-tag"></i>
+												<!-- Replace this with appropriate icons -->
+											</span>
+											<a
+												href="/products/category/{category.toLowerCase()}"
+												onclick={() => (showCategories = false)}
+												class="text-gray-800 font-medium text-sm"
+											>
+												{category}
+											</a>
+										</div>
+
+										<!-- Right chevron -->
+										<span class="text-gray-400">
+											<i class="fas fa-chevron-right"></i>
+											<!-- Right arrow icon -->
+										</span>
 									</div>
-									<hr class="border-gray-700" />
+
+									<hr class="border-gray-200 mx-4" />
 								{/each}
 							</div>
 						</div>
@@ -318,13 +369,13 @@
 							placeholder="Search..."
 							class="flex-grow h-10 px-3 border border-gray-300 focus:outline-none"
 						/>
-						<button type="submit" class="h-10 px-3 bg-[#224981] text-white font-semibold rounded">
+						<button type="submit" class="h-10 px-3 bg-blue-700 text-white font-semibold rounded">
 							Search
 						</button>
 					</div>
 				</Form>
 			{/if}
-			<div class=" w-full font-semibold min-w-screen h-fit text-white bg-[#224981]">
+			<div class=" w-full font-semibold min-w-screen h-fit text-white bg-blue-700">
 				<div class="md:flex md:justify-between block max-w-6xl mx-auto">
 					<div class="w-[300px] md:text-black h-auto md:pt-2">
 						<button
@@ -350,7 +401,7 @@
 		</div>
 
 		{#if page.url.pathname !== '/login' && page.url.pathname !== '/signup' && page.url.pathname !== '/login/forgot-password'}
-			<footer class="bg-[#224981] text-white pt-10 pb-4 px-4">
+			<footer class="bg-blue-700 text-white pt-10 pb-4 px-4">
 				<!-- Newsletter Subscription Section -->
 				<div
 					class="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 pb-8 border-b border-blue-500"
@@ -380,7 +431,7 @@
 						/>
 						<button
 							type="submit"
-							class="bg-white text-blue-700 font-semibold px-5 py-2 rounded hover:bg-[#224981] transition"
+							class="bg-white text-blue-700 font-semibold px-5 py-2 rounded hover:bg-blue-700 transition"
 						>
 							Subscribe
 						</button>
