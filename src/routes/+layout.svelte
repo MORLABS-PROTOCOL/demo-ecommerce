@@ -277,7 +277,7 @@
 
 								<!-- Header for small screens -->
 								<h3
-									class="sm:hidden font-bold text-xl flex justify-center gap-x-2 items-center pb-5 text-black"
+									class="sm:hidden font-bold text-xl flex justify-evenly gap-x-2 items-center pb-5 text-black"
 								>
 									Browse all categories
 									<button onclick={() => (showCategories = false)}><Exit /></button>
