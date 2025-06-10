@@ -5,7 +5,8 @@
 	import Exit from './Icons/Exit-sm.svelte';
 	import Heart from './Icons/Heart.svelte';
 
-	let { price, title, quantity, flashSale, image, discountPercentage, productId } = $props();
+	let { price, title, quantity, flashSale, image, discountPercentage, productId, dateCreated } =
+		$props();
 	let newPrice: number = $state(0);
 
 	onMount(() => {

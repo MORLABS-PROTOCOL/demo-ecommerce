@@ -78,6 +78,7 @@
 					<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 overflow-hidden w-full">
 						{#each products as product}
 							<ProductCard
+								dateCreated={product.created}
 								discountPercentage={product.discount_percentage}
 								title={product.title}
 								image={product.imageUrl}
@@ -103,6 +104,7 @@
 								{#each electronics as product}
 									<!-- <img src="./80off.png" class="w-2/4 h-[350px] bottom-0 py-1" /> -->
 									<ProductCard
+										dateCreated={product.created}
 										productId={product.id}
 										discountPercentage={product.discount_percentage}
 										title={product.title}
@@ -127,6 +129,7 @@
 					<div class="md:grid grid-cols-2 gap-4 overflow-hidden w-full hidden">
 						{#each electronics as product}
 							<ProductCardHorizontal
+								dateCreated={product.created}
 								discountPercentage={product.discount_percentage}
 								title={product.title}
 								image={product.imageUrl}
@@ -140,6 +143,7 @@
 					<div class="grid grid-cols-2 gap-4 overflow-hidden w-full md:hidden">
 						{#each electronics as product}
 							<ProductCard
+								dateCreated={product.created}
 								discountPercentage={product.discount_percentage}
 								title={product.title}
 								image={product.imageUrl}

@@ -5,7 +5,8 @@
 	import Exit from './Icons/Exit-sm.svelte';
 	import Heart from './Icons/Heart.svelte';
 
-	let { price, title, quantity, flashSale, image, discountPercentage, productId } = $props();
+	let { price, title, quantity, flashSale, image, discountPercentage, productId, dateCreated } =
+		$props();
 	let newPrice: number = $state(0);
 
 	onMount(() => {
@@ -14,24 +15,24 @@
 </script>
 
 <div
-	class="group relative md:w-[310px] w-[200px] mb-2 mx-auto gap-5 h-[420px] md:h-[502px] bg-white p-5 border transition-shadow duration-300"
+	class="group relative md:w-[310px] w-[200px] flex flex-col gap-y-2 mb-2 mx-auto gap-5 min-h-[420px] md:h-[502px] bg-white p-5 border transition-shadow duration-300"
 >
 	<!-- Product Image with NEW Badge -->
 	<div class="relative aspect-square w-full mb-1 flex items-center justify-center">
-		<img src={image} alt={title} class="w-[100%] h-[80%] mt-14 object-contain" />
-		{#if flashSale}
+		<img src={image} alt={title} class="w-[100%] h-[80%] object-contain" />
+		{#if Date.now() - new Date(dateCreated).getTime() <= 7 * 24 * 60 * 60 * 1000}
 			<p
 				class="absolute px-3 top-1 left-2 text-xs font-semibold text-white bg-green-500 py-1 rounded-full z-10"
 			>
 				NEW
 			</p>
-			{#if discountPercentage > 0}
-				<p
-					class="absolute top-2 right-2 text-xs font-semibold text-white bg-red-500 px-3 py-1 rounded-full z-10"
-				>
-					-{discountPercentage}%
-				</p>
-			{/if}
+		{/if}
+		{#if discountPercentage > 0}
+			<p
+				class="absolute top-2 right-2 text-xs font-semibold text-white bg-red-500 px-3 py-1 rounded-full z-10"
+			>
+				-{discountPercentage}%
+			</p>
 		{/if}
 	</div>
 
@@ -48,7 +49,7 @@
 		</button>
 	</div>
 
-	<div class="space-y-2">
+	<div class="">
 		<!-- Title -->
 
 		<!-- Rating -->
@@ -58,8 +59,8 @@
 			{/each}
 		</div>
 
-		<a href="/products/{productId}" class="block">
-			<h3 class="text-base md:text-lg font-medium text-gray-900 truncate flex transition-colors">
+		<a href="/products/{productId}" class="block truncate pr-2">
+			<h3 class="text-base md:text-lg font-medium text-gray-900 flex transition-colors">
 				{title}
 			</h3>
 		</a>
