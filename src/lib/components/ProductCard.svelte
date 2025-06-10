@@ -16,29 +16,12 @@
 <div
 	class="group relative md:w-[310px] w-[200px] mb-2 mx-auto gap-5 h-[420px] md:h-[502px] bg-white p-5 border transition-shadow duration-300"
 >
-	<div class="w-full mt-2">
-		{#if quantity > 0}
-			<div class="flex justify-between text-xs mb-1">
-				<span class="text-gray-500">Stock</span>
-				<span class="text-gray-700 font-medium">{quantity} left</span>
-			</div>
-			<div class="w-full bg-gray-200 rounded-full h-2">
-				<div
-					class="
-						h-2 rounded-full transition-all duration-300
-						{quantity < 20 ? 'bg-yellow-400' : 'bg-green-500'}
-					"
-					style="width: {Math.min(100, (quantity / 100) * 100)}%;"
-				></div>
-			</div>
-		{/if}
-	</div>
 	<!-- Product Image with NEW Badge -->
-	<div class="relative aspect-square w-full mb-4 flex items-center justify-center">
+	<div class="relative aspect-square w-full mb-1 flex items-center justify-center">
 		<img src={image} alt={title} class="w-[100%] h-[80%] mt-14 object-contain" />
 		{#if flashSale}
 			<p
-				class="absolute px-3 top-2 left-2 text-xs font-semibold text-white bg-green-500 py-1 rounded-full z-10"
+				class="absolute px-3 top-1 left-2 text-xs font-semibold text-white bg-green-500 py-1 rounded-full z-10"
 			>
 				NEW
 			</p>
@@ -76,7 +59,7 @@
 		</div>
 
 		<a href="/products/{productId}" class="block">
-			<h3 class="text-xl font-medium text-gray-900 line-clamp-2 flex-wrap flex transition-colors">
+			<h3 class="text-base md:text-lg font-medium text-gray-900 truncate flex transition-colors">
 				{title}
 			</h3>
 		</a>
@@ -85,7 +68,6 @@
 		{#if quantity > 0}
 			<div class="flex flex-wrap items-center gap-2">
 				{#if discountPercentage > 0}
-					{console.log(discountPercentage)}
 					<p class="text-xl font-bold">{currency()}{newPrice.toLocaleString()}</p>
 					<p class="text-xl text-gray-400 line-through">{currency()}{price.toLocaleString()}</p>
 				{:else}
@@ -100,7 +82,23 @@
 			</p>
 		{/if}
 	</div>
-
+	<div class="w-full mt-2">
+		{#if quantity > 0}
+			<div class="flex justify-between text-xs mb-1">
+				<span class="text-gray-500">Stock</span>
+				<span class="text-gray-700 font-medium">{quantity} left</span>
+			</div>
+			<div class="w-full bg-gray-200 rounded-full h-2">
+				<div
+					class="
+						h-2 rounded-full transition-all duration-300
+						{quantity < 20 ? 'bg-yellow-400' : 'bg-blue-500'}
+					"
+					style="width: {Math.min(100, (quantity / 100) * 100)}%;"
+				></div>
+			</div>
+		{/if}
+	</div>
 	<!-- Add to Cart Button -->
 	<div
 		class="absolute inset-x-0 bottom-0 p-4 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
