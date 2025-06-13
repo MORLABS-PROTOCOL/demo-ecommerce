@@ -19,7 +19,9 @@
 >
 	<!-- Product Image with NEW Badge -->
 	<div class="relative aspect-square w-full mb-1 flex items-center justify-center">
-		<img src={image} alt={title} class="w-[100%] h-[80%] object-contain" />
+		<div class="w-[100%] flex justify-center items-center">
+			<img src={image} alt={title} class=" " />
+		</div>
 		{#if Date.now() - new Date(dateCreated).getTime() <= 7 * 24 * 60 * 60 * 1000}
 			<p
 				class="absolute px-3 top-1 left-2 text-xs font-semibold text-white bg-green-500 py-1 rounded-full z-10"
@@ -49,7 +51,7 @@
 		</button>
 	</div>
 
-	<div class="">
+	<div class="my-auto">
 		<!-- Title -->
 
 		<!-- Rating -->

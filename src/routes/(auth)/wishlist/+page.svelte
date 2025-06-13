@@ -1,6 +1,7 @@
 <script lang="ts">
 	import {
 		clearWishList,
+		currency,
 		getWishList,
 		modifyWishList,
 		notify,
@@ -39,7 +40,7 @@
 							<div class={`w-4 h-4 rounded-full ${item.color} mx-auto`}></div>
 						</td>
 						<td class="text-center text-gray-500">{item.size}</td>
-						<td class="text-center text-gray-500">${item.price}</td>
+						<td class="text-center text-gray-500">{currency()}{item.price}</td>
 
 						<td class="text-center">
 							<button

@@ -331,6 +331,7 @@
 										<!-- Right chevron -->
 										<span class="text-gray-400">
 											<i class="fas fa-chevron-right"></i>
+
 											<!-- Right arrow icon -->
 										</span>
 									</div>
@@ -377,7 +378,7 @@
 			{/if}
 			<div class=" w-full font-semibold min-w-screen h-fit text-white bg-blue-700">
 				<div class="md:flex md:justify-between block max-w-6xl mx-auto">
-					<div class="w-[300px] md:text-black h-auto md:pt-2">
+					<div class="min-w-[250px] md:text-black h-auto md:pt-2">
 						<button
 							onclick={() => {
 								showCategories = !showCategories;
@@ -387,11 +388,13 @@
 							<HamburgerMenu />Browse all categories
 						</button>
 					</div>
-					<div class="hidden px-4 w-full md:flex justify-end">
-						<ul class="md:flex hidden items-center gap-x-4">
-							<li class="flex justify-center items-center gap-x-2"><Orders /> Orders</li>
-							<li class="flex justify-center items-center gap-x-2"><CustomerCare /> Support</li>
-						</ul>
+					<div class="px-5 text-black flex justify-evenly w-full items-center">
+						<p class="font-semibold">Orders</p>
+						<p class="font-semibold">Orders</p>
+						<p class="font-semibold">Orders</p>
+					</div>
+					<div class="hidden px-4 w-full md:flex justify-end items-center">
+						<button class="bg-black text-white p-3">Become a Seller &nbsp;{'>'}</button>
 					</div>
 				</div>
 			</div>

@@ -41,13 +41,18 @@
 		>
 			&#8592;
 		</button>
-
+		<div class="absolute w-1/2 mx-auto flex justify-start pl-12 items-center">
+			<div class="flex-col gap-y-4">
+				<h2 class="">Welcome to Vixstores!</h2>
+				<div class="text-5xl font-extrabold">Shop Now!</div>
+			</div>
+		</div>
 		<!-- Image with sliding effect -->
 		{#key current}
 			<img
 				src={images[current].imageUrl}
-				alt={images[current].alt || `Image ${current + 1}`}
-				class="w-full h-full object-cover rounded"
+				alt={images[current].alt || `Image_${current + 1}`}
+				class="w-full h-full object-cover"
 				in:fly={{ x: 100 * direction, duration: 300 }}
 				out:fly={{ x: -100 * direction, duration: 300 }}
 			/>
