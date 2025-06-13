@@ -67,9 +67,9 @@
 										notify('Error', 'Failed to sync cart items', 'error');
 									} finally {
 										await refreshCart();
-										window.location.href = '/';
 									}
 								}
+								window.location.href = '/';
 							}
 						} catch (error) {
 							notify('Error', `Invalid Login Credentials`, 'error');

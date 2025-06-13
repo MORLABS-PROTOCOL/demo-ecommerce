@@ -20,7 +20,14 @@
 	<!-- Product Image with NEW Badge -->
 	<div class="relative aspect-square w-full mb-1 flex items-center justify-center">
 		<div class="w-[100%] flex justify-center items-center">
-			<img src={image} alt={title} class=" " />
+			<img
+				src={image}
+				alt={title}
+				class=" "
+				onclick={() => {
+					window.location.href = `/products/${productId}`;
+				}}
+			/>
 		</div>
 		{#if Date.now() - new Date(dateCreated).getTime() <= 7 * 24 * 60 * 60 * 1000}
 			<p
@@ -107,6 +114,9 @@
 		class="absolute inset-x-0 bottom-0 p-4 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
 	>
 		<button
+			onclick={() => {
+				window.location.href = `/products/${productId}`;
+			}}
 			class="w-full bg-blue-700 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 transition-colors"
 		>
 			Add to Cart

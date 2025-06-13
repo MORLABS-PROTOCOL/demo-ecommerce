@@ -14,14 +14,15 @@
 		refreshWishList,
 		validateAuthState,
 		wishList,
-		cart
+		cart,
+		notify
 	} from '$lib/controls.svelte';
 	import { page } from '$app/state';
 	import ProductCard from '$lib/components/ProductCard.svelte';
 	import Heart from '$lib/components/Icons/Heart.svelte';
-	import { StarFilled } from 'carbon-icons-svelte';
+	import { StarFilled, Temperature } from 'carbon-icons-svelte';
 	import Seo from '$lib/components/Seo.svelte';
-
+	let busy = $state(false);
 	let { data } = $props();
 	let product = $state();
 	let productId = page.params.productId;
@@ -35,6 +36,7 @@
 	let selectedImage = $state('');
 	let viewingInfo = $state('Description');
 	let cartItems = $state([]);
+	let tempCart = $state([]);
 	onMount(async () => {
 		product = await getProductById(page.params.productId);
 		newPrice = calculateNewPrice(product?.price, product?.discount_percentage);
@@ -43,7 +45,11 @@
 		await refreshWishList();
 
 		cartItems = await getCart();
-		console.log('Cart Items:', cartItems);
+		cartItems = cartItems[0].items || [];
+		tempCart = [...cartItems];
+		tempCart = tempCart.find((item) => item.product.id === productId);
+		console.log(tempCart, 'Temp Cart ');
+		// console.log(cartItems[0].items, 'Cart Items Length');
 	});
 </script>
 
@@ -101,8 +107,8 @@
 						</p>
 					{/if}
 				</div>
-				{console.log('Cart Items: ', cartItems)}
-				{#if cartItems && cartItems.find((item) => item.id === productId)}
+				<!-- {console.log('Cart Items loaded: ', tempCart)} -->
+				{#if tempCart}
 					<!-- Product is already in cart: show quantity controls only -->
 					<div class="flex items-center gap-4 py-4">
 						<div class="flex items-center border border-gray-300 rounded-md">
@@ -124,22 +130,36 @@
 								}}>-</button
 							>
 							<span class="px-4 py-2 text-lg font-medium">
-								{cartItems.find((item) => item.id === productId)?.quantity}
+								{tempCart?.quantity}
 							</span>
 							<button
 								class="px-4 py-2 text-lg text-gray-700 hover:bg-gray-100 rounded-r-md"
 								onclick={async () => {
-									let item = cartItems.find((item) => item.id === productId);
-									if (item) {
-										item.quantity++;
-										quantity = item.quantity;
+									busy = true;
+									// let item = cartItems.find((item) => item.id === productId);
+									if (tempCart) {
+										tempCart.quantity++;
+										quantity = tempCart.quantity;
 										if (pocketbase.authStore.isValid) {
-											await addToCart(productId, quantity, true);
+											await addToCart(productId, quantity);
 											await refreshCart();
+											cartItems = await getCart();
+											cartItems = cartItems[0].items || [];
+
+											// Update tempCart to reflect the new quantity
+											// This is necessary to ensure the UI reflects the updated quantity
+											tempCart = [...cartItems];
+											tempCart = tempCart.find((item) => item.product.id === productId);
 										} else {
 											localStorage.setItem('cartItems', JSON.stringify(cartItems));
 										}
 									}
+									cartItems = await getCart();
+									cartItems = cartItems[0].items || [];
+									tempCart = [...cartItems];
+									tempCart = tempCart.find((item) => item.product.id === productId);
+									busy = false;
+									notify('Success', 'Cart updated successfully');
 								}}>+</button
 							>
 						</div>
@@ -161,7 +181,9 @@
 							>
 						</div>
 						<button
+							disabled={busy}
 							onclick={async () => {
+								busy = true;
 								let authState = pocketbase.authStore.isValid;
 								if (!authState) {
 									let cartItemsLocal: any = localStorage.getItem('cartItems');
@@ -177,6 +199,13 @@
 								await addToCart(productId, quantity);
 								await refreshCart();
 								cartItems = await getCart();
+								cartItems = cartItems[0].items || [];
+
+								tempCart = [...cartItems];
+								tempCart = tempCart.find((item) => item.product.id === productId);
+								busy = false;
+								notify('Success', 'Product added to cart successfully');
+								console.log('Cart Items:', cartItems);
 							}}
 							class="flex-1 py-3 bg-black hover:bg-[#224981] text-white font-semibold text-md rounded-md transition-colors"
 						>

@@ -174,16 +174,20 @@ let productDetails: { id: string, name: string, productImage: string, price: num
     discount: ""
 })
 export async function addToCart(productId: string, quantity: number) {
-    let product = await pocketbase.collection("products").getOne(productId, { requestKey: Date.now().toString() })
+    // Fetch product details first
+    const product = await pocketbase.collection("products").getOne(productId, { requestKey: Date.now().toString() });
+    let productInfo: typeof productDetails;
 
     if (product.discount_percentage < 1) {
-        productDetails = {
+        productInfo = {
             id: product.id,
             name: product.title,
-            productImage: pocketbase.files.getURL(product, product.product_image), price: product.price, discount: product.discount_percentage
+            productImage: pocketbase.files.getURL(product, product.product_image),
+            price: product.price,
+            discount: product.discount_percentage
         };
     } else {
-        productDetails = {
+        productInfo = {
             id: product.id,
             name: product.title,
             productImage: pocketbase.files.getURL(product, product.product_image),
@@ -192,33 +196,68 @@ export async function addToCart(productId: string, quantity: number) {
             discount: product.discount_percentage
         };
     }
-    let existingCart = await pocketbase.collection("carts").getFullList({ filter: `userId="${pocketbase.authStore.record?.id}" && status="pending"`, requestKey: Date.now().toString() });
 
-    if (existingCart.length > 0) {
-        let cart = existingCart[0]
-        // Modify the existing cart by pushing the new item into the items array
-        cart.items.push({ quantity: quantity, product: productDetails, total: productDetails.price * quantity });
-        await pocketbase.collection("carts").update(cart.id, {
-            items: cart.items,
-            total: cart.items.reduce((sum: number, item: { quantity: number, product: { price: number } }) => sum + (item.quantity * item.product.price), 0)
-        }, { requestKey: Date.now().toString() });
+    if (pocketbase.authStore.isValid) {
+        // Authenticated user: use PocketBase cart
+        let existingCartArr = await pocketbase.collection("carts").getFullList({
+            filter: `userId="${pocketbase.authStore.record?.id}" && status="pending"`,
+            requestKey: Date.now().toString()
+        });
+        let cart: { length: number, total: number, items: any[] } = $state({ length: 0, total: 0, items: [] });
+        if (existingCartArr.length > 0) {
+            cart = existingCartArr[0];
+            let existingItem = cart.items.find((item: any) => item.product.id === productId);
+            if (existingItem) {
+                existingItem.quantity = quantity;
+                existingItem.total = existingItem.quantity * productInfo.price;
+            } else {
+                cart.items.push({
+                    quantity,
+                    product: productInfo,
+                    total: productInfo.price * quantity
+                });
+            }
+            cart.total = cart.items.reduce((sum: number, item: any) => sum + item.total, 0);
+            await pocketbase.collection("carts").update(cart.id, {
+                items: cart.items,
+                total: cart.total
+            }, { requestKey: Date.now().toString() });
+        } else {
+            cart = await pocketbase.collection("carts").create({
+                items: [{
+                    quantity,
+                    product: productInfo,
+                    total: productInfo.price * quantity
+                }],
+                userId: pocketbase.authStore.record?.id,
+                status: "pending",
+                total: productInfo.price * quantity
+            }, { requestKey: Date.now().toString() });
+            await pocketbase.collection("users").update(pocketbase.authStore.record?.id as string, {
+                carts: [...(pocketbase.authStore.record?.carts || []), cart.id]
+            }, { requestKey: Date.now().toString() });
+        }
+        await refreshCart();
         return cart;
-    } else {
-        // No existing pending cart, create a new one
-        let cart = await pocketbase.collection("carts").create({
-            items: [{ quantity: quantity, product: productDetails, total: productDetails.price * quantity }],
-            userId: pocketbase.authStore.record?.id,
-            status: "pending",
-            total: [{ quantity: quantity, product: productDetails, total: productDetails.price * quantity }]
-                .reduce((sum, item) => sum + item.total, 0)
-        }, { requestKey: Date.now().toString() });
-        await pocketbase.collection("users").update(pocketbase.authStore.record?.id as string, {
-            carts: [...(pocketbase.authStore.record?.carts || []), cart.id]
-        }, { requestKey: Date.now().toString() });
-
-        return cart;
+    } else if (browser) {
+        // Guest user: use localStorage
+        let localCart = localStorage.getItem("cartItems");
+        let cartItems = localCart ? JSON.parse(localCart) : [];
+        let existingItem = cartItems.find((item: any) => item.product.id === productId);
+        if (existingItem) {
+            existingItem.quantity = quantity;
+            existingItem.total = existingItem.quantity * productInfo.price;
+        } else {
+            cartItems.push({
+                quantity,
+                product: productInfo,
+                total: productInfo.price * quantity
+            });
+        }
+        localStorage.setItem("cartItems", JSON.stringify(cartItems));
+        await refreshCart();
+        return cartItems;
     }
-
 }
 
 export function shuffleArray<T>(array: T[]): T[] {
