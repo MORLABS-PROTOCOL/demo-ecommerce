@@ -7,7 +7,10 @@
 		validateAuthState,
 		removeFromCart,
 		makePayment,
-		pocketbase
+		pocketbase,
+		addToCart,
+		refreshCart,
+		notify
 	} from '$lib/controls.svelte';
 	import Seo from '$lib/components/Seo.svelte';
 	import { TrashCan } from 'carbon-icons-svelte';
@@ -35,46 +38,105 @@
 	<div class="flex flex-col lg:flex-row gap-6 px-4 py-6">
 		<!-- Cart Items Section -->
 		<div class="flex-1 space-y-6">
-			{#each cartItems as item}
-				<div class="flex justify-between items-center p-4 bg-white rounded-lg shadow">
-					<a href="/products/{item.product.id}" class="text-black">
+			{#each cartItems as item, index}
+				<div class="flex mb-4">
+					<div class="flex justify-between items-center w-full p-4 bg-white rounded-lg shadow">
 						<div class="flex items-center gap-4">
 							<img
+								onclick={() => {
+									window.location.href = `/products/${item.product.id}`;
+								}}
 								src={item.product.productImage}
 								alt={item.product.name}
 								class="w-20 h-20 object-cover rounded-md"
 							/>
 							<div>
-								<p class="font-semibold text-lg flex items-center gap-x-2">
+								<button
+									onclick={() => {
+										window.location.href = `/products/${item.product.id}`;
+									}}
+									class="font-semibold text-lg flex items-center gap-x-2"
+								>
 									{item.product.name}
-								</p>
-								<p class="text-sm text-gray-500">Quantity: {item.quantity}</p>
-								{#if item.product.discount}<p class="text-sm text-gray-500">
-										Discount: {item.product.discount}%
-									</p>{/if}
+								</button>
+
+								<!-- Quantity Control -->
+								<div class="flex items-center gap-4 py-2">
+									<div class="flex items-center border border-gray-300 rounded-md">
+										<button
+											class="px-3 py-1 text-gray-700 hover:bg-gray-100 rounded-l-md"
+											onclick={async () => {
+												if (item.quantity > 1) {
+													item.quantity--;
+													if (pocketbase.authStore.isValid) {
+														await addToCart(item.product.id, item.quantity);
+														await refreshCart();
+														let updatedCart = await getCart();
+														cartItems = updatedCart[0].items || [];
+													} else {
+														localStorage.setItem('cartItems', JSON.stringify(cartItems));
+													}
+													// notify('Success', 'Cart updated successfully');
+												} else {
+													await removeFromCart(item.product.id);
+													await refreshCart();
+													let updatedCart = await getCart();
+													cartItems = updatedCart[0].items || [];
+													notify('Item removed', 'Item removed from cart', 'info');
+												}
+											}}>-</button
+										>
+										<span class="px-3 text-sm font-medium">
+											{item.quantity}
+										</span>
+										<button
+											class="px-3 py-1 text-gray-700 hover:bg-gray-100 rounded-r-md"
+											onclick={async () => {
+												item.quantity++;
+												if (pocketbase.authStore.isValid) {
+													await addToCart(item.product.id, item.quantity);
+													await refreshCart();
+													let updatedCart = await getCart();
+													cartItems = updatedCart[0].items || [];
+												} else {
+													localStorage.setItem('cartItems', JSON.stringify(cartItems));
+												}
+												notify('Success', 'Cart updated successfully');
+											}}>+</button
+										>
+									</div>
+								</div>
+
+								{#if item.product.discount}
+									<p class="text-sm text-gray-500">Discount: {item.product.discount}%</p>
+								{/if}
 							</div>
 						</div>
-					</a>
-					<div class="text-right text-lg gap-y-2 font-medium flex flex-col">
-						<button
-							class="flex justify-end text-red-500"
-							onclick={async () => {
-								await removeFromCart(item.product.id);
 
-								data = await getCart();
-								cartDetails = data[0]; // assuming getCart() returns an array with the cart as the first item
-								cartItems = cartDetails.items || [];
-								cartTotal = cart.total || 0;
-							}}
+						<!-- Price and Delete -->
+						<div
+							class="text-right text-lg font-medium flex flex-col justify-between h-full gap-y-2"
 						>
-							<TrashCan />
-						</button>
-						<div>
-							₦{item.total.toLocaleString()}
-							{#if item.product.discount}<p class="line-through text-xs text-gray-400">
-									{currency()}{item.product.oldPrice}
-								</p>
-							{/if}
+							<button
+								class="text-red-500 self-end"
+								onclick={async () => {
+									await removeFromCart(item.product.id);
+									let data = await getCart();
+									cartDetails = data[0];
+									cartItems = cartDetails.items || [];
+									cartTotal = cartDetails.total || 0;
+								}}
+							>
+								<TrashCan />
+							</button>
+							<div>
+								₦{item.total.toLocaleString()}
+								{#if item.product.discount}
+									<p class="line-through text-xs text-gray-400">
+										{currency()}{item.product.oldPrice}
+									</p>
+								{/if}
+							</div>
 						</div>
 					</div>
 				</div>
