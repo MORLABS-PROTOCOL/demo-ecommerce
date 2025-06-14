@@ -2,8 +2,8 @@
 	import Seo from '$lib/components/Seo.svelte';
 	import { pocketbase, validateAuthState } from '$lib/controls.svelte';
 	import { onMount } from 'svelte';
-	let selectedTab: 'profile' | 'orders' | 'vendor' = 'profile';
-	let sidebarCollapsed = false;
+	let selectedTab: 'profile' | 'orders' | 'vendor' = $state('profile');
+	let sidebarCollapsed = $state(false);
 	let editProfile: boolean = $state(false);
 	onMount(async () => {
 		validateAuthState();
