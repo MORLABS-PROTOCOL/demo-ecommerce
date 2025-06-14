@@ -509,10 +509,10 @@
 							<HamburgerMenu />Browse all categories
 						</button>
 					</div>
-					<div class="px-5 text-black lg:flex justify-evenly w-full items-center hidden">
-						<p class="font-semibold">Orders</p>
-						<p class="font-semibold">Orders</p>
-						<p class="font-semibold">Orders</p>
+					<div class="px-5 text-white lg:flex justify-evenly w-full items-center hidden">
+						<p class="font-semibold">About</p>
+						<p class="font-semibold">Contact</p>
+						<p class="font-semibold">FAQ</p>
 					</div>
 					<div class="hidden px-4 w-full md:flex justify-end items-center">
 						<button class="bg-black text-white p-3">Become a Seller &nbsp;{'>'}</button>
