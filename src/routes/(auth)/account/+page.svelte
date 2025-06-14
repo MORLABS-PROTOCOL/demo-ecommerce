@@ -1,8 +1,9 @@
 <script lang="ts">
+	import Heart from '$lib/components/Icons/Heart.svelte';
 	import Seo from '$lib/components/Seo.svelte';
-	import { pocketbase, validateAuthState } from '$lib/controls.svelte';
+	import { currency, pocketbase, validateAuthState } from '$lib/controls.svelte';
 	import { onMount } from 'svelte';
-	let selectedTab: 'profile' | 'orders' | 'vendor' = $state('profile');
+	let selectedTab: 'profile' | 'orders' | 'vendor' | 'wishlist' = $state('profile');
 	let sidebarCollapsed = $state(false);
 	let editProfile: boolean = $state(false);
 	onMount(async () => {
@@ -57,7 +58,7 @@
 								d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z"
 							/>
 						</svg>
-						{#if !sidebarCollapsed}Settings{/if}
+						{#if !sidebarCollapsed}My Account{/if}
 					</button>
 				</li>
 				<li>
@@ -76,6 +77,16 @@
 							<path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M3 12h18M3 17h18" />
 						</svg>
 						{#if !sidebarCollapsed}Track Orders{/if}
+					</button>
+				</li>
+				<li>
+					<button
+						onclick={() => (window.location.href = '/wishlist')}
+						class="flex items-center w-full px-4 py-2 rounded-md text-left text-gray-800 dark:text-white hover:bg-indigo-100 dark:hover:bg-gray-700 transition"
+						class:selected={selectedTab === 'wishlist'}
+					>
+						<Heart /> &nbsp;
+						{#if !sidebarCollapsed}Wishlist{/if}
 					</button>
 				</li>
 				<li>
@@ -112,55 +123,100 @@
 	<!-- Main Content -->
 	<main class="mx-auto p-6 w-full transition-all duration-300">
 		{#if selectedTab === 'profile'}
-			<section class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 max-w-3xl mx-auto">
-				<div class="flex justify-between items-center">
-					<h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Your Profile</h2>
-					<button
-						onclick={() => {
-							editProfile = !editProfile;
-						}}
-						class="border dark:border-gray-700 p-3 border-black flex justify-end items-center"
-					>
-						<svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24"
-							><path
-								fill="#f9f8f8"
-								d="M5 19h1.098L16.796 8.302l-1.098-1.098L5 17.902zm-1 1v-2.52L17.18 4.288q.155-.137.34-.212T17.907 4t.39.064q.19.063.35.228l1.067 1.074q.165.159.226.35q.06.19.06.38q0 .204-.068.39q-.069.185-.218.339L6.519 20zM19.02 6.092l-1.112-1.111zm-2.782 1.67l-.54-.558l1.098 1.098z"
-								stroke-width="0.5"
-								stroke="#000"
-							/></svg
-						></button
-					>
-				</div>
-				<p class="text-gray-600 dark:text-gray-400 mb-6">
-					Manage your account information and settings
-				</p>
-
-				<div class="grid gap-4">
-					<div>
-						<label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300"
-							>Full Name</label
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<!--Account Details-->
+				<section class="bg-white dark:bg-gray-800 w-full rounded-lg shadow p-6 max-w-3xl mx-auto">
+					<div class="flex justify-between items-center">
+						<h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Account Details</h2>
+						<button
+							onclick={() => {
+								editProfile = !editProfile;
+							}}
+							class="border dark:border-gray-700 p-3 border-black flex justify-end items-center"
 						>
+							<svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24"
+								><path
+									fill="#f9f8f8"
+									d="M5 19h1.098L16.796 8.302l-1.098-1.098L5 17.902zm-1 1v-2.52L17.18 4.288q.155-.137.34-.212T17.907 4t.39.064q.19.063.35.228l1.067 1.074q.165.159.226.35q.06.19.06.38q0 .204-.068.39q-.069.185-.218.339L6.519 20zM19.02 6.092l-1.112-1.111zm-2.782 1.67l-.54-.558l1.098 1.098z"
+									stroke-width="0.5"
+									stroke="#000"
+								/></svg
+							></button
+						>
+					</div>
+					<p class="text-gray-600 dark:text-gray-400 mb-6">
+						Manage your account information and settings
+					</p>
+
+					<div class="grid gap-4">
+						<div>
+							<label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300"
+								>Full Name</label
+							>
+							<input
+								type="text"
+								placeholder="John Doe"
+								disabled={!editProfile}
+								class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+							/>
+						</div>
+						<div>
+							<label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300"
+								>Email Address</label
+							>
+							<input
+								type="email"
+								placeholder="john@example.com"
+								disabled={!editProfile}
+								class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+							/>
+						</div>
+					</div>
+					<button class="bg-blue-700 mt-4 px-4 py-2 rounded-sm" hidden={!editProfile}>Save</button>
+				</section>
+				<!--Shipping Details-->
+				<section class="bg-white dark:bg-gray-800 rounded-lg w-full shadow p-6 max-w-3xl mx-auto">
+					<div class="flex justify-between items-center">
+						<h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Shipping Details</h2>
+						<button
+							onclick={() => {
+								editProfile = !editProfile;
+							}}
+							class="border dark:border-gray-700 p-3 border-black flex justify-end items-center"
+						>
+							<svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24"
+								><path
+									fill="#f9f8f8"
+									d="M5 19h1.098L16.796 8.302l-1.098-1.098L5 17.902zm-1 1v-2.52L17.18 4.288q.155-.137.34-.212T17.907 4t.39.064q.19.063.35.228l1.067 1.074q.165.159.226.35q.06.19.06.38q0 .204-.068.39q-.069.185-.218.339L6.519 20zM19.02 6.092l-1.112-1.111zm-2.782 1.67l-.54-.558l1.098 1.098z"
+									stroke-width="0.5"
+									stroke="#000"
+								/></svg
+							></button
+						>
+					</div>
+					<p class="text-gray-600 dark:text-gray-400 mb-6">Delivery Address:</p>
+
+					{#if editProfile}
 						<input
 							type="text"
-							placeholder="John Doe"
-							disabled={!editProfile}
-							class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+							placeholder="Enter new delivery address"
+							class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 mt-2"
 						/>
-					</div>
-					<div>
-						<label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300"
-							>Email Address</label
-						>
-						<input
-							type="email"
-							placeholder="john@example.com"
-							disabled={!editProfile}
-							class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-						/>
-					</div>
-				</div>
-				<button class="bg-blue-700 mt-4 px-4 py-2 rounded-sm" hidden={!editProfile}>Save</button>
-			</section>
+					{:else}
+						<p class="font-semibold dark:text-white">No. 12 Ettagbor Layout</p>
+					{/if}
+					<button class="bg-blue-700 mt-4 px-4 py-2 rounded-sm" hidden={!editProfile}>Save</button>
+				</section>
+				<!--Wallet Details-->
+				<section
+					class="bg-white cols-span-1 md:col-span-2 w-full dark:bg-gray-800 rounded-lg shadow p-6"
+				>
+					<h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Wallet</h2>
+					<p class="text-gray-600 dark:text-gray-400 mb-2">Balance:</p>
+					<h2 class="font-bold dark:text-white">{currency()}0.00</h2>
+					<button class="bg-blue-700 mt-4 px-4 py-2 rounded-sm">Top up</button>
+				</section>
+			</div>
 		{:else if selectedTab === 'orders'}
 			<section class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 max-w-3xl mx-auto">
 				<h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Your Orders</h2>
