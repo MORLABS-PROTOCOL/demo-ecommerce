@@ -509,7 +509,7 @@
 							<HamburgerMenu />Browse all categories
 						</button>
 					</div>
-					<div class="px-5 text-black flex justify-evenly w-full items-center">
+					<div class="px-5 text-black lg:flex justify-evenly w-full items-center hidden">
 						<p class="font-semibold">Orders</p>
 						<p class="font-semibold">Orders</p>
 						<p class="font-semibold">Orders</p>
