@@ -6,6 +6,7 @@
 	let selectedTab: 'profile' | 'orders' | 'vendor' | 'wishlist' = $state('profile');
 	let sidebarCollapsed = $state(false);
 	let editProfile: boolean = $state(false);
+	let editShippingInfo: boolean = $state(false);
 	onMount(async () => {
 		validateAuthState();
 	});
@@ -180,7 +181,7 @@
 						<h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Shipping Details</h2>
 						<button
 							onclick={() => {
-								editProfile = !editProfile;
+								editShippingInfo = !editShippingInfo;
 							}}
 							class="border dark:border-gray-700 p-3 border-black flex justify-end items-center"
 						>
@@ -196,7 +197,7 @@
 					</div>
 					<p class="text-gray-600 dark:text-gray-400 mb-6">Delivery Address:</p>
 
-					{#if editProfile}
+					{#if editShippingInfo}
 						<input
 							type="text"
 							placeholder="Enter new delivery address"
@@ -205,7 +206,9 @@
 					{:else}
 						<p class="font-semibold dark:text-white">No. 12 Ettagbor Layout</p>
 					{/if}
-					<button class="bg-blue-700 mt-4 px-4 py-2 rounded-sm" hidden={!editProfile}>Save</button>
+					<button class="bg-blue-700 mt-4 px-4 py-2 rounded-sm" hidden={!editShippingInfo}
+						>Save</button
+					>
 				</section>
 				<!--Wallet Details-->
 				<section
