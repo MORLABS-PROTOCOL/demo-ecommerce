@@ -4,7 +4,7 @@
 	import { onMount } from 'svelte';
 	let selectedTab: 'profile' | 'orders' | 'vendor' = 'profile';
 	let sidebarCollapsed = false;
-
+	let editProfile: boolean = $state(false);
 	onMount(async () => {
 		validateAuthState();
 	});
@@ -19,7 +19,7 @@
 	>
 		<nav class="flex flex-col h-full border-r border-gray-200 dark:border-gray-700 p-4">
 			<div class="flex justify-end mb-6">
-				<button on:click={() => (sidebarCollapsed = !sidebarCollapsed)} aria-label="Toggle sidebar">
+				<button onclick={() => (sidebarCollapsed = !sidebarCollapsed)} aria-label="Toggle sidebar">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						class="h-6 w-6 text-gray-500 hover:text-indigo-600 transition"
@@ -40,7 +40,7 @@
 			<ul class="flex-1 space-y-2">
 				<li>
 					<button
-						on:click={() => (selectedTab = 'profile')}
+						onclick={() => (selectedTab = 'profile')}
 						class="flex items-center w-full px-4 py-2 rounded-md text-left text-gray-800 dark:text-white hover:bg-indigo-100 dark:hover:bg-gray-700 transition"
 						class:selected={selectedTab === 'profile'}
 					>
@@ -62,7 +62,7 @@
 				</li>
 				<li>
 					<button
-						on:click={() => (selectedTab = 'orders')}
+						onclick={() => (selectedTab = 'orders')}
 						class="flex items-center w-full px-4 py-2 rounded-md text-left text-gray-800 dark:text-white hover:bg-indigo-100 dark:hover:bg-gray-700 transition"
 						class:selected={selectedTab === 'orders'}
 					>
@@ -80,7 +80,7 @@
 				</li>
 				<li>
 					<button
-						on:click={() => (selectedTab = 'vendor')}
+						onclick={() => (selectedTab = 'vendor')}
 						class="flex items-center w-full px-4 py-2 rounded-md text-left text-gray-800 dark:text-white hover:bg-indigo-100 dark:hover:bg-gray-700 transition"
 						class:selected={selectedTab === 'vendor'}
 					>
@@ -110,10 +110,27 @@
 	</aside>
 
 	<!-- Main Content -->
-	<main class="ml-16 md:ml-64 p-6 w-full transition-all duration-300">
+	<main class="mx-auto p-6 w-full transition-all duration-300">
 		{#if selectedTab === 'profile'}
 			<section class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 max-w-3xl mx-auto">
-				<h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Your Profile</h2>
+				<div class="flex justify-between items-center">
+					<h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Your Profile</h2>
+					<button
+						onclick={() => {
+							editProfile = !editProfile;
+						}}
+						class="border dark:border-gray-700 p-3 border-black flex justify-end items-center"
+					>
+						<svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24"
+							><path
+								fill="#f9f8f8"
+								d="M5 19h1.098L16.796 8.302l-1.098-1.098L5 17.902zm-1 1v-2.52L17.18 4.288q.155-.137.34-.212T17.907 4t.39.064q.19.063.35.228l1.067 1.074q.165.159.226.35q.06.19.06.38q0 .204-.068.39q-.069.185-.218.339L6.519 20zM19.02 6.092l-1.112-1.111zm-2.782 1.67l-.54-.558l1.098 1.098z"
+								stroke-width="0.5"
+								stroke="#000"
+							/></svg
+						></button
+					>
+				</div>
 				<p class="text-gray-600 dark:text-gray-400 mb-6">
 					Manage your account information and settings
 				</p>
@@ -126,7 +143,7 @@
 						<input
 							type="text"
 							placeholder="John Doe"
-							disabled
+							disabled={!editProfile}
 							class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
 						/>
 					</div>
@@ -137,11 +154,12 @@
 						<input
 							type="email"
 							placeholder="john@example.com"
-							disabled
+							disabled={!editProfile}
 							class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
 						/>
 					</div>
 				</div>
+				<button class="bg-blue-700 mt-4 px-4 py-2 rounded-sm" hidden={!editProfile}>Save</button>
 			</section>
 		{:else if selectedTab === 'orders'}
 			<section class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 max-w-3xl mx-auto">
