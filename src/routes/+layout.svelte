@@ -37,7 +37,7 @@
 		UserProfile
 	} from 'carbon-icons-svelte';
 	import Exit from '$lib/components/Icons/Exit.svelte';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { Form } from 'carbon-components-svelte';
 	import { browser } from '$app/environment';
 	import CustomerCare from '$lib/components/Icons/CustomerCare.svelte';
@@ -70,9 +70,23 @@
 			await refreshWishList();
 		})();
 	}
+	let showDropdown: boolean = $state(false);
 	let loginState: boolean = $state(false);
+	let dropdownRef: HTMLDivElement | null = $state(null);
 	onMount(() => {
 		loginState = pocketbase.authStore.isValid;
+		const handleClickOutside = (event) => {
+			if (dropdownRef && !dropdownRef.contains(event.target)) {
+				showDropdown = false;
+			}
+		};
+
+		document.addEventListener('click', handleClickOutside);
+
+		// Clean up the listener when component is destroyed
+		onDestroy(() => {
+			document.removeEventListener('click', handleClickOutside);
+		});
 	});
 	let formData: HTMLFormElement | undefined = $state();
 	let searchTerm: string = $state('');
@@ -91,7 +105,7 @@
 
 <div class="font-jost overflow-hidden">
 	<main class=" mx-auto">
-		{#if page.url.pathname !== '/login' && page.url.pathname !== '/signup' && page.url.pathname !== '/login/forgot-password'}
+		{#if page.url.pathname !== '/login' && page.url.pathname !== '/profile' && page.url.pathname !== '/signup' && page.url.pathname !== '/login/forgot-password'}
 			<!-- Top Info Bar -->
 			<div class="text-xs w-screen mx-auto text-gray-500 font-semibold py-2 px-4">
 				<div class="flex max-w-6xl justify-between mx-auto items-center">
@@ -187,13 +201,120 @@
 							<Search />
 						</button>
 						<!-- Profile -->
-						<a
-							href="/profile"
-							class="flex items-center gap-2 px-4 py-2 hover:shadow hover:rounded-full border hover:border-blue-700 transition"
-						>
-							<UserCertification size={20} />
-							<p class="text-sm hidden md:flex">{`${userData?.username}`}</p>
-						</a>
+						<!-- <div class="relative">
+							<select
+								class="flex items-center gap-2 px-4 py-2 hover:shadow hover:rounded-full border hover:border-blue-700 transition bg-white text-black pr-8 appearance-none"
+								onchange={(e) => {
+									const value = e.target.value;
+									if (value === 'profile') window.location.href = '/profile';
+									else if (value === 'orders') window.location.href = '/orders';
+									else if (value === 'logout') {
+										pocketbase.authStore.clear();
+										window.location.href = '/login';
+									}
+								}}
+							>
+								<option value="profile" selected>
+									{userData?.username || 'Profile'}
+								</option>
+								<option value="orders">My Orders</option>
+								<option value="logout">Logout</option>
+							</select>
+							<span class="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none">
+								<UserCertification size={20} />
+							</span>
+						</div> -->
+						<div class="relative inline-block text-left" bind:this={dropdownRef}>
+							<button
+								class="flex items-center gap-2 text-gray-700 hover:text-black focus:outline-none"
+								onclick={() => (showDropdown = !showDropdown)}
+							>
+								<div class="relative">
+									<svg
+										class="w-6 h-6"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="1.5"
+										viewBox="0 0 24 24"
+									>
+										<!-- User icon -->
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 0115 0"
+										/>
+									</svg>
+									<span class="absolute top-0 right-0 w-2 h-2 bg-blue-500 rounded-full"></span>
+								</div>
+								<span class="hidden md:block">Hi, {userData?.username}</span>
+								<svg
+									class="w-4 h-4 hidden md:block"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									viewBox="0 0 24 24"
+								>
+									<path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+								</svg>
+							</button>
+
+							{#if showDropdown}
+								<div
+									class="absolute right-0 mt-2 w-56 origin-top-right bg-white border border-gray-200 rounded-md shadow-lg z-50"
+								>
+									<ul class="py-1 text-sm text-gray-700">
+										<li>
+											<a href="/account" class="flex items-center px-4 py-2 hover:bg-gray-100">
+												<!-- <UserIcon class="w-5 h-5 mr-3" /> -->
+												My Account
+											</a>
+										</li>
+										<li>
+											<a href="/orders" class="flex items-center px-4 py-2 hover:bg-gray-100">
+												<!-- <OrderIcon class="w-5 h-5 mr-3" /> -->
+												Orders
+											</a>
+										</li>
+										<li>
+											<a
+												href="/inbox"
+												class="flex items-center px-4 py-2 hover:bg-gray-100 relative"
+											>
+												<!-- <InboxIcon class="w-5 h-5 mr-3" /> -->
+												Inbox
+												<span
+													class="ml-auto bg-orange-500 text-white text-xs rounded-full px-2 py-0.5"
+													>1</span
+												>
+											</a>
+										</li>
+										<li>
+											<a href="/wishlist" class="flex items-center px-4 py-2 hover:bg-gray-100">
+												<!-- <HeartIcon class="w-5 h-5 mr-3" /> -->
+												Wishlist
+											</a>
+										</li>
+										<li>
+											<a href="/voucher" class="flex items-center px-4 py-2 hover:bg-gray-100">
+												<!-- <TicketIcon class="w-5 h-5 mr-3" /> -->
+												Voucher
+											</a>
+										</li>
+									</ul>
+									<div class="border-t border-gray-200">
+										<button
+											class="w-full px-4 py-2 text-sm text-orange-600 hover:bg-gray-100 text-left"
+											onclick={() => {
+												pocketbase.authStore.clear();
+												window.location.href = '/login';
+											}}
+										>
+											Logout
+										</button>
+									</div>
+								</div>
+							{/if}
+						</div>
 
 						<!-- Wishlist -->
 						<a href="/wishlist" class="relative">
@@ -403,7 +524,7 @@
 			{@render children()}
 		</div>
 
-		{#if page.url.pathname !== '/login' && page.url.pathname !== '/signup' && page.url.pathname !== '/login/forgot-password'}
+		{#if page.url.pathname !== '/login' && page.url.pathname !== '/profile' && page.url.pathname !== '/signup' && page.url.pathname !== '/login/forgot-password'}
 			<footer class="bg-blue-700 text-white pt-10 pb-4 px-4">
 				<!-- Newsletter Subscription Section -->
 				<div
