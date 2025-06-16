@@ -4,22 +4,28 @@
 	import { currency, pocketbase, validateAuthState } from '$lib/controls.svelte';
 	import { onMount } from 'svelte';
 	let selectedTab: 'profile' | 'orders' | 'vendor' | 'wishlist' = $state('profile');
-	let sidebarCollapsed = $state(false);
+	let sidebarCollapsed = $state(true);
 	let editProfile: boolean = $state(false);
 	let editShippingInfo: boolean = $state(false);
 	onMount(async () => {
 		validateAuthState();
 	});
+	let darkmode: boolean = $state(false);
+	function handleDarkMode() {
+		darkmode = darkmode ? false : true;
+	}
 </script>
 
 <Seo title="Vixstores | Profile" description="vixstores profile" keywords="vixstores, profile" />
 
-<div class="flex min-h-screen h-auto bg-gray-100 dark:bg-gray-900">
+<div class="flex min-h-screen h-auto {darkmode ? 'bg-gray-900' : 'bg-gray-100'}">
 	<!-- Sidebar -->
 	<aside
-		class={`transition-all duration-300 ${sidebarCollapsed ? 'w-[95px]' : 'w-[300px]'} bg-white dark:bg-gray-800 shadow`}
+		class={`transition-all duration-300 ${sidebarCollapsed ? 'w-[95px]' : 'w-[300px]'}  ${darkmode ? 'bg-gray-800' : 'bg-white'} shadow`}
 	>
-		<nav class="flex flex-col h-full border-r border-gray-200 dark:border-gray-700 p-4">
+		<nav
+			class="flex flex-col h-full border-r {darkmode ? 'border-gray-700' : 'border-gray-200'} p-4"
+		>
 			<div class="flex justify-end mb-6">
 				<button onclick={() => (sidebarCollapsed = !sidebarCollapsed)} aria-label="Toggle sidebar">
 					<svg
@@ -43,7 +49,7 @@
 				<li>
 					<button
 						onclick={() => (selectedTab = 'profile')}
-						class="flex items-center w-full px-4 py-2 rounded-md text-left text-gray-800 dark:text-white hover:bg-indigo-100 dark:hover:bg-gray-700 transition"
+						class={`flex items-center w-full px-4 py-2 rounded-md text-left  ${darkmode ? 'text-white' : 'text-gray-800'}  ${darkmode ? 'hover:bg-gray-700' : 'hover:bg-indigo-100'} transition`}
 						class:selected={selectedTab === 'profile'}
 					>
 						<svg
@@ -65,7 +71,11 @@
 				<li>
 					<button
 						onclick={() => (selectedTab = 'orders')}
-						class="flex items-center w-full px-4 py-2 rounded-md text-left text-gray-800 dark:text-white hover:bg-indigo-100 dark:hover:bg-gray-700 transition"
+						class="flex items-center w-full px-4 py-2 rounded-md text-left {darkmode
+							? 'text-white'
+							: 'text-gray-800'} {darkmode
+							? 'hover:bg-gray-700'
+							: 'hover:bg-indigo-100'} transition"
 						class:selected={selectedTab === 'orders'}
 					>
 						<svg
@@ -83,7 +93,11 @@
 				<li>
 					<button
 						onclick={() => (window.location.href = '/wishlist')}
-						class="flex items-center w-full px-4 py-2 rounded-md text-left text-gray-800 dark:text-white hover:bg-indigo-100 dark:hover:bg-gray-700 transition"
+						class="flex items-center w-full px-4 py-2 rounded-md text-left {darkmode
+							? 'text-white'
+							: 'text-gray-800'} {darkmode
+							? 'hover:bg-gray-700'
+							: 'hover:bg-indigo-100'} transition"
 						class:selected={selectedTab === 'wishlist'}
 					>
 						<Heart /> &nbsp;
@@ -93,7 +107,9 @@
 				<li>
 					<button
 						onclick={() => (selectedTab = 'vendor')}
-						class="flex items-center w-full px-4 py-2 rounded-md text-left text-gray-800 dark:text-white hover:bg-indigo-100 dark:hover:bg-gray-700 transition"
+						class="flex items-center w-full px-4 py-2 rounded-md text-left text-gray-800 {darkmode
+							? 'text-white'
+							: 'text-black'}  {darkmode ? 'hover:bg-gray-700' : 'hover:bg-indigo-100'} transition"
 						class:selected={selectedTab === 'vendor'}
 					>
 						<svg
@@ -114,8 +130,34 @@
 					</button>
 				</li>
 			</ul>
+			<div
+				class={`flex items-center w-full px-4 py-2 rounded-md text-left ${darkmode ? 'hover:text-black' : 'hover:text-white'}  ${darkmode ? 'text-white' : 'text-gray-800'}  transition cursor-pointer`}
+				role="button"
+				tabindex="0"
+			>
+				<span class="mr-2" onclick={handleDarkMode}>
+					<!-- Sliding toggle switch -->
+					<span
+						class="relative inline-block w-10 align-middle select-none transition duration-200 ease-in"
+					>
+						<span
+							class={`block w-10 h-6 rounded-full transition-colors duration-200 ${
+								darkmode ? 'bg-indigo-600' : 'bg-gray-300'
+							}`}
+						></span>
+						<span
+							class={`absolute left-0 top-0 w-6 h-6 bg-white border border-gray-300 rounded-full shadow transform transition-transform duration-200 ${
+								darkmode ? 'translate-x-4' : ''
+							}`}
+						></span>
+					</span>
+				</span>
+				{#if !sidebarCollapsed}
+					{darkmode ? 'Dark mode' : 'Light mode'}
+				{/if}
+			</div>
 
-			<p class="mt-6 text-sm text-center text-gray-400 dark:text-gray-500">
+			<p class={`mt-6 text-sm text-center ${darkmode ? 'text-gray-400' : 'text-gray-500'}`}>
 				&copy; {new Date().getFullYear()} Vixstores
 			</p>
 		</nav>
@@ -126,14 +168,18 @@
 		{#if selectedTab === 'profile'}
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 				<!--Account Details-->
-				<section class="bg-white dark:bg-gray-800 w-full rounded-lg shadow p-6 max-w-3xl mx-auto">
+				<section
+					class={`${darkmode ? 'bg-gray-800' : 'bg-white'} w-full rounded-lg shadow p-6 max-w-3xl mx-auto`}
+				>
 					<div class="flex justify-between items-center">
-						<h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Account Details</h2>
+						<h2 class={`text-2xl font-bold mb-4 ${darkmode ? 'text-white' : 'text-gray-800'}`}>
+							Account Details
+						</h2>
 						<button
 							onclick={() => {
 								editProfile = !editProfile;
 							}}
-							class="border dark:border-gray-700 p-3 border-black flex justify-end items-center"
+							class={`border ${darkmode ? 'border-gray-700' : 'border-black'} p-3  flex justify-end items-center`}
 						>
 							<svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24"
 								><path
@@ -145,45 +191,68 @@
 							></button
 						>
 					</div>
-					<p class="text-gray-600 dark:text-gray-400 mb-6">
+					<p class={`${darkmode ? 'text-gray-400' : 'text-gray-600'} mb-6`}>
 						Manage your account information and settings
 					</p>
 
 					<div class="grid gap-4">
 						<div>
-							<label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300"
-								>Full Name</label
+							<label
+								class="block mb-1 text-sm font-medium {darkmode
+									? 'text-gray-300'
+									: 'text-gray-700'}">Full Name</label
 							>
 							<input
 								type="text"
 								placeholder="John Doe"
 								disabled={!editProfile}
-								class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+								class="w-full px-4 py-2 {darkmode ? 'bg-gray-700' : 'bg-gray-50'} {darkmode
+									? 'text-white'
+									: 'text-gray-900'} rounded border {darkmode
+									? 'border-gray-300'
+									: 'border-gray-600'} focus:outline-none focus:ring-2 focus:ring-indigo-500"
 							/>
 						</div>
 						<div>
-							<label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300"
-								>Email Address</label
+							<label
+								class="block mb-1 text-sm font-medium {darkmode
+									? 'text-gray-300'
+									: 'text-gray-700'}">Email Address</label
 							>
 							<input
 								type="email"
 								placeholder="john@example.com"
 								disabled={!editProfile}
-								class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+								class="w-full px-4 py-2 {darkmode ? 'bg-gray-700' : 'bg-gray-50'} {darkmode
+									? 'text-gray-900'
+									: 'text-white'} rounded border {darkmode
+									? 'border-gray-300'
+									: 'border-gray-600'} focus:outline-none focus:ring-2 focus:ring-indigo-500"
 							/>
 						</div>
 					</div>
-					<button class="bg-blue-700 mt-4 px-4 py-2 rounded-sm" hidden={!editProfile}>Save</button>
+					<button
+						class="bg-blue-600 mt-4 px-6 py-4 font-bold text-white text-md rounded-lg"
+						hidden={!editProfile}>Save</button
+					>
 				</section>
 				<!--Shipping Details-->
-				<section class="bg-white dark:bg-gray-800 rounded-lg w-full shadow p-6 max-w-3xl mx-auto">
+				<section
+					class="{darkmode
+						? 'bg--gray-800'
+						: 'bg-white'} rounded-lg w-full shadow p-6 max-w-3xl mx-auto"
+				>
 					<div class="flex justify-between items-center">
-						<h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Shipping Details</h2>
+						<h2 class="text-2xl font-bold mb-4 {darkmode ? 'text-white' : 'text-gray-800'}">
+							Shipping Details
+						</h2>
 						<button
 							onclick={() => {
 								editShippingInfo = !editShippingInfo;
 							}}
-							class="border dark:border-gray-700 p-3 border-black flex justify-end items-center"
+							class="border {darkmode
+								? 'border-gray-700'
+								: 'border-black'} p-3 flex justify-end items-center"
 						>
 							<svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24"
 								><path
@@ -195,40 +264,61 @@
 							></button
 						>
 					</div>
-					<p class="text-gray-600 dark:text-gray-400 mb-6">Delivery Address:</p>
+					<p class={`${darkmode ? 'text-gray-400' : 'text-gray-600'} mb-6`}>Delivery Address:</p>
 
 					{#if editShippingInfo}
 						<input
 							type="text"
 							placeholder="Enter new delivery address"
-							class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 mt-2"
+							class="w-full px-4 py-2 {darkmode ? 'bg-gray-700' : 'bg-gray-50'} {darkmode
+								? 'text-white'
+								: 'text-gray-900'} rounded border {darkmode
+								? 'border-gray-300'
+								: 'border-gray-600'} focus:outline-none focus:ring-2 focus:ring-indigo-500 mt-2"
 						/>
 					{:else}
-						<p class="font-semibold dark:text-white">No. 12 Ettagbor Layout</p>
+						<p class="font-semibold {darkmode ? 'text-white' : 'text-black'}">
+							No. 12 Ettagbor Layout
+						</p>
 					{/if}
-					<button class="bg-blue-700 mt-4 px-4 py-2 rounded-sm" hidden={!editShippingInfo}
-						>Save</button
+					<button
+						class="bg-blue-600 mt-4 px-6 py-4 font-bold text-white text-md rounded-lg"
+						hidden={!editShippingInfo}>Save</button
 					>
 				</section>
 				<!--Wallet Details-->
 				<section
-					class="bg-white cols-span-1 md:col-span-2 w-full dark:bg-gray-800 rounded-lg shadow p-6"
+					class="cols-span-1 md:col-span-2 w-full {darkmode
+						? 'bg-gray-800'
+						: 'bg-white'} rounded-lg shadow p-6"
 				>
-					<h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Wallet</h2>
-					<p class="text-gray-600 dark:text-gray-400 mb-2">Balance:</p>
-					<h2 class="font-bold dark:text-white">{currency()}0.00</h2>
-					<button class="bg-blue-700 mt-4 px-4 py-2 rounded-sm">Top up</button>
+					<h2 class="text-2xl font-bold mb-4 {darkmode ? 'text-white' : 'text-gray-800'}">
+						Wallet
+					</h2>
+					<p class="{darkmode ? 'text-gray-400' : 'text-gray-600'} mb-2">Balance:</p>
+					<h2 class="font-bold {darkmode ? 'text-white' : 'text-black'}">{currency()}0.00</h2>
+					<button class="bg-blue-600 mt-4 px-6 py-4 font-bold text-white text-md rounded-lg"
+						>Top up</button
+					>
 				</section>
 			</div>
 		{:else if selectedTab === 'orders'}
-			<section class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 max-w-3xl mx-auto">
-				<h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Your Orders</h2>
-				<p class="text-gray-600 dark:text-gray-400">You have no recent orders.</p>
+			<section
+				class=" {darkmode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow p-6 max-w-3xl mx-auto"
+			>
+				<h2 class="text-xl font-semibold {darkmode ? 'text-white' : 'text-gray-800'} mb-4">
+					Your Orders
+				</h2>
+				<p class={darkmode ? 'text-gray-400' : 'text-gray-600'}>You have no recent orders.</p>
 			</section>
 		{:else if selectedTab === 'vendor'}
-			<section class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 max-w-3xl mx-auto">
-				<h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Vendor Dashboard</h2>
-				<p class="text-gray-600 dark:text-gray-400">Manage your store settings here.</p>
+			<section
+				class="{darkmode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow p-6 max-w-3xl mx-auto"
+			>
+				<h2 class="text-xl font-semibold {darkmode ? 'text-white' : 'text-gray-800'} mb-4">
+					Vendor Dashboard
+				</h2>
+				<p class={darkmode ? 'text-gray-400' : 'text-gray-600'}>Manage your store settings here.</p>
 			</section>
 		{/if}
 	</main>
