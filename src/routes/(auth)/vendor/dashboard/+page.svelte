@@ -3,7 +3,7 @@
 	import { pocketbase } from '$lib/controls.svelte';
 
 	let darkmode = $state(false);
-	let sidebarCollapsed = $state(false);
+	let sidebarCollapsed = $state(true);
 	let selectedTab = $state('dashboard');
 
 	const handleDarkMode = () => {
