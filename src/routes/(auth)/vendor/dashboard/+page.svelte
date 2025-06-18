@@ -1,5 +1,6 @@
 <script>
 	import Seo from '$lib/components/Seo.svelte';
+	import { pocketbase } from '$lib/controls.svelte';
 
 	let darkmode = $state(false);
 	let sidebarCollapsed = $state(false);
@@ -32,22 +33,31 @@
 			class={`flex flex-col h-full border-r ${darkmode ? 'border-gray-700' : 'border-gray-200'} p-4`}
 		>
 			<!-- Toggle Sidebar -->
-			<div class="flex justify-end mb-6">
-				<button onclick={() => setTab('toggleSidebar')}>
-					<svg
-						class="h-6 w-6 text-gray-500 hover:text-indigo-600 transition"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-						fill="none"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d={sidebarCollapsed ? 'M9 5l7 7-7 7' : 'M15 19l-7-7 7-7'}
-						/>
-					</svg>
-				</button>
+			<div class="flex {sidebarCollapsed ? 'justify-center' : 'justify-between'} mb-6 items-center">
+				<div
+					class="{sidebarCollapsed ? 'hidden' : 'md:block'}  text-lg font-semibold {darkmode
+						? 'text-white'
+						: 'text-gray-800'}"
+				>
+					Hello, {pocketbase.authStore.record?.username || 'Vendor'}
+				</div>
+				<div class="">
+					<button onclick={() => setTab('toggleSidebar')}>
+						<svg
+							class="h-6 w-6 text-gray-500 hover:text-indigo-600 transition"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+							fill="none"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d={sidebarCollapsed ? 'M9 5l7 7-7 7' : 'M15 19l-7-7 7-7'}
+							/>
+						</svg>
+					</button>
+				</div>
 			</div>
 
 			<!-- Navigation -->
@@ -57,7 +67,7 @@
 						onclick={() => setTab('dashboard')}
 						class={`flex items-center w-full px-4 py-2 rounded-md text-left ${darkmode ? 'text-white hover:bg-gray-700' : 'text-gray-800 hover:bg-indigo-100'} transition`}
 					>
-						👤 {sidebarCollapsed ? '' : 'Dashboard'}
+						🏠 {sidebarCollapsed ? '' : 'Dashboard'}
 					</button>
 				</li>
 
@@ -66,7 +76,7 @@
 						onclick={() => setTab('orders')}
 						class={`flex items-center w-full px-4 py-2 rounded-md text-left ${darkmode ? 'text-white hover:bg-gray-700' : 'text-gray-800 hover:bg-indigo-100'} transition`}
 					>
-						📦 {sidebarCollapsed ? '' : 'Manage Orders'}
+						📑 {sidebarCollapsed ? '' : 'Manage Orders'}
 					</button>
 				</li>
 
@@ -75,7 +85,7 @@
 						onclick={() => setTab('inventory')}
 						class={`flex items-center w-full px-4 py-2 rounded-md text-left ${darkmode ? 'text-white hover:bg-gray-700' : 'text-gray-800 hover:bg-indigo-100'} transition`}
 					>
-						❤️ {sidebarCollapsed ? '' : 'Inventory'}
+						📦 {sidebarCollapsed ? '' : 'Inventory'}
 					</button>
 				</li>
 
@@ -84,7 +94,7 @@
 						onclick={() => setTab('finance')}
 						class={`flex items-center w-full px-4 py-2 rounded-md text-left ${darkmode ? 'text-white hover:bg-gray-700' : 'text-gray-800 hover:bg-indigo-100'} transition`}
 					>
-						🛍️ {sidebarCollapsed ? '' : 'Finance'}
+						💰 {sidebarCollapsed ? '' : 'Finance'}
 					</button>
 				</li>
 			</ul>
