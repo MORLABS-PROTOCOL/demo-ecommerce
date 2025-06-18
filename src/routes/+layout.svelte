@@ -105,7 +105,7 @@
 
 <div class="font-jost overflow-hidden">
 	<main class=" mx-auto">
-		{#if page.url.pathname !== '/login' && page.url.pathname !== '/profile' && page.url.pathname !== '/signup' && page.url.pathname !== '/login/forgot-password'}
+		{#if page.url.pathname !== '/login' && page.url.pathname !== '/vendor/dashboard' && page.url.pathname !== '/signup' && page.url.pathname !== '/login/forgot-password'}
 			<!-- Top Info Bar -->
 			<div class="text-xs w-screen mx-auto text-gray-500 font-semibold py-2 px-4">
 				<div class="flex max-w-6xl justify-between mx-auto items-center">
@@ -269,35 +269,11 @@
 												My Account
 											</a>
 										</li>
-										<li>
-											<a href="/orders" class="flex items-center px-4 py-2 hover:bg-gray-100">
-												<!-- <OrderIcon class="w-5 h-5 mr-3" /> -->
-												Orders
-											</a>
-										</li>
-										<li>
-											<a
-												href="/inbox"
-												class="flex items-center px-4 py-2 hover:bg-gray-100 relative"
-											>
-												<!-- <InboxIcon class="w-5 h-5 mr-3" /> -->
-												Inbox
-												<span
-													class="ml-auto bg-orange-500 text-white text-xs rounded-full px-2 py-0.5"
-													>1</span
-												>
-											</a>
-										</li>
+
 										<li>
 											<a href="/wishlist" class="flex items-center px-4 py-2 hover:bg-gray-100">
 												<!-- <HeartIcon class="w-5 h-5 mr-3" /> -->
 												Wishlist
-											</a>
-										</li>
-										<li>
-											<a href="/voucher" class="flex items-center px-4 py-2 hover:bg-gray-100">
-												<!-- <TicketIcon class="w-5 h-5 mr-3" /> -->
-												Voucher
 											</a>
 										</li>
 									</ul>
@@ -524,7 +500,7 @@
 			{@render children()}
 		</div>
 
-		{#if page.url.pathname !== '/login' && page.url.pathname !== '/profile' && page.url.pathname !== '/signup' && page.url.pathname !== '/login/forgot-password'}
+		{#if page.url.pathname !== '/login' && page.url.pathname !== '/vendor/dashboard' && page.url.pathname !== '/signup' && page.url.pathname !== '/login/forgot-password'}
 			<footer class="bg-blue-700 text-white pt-10 pb-4 px-4">
 				<!-- Newsletter Subscription Section -->
 				<div

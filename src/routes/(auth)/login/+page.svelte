@@ -21,6 +21,8 @@
 	onMount(async () => {
 		validateAuthState();
 	});
+
+	let busy: boolean = $state(false);
 </script>
 
 <Seo title="Vixstores | Login" description="login" keywords="vixstores, login" />
@@ -37,7 +39,7 @@
 				</div>
 				<h3 class="justify-center items-center flex">Log In</h3>
 				<FormGroup class="w-full">
-					<TextInput labelText="Enter Email" required bind:value={userData.email} />
+					<TextInput labelText="Enter Email" type="email" required bind:value={userData.email} />
 				</FormGroup>
 				<FormGroup class="w-full">
 					<PasswordInput labelText="Enter Password" required bind:value={userData.password} />
@@ -47,32 +49,40 @@
 				</FormGroup>
 
 				<button
+					disabled={busy || !userData.email || !userData.password}
 					class="w-full text-center bg-blue-700 p-3 font-bold rounded-lg text-white"
 					onclick={async () => {
-						try {
-							let authData = await pocketbase
-								.collection('users')
-								.authWithPassword(userData.email, userData.password);
-							if (authData) {
-								notify('Success', 'Logged in successfully');
-								const cartItems = localStorage.getItem('cartItems');
-								if (cartItems) {
-									const items = JSON.parse(cartItems);
-									try {
-										for (const item of items) {
-											await addToCart(item.productId, item.quantity);
+						busy = true;
+						if (formData && !formData.checkValidity()) {
+							formData.reportValidity();
+						} else {
+							try {
+								let authData = await pocketbase
+									.collection('users')
+									.authWithPassword(userData.email, userData.password);
+								if (authData) {
+									notify('Success', 'Logged in successfully');
+									const cartItems = localStorage.getItem('cartItems');
+									if (cartItems) {
+										const items = JSON.parse(cartItems);
+										try {
+											for (const item of items) {
+												await addToCart(item.productId, item.quantity);
+											}
+											localStorage.removeItem('cartItems');
+										} catch (e) {
+											notify('Error', 'Failed to sync cart items', 'error');
+										} finally {
+											await refreshCart();
 										}
-										localStorage.removeItem('cartItems');
-									} catch (e) {
-										notify('Error', 'Failed to sync cart items', 'error');
-									} finally {
-										await refreshCart();
 									}
+									window.location.href = '/';
 								}
-								window.location.href = '/';
+								busy = false;
+							} catch (error) {
+								notify('Error', `Invalid Login Credentials`, 'error');
+								busy = false;
 							}
-						} catch (error) {
-							notify('Error', `Invalid Login Credentials`, 'error');
 						}
 					}}>Log In</button
 				>
