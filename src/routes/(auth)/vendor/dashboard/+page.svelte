@@ -1,4 +1,6 @@
 <script>
+	import Seo from '$lib/components/Seo.svelte';
+
 	let darkmode = $state(false);
 	let sidebarCollapsed = $state(false);
 	let selectedTab = $state('profile');
@@ -14,6 +16,12 @@
 		}
 	};
 </script>
+
+<Seo
+	title="Vixstores | Vendor Dashboard"
+	description="Vendor dashboard for managing orders, inventory, and finances."
+	keywords="vixstores, vendor, dashboard, orders, inventory, finance"
+/>
 
 <div class={`flex min-h-screen h-auto ${darkmode ? 'bg-gray-900' : 'bg-gray-100'}`}>
 	<!-- Sidebar -->
