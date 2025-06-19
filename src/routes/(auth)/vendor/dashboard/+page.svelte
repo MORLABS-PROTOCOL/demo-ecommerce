@@ -6,7 +6,8 @@
 		validateAuthState,
 		notify,
 		uploadProduct,
-		getMyProducts
+		getMyProducts,
+		currency
 	} from '$lib/controls.svelte';
 	import { onMount } from 'svelte';
 	let darkmode = $state(false);
@@ -229,7 +230,7 @@
 						class={`p-4 rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}
 					>
 						<h2 class="text-lg font-semibold mb-2">Revenue</h2>
-						<p class="text-3xl font-bold">$1,230</p>
+						<p class="text-3xl font-bold">{currency()}1,230</p>
 					</div>
 					<div
 						class={`md:col-span-3 p-4 rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}
@@ -296,7 +297,7 @@
 										<tr>
 											<td class="px-4 py-2">{product.title}</td>
 											<td class="px-4 py-2">{product.quantity}</td>
-											<td class="px-4 py-2">${product.price.toLocaleString()}</td>
+											<td class="px-4 py-2">{currency()}{product.price.toLocaleString()}</td>
 											<td class="px-4 py-2">
 												{#if product.quantity > product.threshold}
 													<span
@@ -335,19 +336,19 @@
 						<ul class="divide-y divide-gray-200 dark:divide-gray-700">
 							<li class="py-2 flex justify-between flex-wrap">
 								<span>2024-06-01</span>
-								<span class="text-green-600 dark:text-green-400">+ $500.00</span>
+								<span class="text-green-600 dark:text-green-400">+ {currency()}500.00</span>
 							</li>
 							<li class="py-2 flex justify-between flex-wrap">
 								<span>2024-05-28</span>
-								<span class="text-green-600 dark:text-green-400">+ $320.00</span>
+								<span class="text-green-600 dark:text-green-400">+ {currency()}320.00</span>
 							</li>
 							<li class="py-2 flex justify-between flex-wrap">
 								<span>2024-05-20</span>
-								<span class="text-red-600 dark:text-red-400">- $50.00 (Refund)</span>
+								<span class="text-red-600 dark:text-red-400">- {currency()}50.00 (Refund)</span>
 							</li>
 							<li class="py-2 flex justify-between flex-wrap">
 								<span>2024-05-15</span>
-								<span class="text-green-600 dark:text-green-400">+ $200.00</span>
+								<span class="text-green-600 dark:text-green-400">+ {currency()}200.00</span>
 							</li>
 						</ul>
 					</div>
@@ -359,15 +360,15 @@
 						<ul class="divide-y divide-gray-200 dark:divide-gray-700">
 							<li class="py-2 flex justify-between flex-wrap">
 								<span>2024-06-10</span>
-								<span class="text-green-600 dark:text-green-400">$400.00</span>
+								<span class="text-green-600 dark:text-green-400">{currency()}400.00</span>
 							</li>
 							<li class="py-2 flex justify-between flex-wrap">
 								<span>2024-06-17</span>
-								<span class="text-green-600 dark:text-green-400">$350.00</span>
+								<span class="text-green-600 dark:text-green-400">{currency()}350.00</span>
 							</li>
 							<li class="py-2 flex justify-between flex-wrap">
 								<span>2024-06-24</span>
-								<span class="text-green-600 dark:text-green-400">$600.00</span>
+								<span class="text-green-600 dark:text-green-400">{currency()}600.00</span>
 							</li>
 						</ul>
 					</div>

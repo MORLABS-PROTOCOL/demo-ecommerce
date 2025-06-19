@@ -364,7 +364,7 @@
 							transition:fly={{ x: -300, duration: 300 }}
 							class="fixed top-0 left-0 z-50 min-h-screen w-full sm:w-1/4 bg-white text-black transition-transform transform translate-x-0 sm:translate-x-0 ease-in-out"
 						>
-							<div class="p-3 w-full h-full overflow-y-auto">
+							<div class="p-3 w-full h-full overflow-y-auto max-h-screen">
 								<!-- Close button for large screens -->
 								<div class="hidden sm:flex justify-end pb-5 px-2">
 									<button class="font-bold text-black" onclick={() => (showCategories = false)}>
@@ -376,65 +376,134 @@
 								<h3
 									class="sm:hidden font-bold text-xl flex justify-evenly gap-x-2 items-center pb-5 text-black"
 								>
-									Browse all categories
+									Menu
 									<button onclick={() => (showCategories = false)}><Exit /></button>
 								</h3>
 
-								<hr class="border-gray-600" />
-								<!-- Category Search Bar -->
-								<div class="px-4 py-3">
-									<input
-										type="text"
-										placeholder="Search categories..."
-										class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
-										oninput={(e) => {
-											const value = e.target.value.toLowerCase();
-											filteredCategories = [
-												'Electronics',
-												'Fashion',
-												'Home & Kitchen',
-												'Beauty & Personal Care',
-												'Sports & Outdoors',
-												'Toys & Games',
-												'Books',
-												'Automotive',
-												'Health & Wellness',
-												'Groceries',
-												'Office Supplies',
-												'Pet Supplies'
-											].filter((cat) => cat.toLowerCase().includes(value));
-										}}
-									/>
-								</div>
-								<!-- Categories list -->
-								{#each filteredCategories as category}
-									<div class="flex justify-between items-center px-4 py-3 hover:bg-gray-100">
-										<!-- Left side: Icon + Category Name -->
-										<div class="flex items-center gap-x-3">
-											<!-- Placeholder for icon (replace with real icons using components or <img>) -->
-											<span class="text-gray-600">
-												<i class="fas fa-tag"></i>
-												<!-- Replace this with appropriate icons -->
-											</span>
-											<a
-												href="/products/category/{category.toLowerCase()}"
-												onclick={() => (showCategories = false)}
-												class="text-gray-800 font-medium text-sm"
-											>
-												{category}
-											</a>
-										</div>
-
-										<!-- Right chevron -->
-										<span class="text-gray-400">
-											<i class="fas fa-chevron-right"></i>
-
-											<!-- Right arrow icon -->
-										</span>
+								<!-- Categories Section -->
+								<div class="mb-6">
+									<h4 class="font-semibold text-lg px-4 pb-2">Categories</h4>
+									<hr class="border-gray-300 mb-2" />
+									<!-- Category Search Bar -->
+									<div class="px-4 py-2">
+										<input
+											type="text"
+											placeholder="Search categories..."
+											class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
+											oninput={(e) => {
+												const value = e.target.value.toLowerCase();
+												filteredCategories = [
+													'Electronics',
+													'Fashion',
+													'Home & Kitchen',
+													'Beauty & Personal Care',
+													'Sports & Outdoors',
+													'Toys & Games',
+													'Books',
+													'Automotive',
+													'Health & Wellness',
+													'Groceries',
+													'Office Supplies',
+													'Pet Supplies'
+												].filter((cat) => cat.toLowerCase().includes(value));
+											}}
+										/>
 									</div>
+									<!-- Categories list -->
+									{#each filteredCategories as category}
+										<div class="flex justify-between items-center px-4 py-3 hover:bg-gray-100">
+											<div class="flex items-center gap-x-3">
+												<span class="text-gray-600">
+													<i class="fas fa-tag"></i>
+												</span>
+												<a
+													href="/products/category/{category.toLowerCase()}"
+													onclick={() => (showCategories = false)}
+													class="text-gray-800 font-medium text-sm"
+												>
+													{category}
+												</a>
+											</div>
+											<span class="text-gray-400">
+												<i class="fas fa-chevron-right"></i>
+											</span>
+										</div>
+										<hr class="border-gray-200 mx-4" />
+									{/each}
+								</div>
 
-									<hr class="border-gray-200 mx-4" />
-								{/each}
+								<!-- Navigation Section -->
+								<div class="mb-6">
+									<h4 class="font-semibold text-lg px-4 pb-2">Navigation</h4>
+									<hr class="border-gray-300 mb-2" />
+									<ul class="space-y-1">
+										<li>
+											<a
+												href="/about"
+												class="block px-4 py-2 hover:bg-gray-100 rounded"
+												onclick={() => (showCategories = false)}
+											>
+												About
+											</a>
+										</li>
+										<li>
+											<a
+												href="/contact"
+												class="block px-4 py-2 hover:bg-gray-100 rounded"
+												onclick={() => (showCategories = false)}
+											>
+												Contact
+											</a>
+										</li>
+										<li>
+											<a
+												href="/faq"
+												class="block px-4 py-2 hover:bg-gray-100 rounded"
+												onclick={() => (showCategories = false)}
+											>
+												FAQ
+											</a>
+										</li>
+									</ul>
+								</div>
+
+								<!-- Account Section -->
+								<div>
+									<h4 class="font-semibold text-lg px-4 pb-2">Account</h4>
+									<hr class="border-gray-300 mb-2" />
+									<ul class="space-y-1">
+										<li>
+											<a
+												href="/vendor/dashboard"
+												class="block px-4 py-2 hover:bg-gray-100 rounded"
+												onclick={() => (showCategories = false)}
+											>
+												Become a Seller
+											</a>
+										</li>
+										<li>
+											<a
+												href="/account"
+												class="block px-4 py-2 hover:bg-gray-100 rounded"
+												onclick={() => (showCategories = false)}
+											>
+												Account
+											</a>
+										</li>
+										<li>
+											<button
+												class="block w-full text-left px-4 py-2 hover:bg-gray-100 rounded text-red-600"
+												onclick={() => {
+													pocketbase.authStore.clear();
+													window.location.href = '/login';
+													showCategories = false;
+												}}
+											>
+												Logout
+											</button>
+										</li>
+									</ul>
+								</div>
 							</div>
 						</div>
 					{/if}

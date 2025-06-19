@@ -4,7 +4,8 @@
 		notify,
 		pocketbase,
 		uploadProduct,
-		updateProductById
+		updateProductById,
+		currency
 	} from '$lib/controls.svelte';
 	import type { RecordModel } from 'pocketbase';
 	import { onMount } from 'svelte';
@@ -107,7 +108,7 @@
 </script>
 
 <div class="flex items-center justify-between mb-4">
-	<div class="text-2xl font-semibold">Inventory</div>
+	<div class="text-2xl font-semibold {darkmode ? 'text-white' : 'text-black'}">Inventory</div>
 	<button
 		class="flex items-center px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
 		onclick={() => (showUploadModal = true)}
@@ -155,13 +156,18 @@
 						class={`w-full px-3 py-2 border rounded ${darkmode ? 'bg-gray-700 text-white border-gray-600' : ''}`}
 					>
 						<option value="" disabled selected>Select category</option>
-						<option value="fashion">Fashion</option>
 						<option value="electronics">Electronics</option>
-						<option value="home">Home & Living</option>
-						<option value="beauty">Beauty</option>
-						<option value="sports">Sports</option>
-						<option value="food">Food & Groceries</option>
-						<option value="other">Other</option>
+						<option value="fashion">Fashion</option>
+						<option value="home">Home & Kitchen</option>
+						<option value="beauty">Beauty & Personal Care</option>
+						<option value="sports">Sports & Outdoors</option>
+						<option value="toys">Toys & Games</option>
+						<option value="books">Books</option>
+						<option value="automotive">Automotive</option>
+						<option value="health">Health & Wellness</option>
+						<option value="groceries">Groceries</option>
+						<option value="office">Office Supplies</option>
+						<option value="pet">Pet Supplies</option>
 					</select>
 				</div>
 				<div class="mb-3">
@@ -258,25 +264,29 @@
 				</div>
 				<div class="mb-3">
 					<label class={`block mb-1 text-sm font-medium ${darkmode ? 'text-gray-200' : ''}`}
-						>Category</label
-					>
+						>Category</label>
 					<select
 						bind:value={editPayload.category}
 						required
 						class={`w-full px-3 py-2 border rounded ${darkmode ? 'bg-gray-700 text-white border-gray-600' : ''}`}
 					>
 						<option value="" disabled>Select category</option>
-						<option value="fashion">Fashion</option>
 						<option value="electronics">Electronics</option>
-						<option value="home">Home & Living</option>
-						<option value="beauty">Beauty</option>
-						<option value="sports">Sports</option>
-						<option value="food">Food & Groceries</option>
-						<option value="other">Other</option>
+						<option value="fashion">Fashion</option>
+						<option value="home">Home & Kitchen</option>
+						<option value="beauty">Beauty & Personal Care</option>
+						<option value="sports">Sports & Outdoors</option>
+						<option value="toys">Toys & Games</option>
+						<option value="books">Books</option>
+						<option value="automotive">Automotive</option>
+						<option value="health">Health & Wellness</option>
+						<option value="groceries">Groceries</option>
+						<option value="office">Office Supplies</option>
+						<option value="pet">Pet Supplies</option>
 					</select>
 				</div>
 				<div class="mb-3">
-					<label class={`block mb-1 text-sm font-medium ${darkmode ? 'text-gray-200' : ''}`}
+					<label class={`block mb-1 text-sm font-medium ${darkmode ? 'text-gray-200' : ''}`
 						>Stock</label
 					>
 					<input
@@ -288,7 +298,7 @@
 					/>
 				</div>
 				<div class="mb-3">
-					<label class={`block mb-1 text-sm font-medium ${darkmode ? 'text-gray-200' : ''}`}
+					<label class={`block mb-1 text-sm font-medium ${darkmode ? 'text-gray-200' : ''}`
 						>Price</label
 					>
 					<input
@@ -301,7 +311,7 @@
 					/>
 				</div>
 				<div class="mb-3">
-					<label class={`block mb-1 text-sm font-medium ${darkmode ? 'text-gray-200' : ''}`}
+					<label class={`block mb-1 text-sm font-medium ${darkmode ? 'text-gray-200' : ''}`
 						>Image</label
 					>
 					<input
@@ -311,7 +321,7 @@
 						class={`w-full ${darkmode ? 'bg-gray-700 text-white border-gray-600' : ''}`}
 					/>
 				</div>
-				<label class={`block mb-1 text-sm font-medium ${darkmode ? 'text-gray-200' : ''}`}
+				<label class={`block mb-1 text-sm font-medium ${darkmode ? 'text-gray-200' : ''}`
 					>Description</label
 				>
 				<textarea
@@ -319,7 +329,7 @@
 					class={`w-full px-3 py-2 border rounded ${darkmode ? 'bg-gray-700 text-white border-gray-600' : ''}`}
 				></textarea>
 				<div class="mb-3">
-					<label class={`block mb-1 text-sm font-medium ${darkmode ? 'text-gray-200' : ''}`}
+					<label class={`block mb-1 text-sm font-medium ${darkmode ? 'text-gray-200' : ''}`
 						>Threshold</label
 					>
 					<input
@@ -405,7 +415,7 @@
 							</td>
 							<td class="px-4 py-2 align-middle">{product.title}</td>
 							<td class="px-4 py-2 align-middle">{product.quantity}</td>
-							<td class="px-4 py-2 align-middle">{product.price.toLocaleString()}</td>
+							<td class="px-4 py-2 align-middle">{currency()}{product.price.toLocaleString()}</td>
 							<td class="px-4 py-2 align-middle">
 								{#if product.quantity > product.threshold}
 									<span
