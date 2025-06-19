@@ -491,7 +491,11 @@
 						<p class="font-semibold">FAQ</p>
 					</div>
 					<div class="hidden px-4 w-full md:flex justify-end items-center">
-						<button class="bg-black text-white p-3">Become a Seller &nbsp;{'>'}</button>
+						<button
+							class="bg-black text-white p-3"
+							onclick={() => (window.location.href = '/vendor/dashboard')}
+							>Become a Seller &nbsp;{'>'}</button
+						>
 					</div>
 				</div>
 			</div>

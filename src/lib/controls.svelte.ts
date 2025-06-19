@@ -87,7 +87,6 @@ export function notify(title: string, text: string = "", status: string = "info"
 export function validateAuthState() {
     if (pocketbase.authStore.isValid && (page.url.pathname === '/signup' || page.url.pathname === '/login' || page.url.pathname === "/login/forgot-password") && browser) {
         // Redirect authenticated users away from signup or login pages
-        window.location.href = '/';
         return pocketbase.authStore.isValid;
     }
 
@@ -375,20 +374,7 @@ export async function addToNewsLetter(email: string) {
         throw error;
     }
 }
-// export async function makePayment(email: string, amount: number) {
-//     try {
-//         let transaction = await fetch("https://api.paystack.co/transaction/initialize", {
-//             headers: {
-//                 "Authorization": `Bearer ${PUBLIC_PAYSTACK_SECRET_KEY}`, 'Content-Type': 'application/json'
-//             }, method: "POST",
-//             body: JSON.stringify({ email, amount: amount * 100 })
-//         })
-//         return transaction.json();
-//     } catch (error) {
-//         console.error("Error making payment:", error);
-//         throw error;
-//     }
-// }
+
 export async function makePayment(email: string, amount: number) {
     try {
         let transaction = await fetch("https://api.paystack.co/transaction/initialize", {
@@ -404,6 +390,37 @@ export async function makePayment(email: string, amount: number) {
     }
 }
 
+export async function kysRegistration(store_name: string, store_niche: string, address: string, country: string, website?: string) {
+    if (!pocketbase.authStore.isValid) {
+        notify("Error", "You must be logged in to register as a vendor.", "error");
+        return null;
+    }
+
+    const userId = pocketbase.authStore.record?.id;
+    if (!userId) {
+        notify("Error", "User ID not found.", "error");
+        return null;
+    }
+
+    try {
+        const vendorRecord = await pocketbase.collection("vendors").create({
+            userId: userId,
+            inventory: [],
+            orders: [],
+            store_name, store_niche, website_url: website, address, country: country,
+            finance: []
+        }, { requestKey: Date.now().toString() });
+        await pocketbase.collection("users").update(userId, {
+            kys_status: "pending"
+        }, { requestKey: Date.now().toString() });
+        notify("Success", "Vendor registration initialized. You will be notified once your registration is approved", "success");
+        return vendorRecord;
+    } catch (error) {
+        console.error("Error initializing vendor registration:", error);
+        notify("Error", "Failed to register vendor.", "error");
+        throw error;
+    }
+}
 
 // async function removeBg(imageURL: string): Promise<ArrayBuffer> {
 //     if (!imageURL) {
@@ -427,3 +444,106 @@ export async function makePayment(email: string, amount: number) {
 // }
 
 // const rbgResultData = await removeBg("https://www.remove.bg/example.jpg");
+
+export async function getMyProducts(limit?: number): Promise<RecordModel[]> {
+    if (!pocketbase.authStore.isValid) {
+        notify("Error", "You must be logged in to view your products.", "error");
+        return [];
+    }
+    const userId = pocketbase.authStore.record?.id;
+    if (!userId) {
+        notify("Error", "User ID not found.", "error");
+        return [];
+    }
+    const options: any = {
+        filter: `vendor_id="${userId}"`,
+        requestKey: Date.now().toString()
+    };
+    if (limit !== undefined) {
+        options.limit = limit;
+    }
+    const results = await pocketbase.collection("products").getFullList(options);
+    console.log(results)
+    return results.map((p) => ({
+        ...p,
+        imageUrl: pocketbase.files.getURL(p, p.product_image)
+    }));
+}
+
+export async function uploadProduct(product: {
+    title: string;
+    description: string;
+    price: number;
+    category: string;
+    product_image: File;
+    discount_percentage?: number;
+    quantity: number;
+}) {
+    if (!pocketbase.authStore.isValid) {
+        notify("Error", "You must be logged in to upload a product.", "error");
+        return null;
+    }
+    try {
+        let formData = $state(new FormData());
+        formData.append("title", product.title);
+        formData.append("description", product.description);
+        formData.append("price", product.price.toString());
+        formData.append("category", product.category.toLowerCase());
+        formData.append("product_image", product.product_image);
+        if (product.discount_percentage !== undefined) {
+            formData.append("discount_percentage", product.discount_percentage.toString());
+        }
+        if (product.quantity !== undefined) {
+            formData.append("quantity", product.quantity.toString());
+        }
+
+        formData.append("vendor_id", pocketbase.authStore?.record?.id);
+        console.log(product)
+        const created = await pocketbase.collection("products").create(formData, {
+            requestKey: Date.now().toString()
+        });
+        notify("Success", "Product uploaded successfully!", "success");
+        return created;
+    } catch (error) {
+        console.error("Error uploading product:", error);
+        notify("Error", "Failed to upload product.", "error");
+        throw error;
+    }
+}
+
+export async function updateProductById(id: string, data: {
+    title?: string;
+    description?: string;
+    price?: number;
+    category?: string;
+    product_image?: File;
+    discount_percentage?: number;
+    quantity?: number;
+    threshold?: number;
+}) {
+    if (!pocketbase.authStore.isValid) {
+        notify("Error", "You must be logged in to update a product.", "error");
+        return null;
+    }
+    try {
+        let formData = $state(new FormData());
+        if (data.title !== undefined) formData.append("title", data.title);
+        if (data.description !== undefined) formData.append("description", data.description);
+        if (data.price !== undefined) formData.append("price", data.price.toString());
+        if (data.category !== undefined) formData.append("category", data.category.toLowerCase());
+        if (data.product_image !== undefined) formData.append("product_image", data.product_image);
+        if (data.discount_percentage !== undefined) formData.append("discount_percentage", data.discount_percentage.toString());
+        if (data.quantity !== undefined) formData.append("quantity", data.quantity.toString());
+        if (data.threshold !== undefined) formData.append("threshold", data.threshold.toString());
+
+        const updated = await pocketbase.collection("products").update(id, formData, {
+            requestKey: Date.now().toString()
+        });
+        notify("Success", "Product updated successfully!", "success");
+        return updated;
+    } catch (error) {
+        console.error("Error updating product:", error);
+        notify("Error", "Failed to update product.", "error");
+        throw error;
+    }
+}

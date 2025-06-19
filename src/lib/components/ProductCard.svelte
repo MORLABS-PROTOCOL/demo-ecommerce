@@ -5,8 +5,17 @@
 	import Exit from './Icons/Exit-sm.svelte';
 	import Heart from './Icons/Heart.svelte';
 
-	let { price, title, quantity, flashSale, image, discountPercentage, productId, dateCreated } =
-		$props();
+	let {
+		price,
+		title,
+		quantity,
+		flashSale,
+		image,
+		discountPercentage,
+		productId,
+		dateCreated,
+		threshold
+	} = $props();
 	let newPrice: number = $state(0);
 
 	onMount(() => {
@@ -75,7 +84,7 @@
 		</a>
 
 		<!-- Pricing -->
-		{#if quantity > 0}
+		{#if quantity > threshold}
 			<div class="flex flex-wrap items-center gap-2">
 				{#if discountPercentage > 0}
 					<p class="text-xl font-bold">{currency()}{newPrice.toLocaleString()}</p>
@@ -84,7 +93,7 @@
 					<p class="text-lg font-bold text-gray-900">{currency()}{price.toLocaleString()}</p>
 				{/if}
 			</div>
-		{:else}
+		{:else if quantity === 0}
 			<p
 				class="inline-flex items-center text-xs font-medium text-red-600 bg-red-50 px-2 rounded-full"
 			>
@@ -102,7 +111,7 @@
 				<div
 					class="
 						h-2 rounded-full transition-all duration-300
-						{quantity < 20 ? 'bg-yellow-400' : 'bg-blue-500'}
+						{quantity < threshold ? 'bg-yellow-400' : 'bg-blue-500'}
 					"
 					style="width: {Math.min(100, (quantity / 100) * 100)}%;"
 				></div>

@@ -1,7 +1,14 @@
-<script>
+<script lang="ts">
+	import Inventory from '$lib/components/Inventory.svelte';
 	import Seo from '$lib/components/Seo.svelte';
-	import { pocketbase } from '$lib/controls.svelte';
-
+	import {
+		pocketbase,
+		validateAuthState,
+		notify,
+		uploadProduct,
+		getMyProducts
+	} from '$lib/controls.svelte';
+	import { onMount } from 'svelte';
 	let darkmode = $state(false);
 	let sidebarCollapsed = $state(true);
 	let selectedTab = $state('dashboard');
@@ -9,13 +16,66 @@
 	const handleDarkMode = () => {
 		darkmode = !darkmode;
 	};
-	const setTab = (tab) => {
+	let showUploadModal: boolean = $state(false);
+	let payload = $state({
+		productName: '',
+		productStock: '',
+		productPrice: '',
+		category: '',
+		fileInput: null as HTMLInputElement | null,
+		description: ''
+	});
+
+	let productName = $state('');
+	let productStock: number | undefined = $state(0);
+	let productPrice: number | '' = $state('');
+	let fileInput: HTMLInputElement | null = $state(null);
+	let inventoryProducts: any[] = $state([]);
+
+	async function handleProductUpload() {
+		if (!productName || !productPrice || !fileInput?.files?.[0]) {
+			notify('Error', 'Please fill all required fields.', 'error');
+			return;
+		}
+		try {
+			await uploadProduct({
+				title: productName,
+				description: payload.description, // Add description if you have a field for it
+				price: Number(productPrice),
+				category: payload.category, // Replace with actual category if you have a field
+				product_image: fileInput.files[0],
+				quantity: productStock ? Number(productStock) : undefined
+			});
+			showUploadModal = false;
+			productName = '';
+			productStock = 0;
+			productPrice = '';
+			if (fileInput) fileInput.value = '';
+		} catch (e) {
+			// Error notification handled in uploadProduct
+		}
+	}
+	const setTab = (tab: string) => {
 		if (tab === 'toggleSidebar') {
 			sidebarCollapsed = !sidebarCollapsed;
 		} else {
 			selectedTab = tab;
 		}
 	};
+	let valid: any = $state(false);
+	onMount(async () => {
+		valid = validateAuthState();
+		if (!valid) {
+			window.location.href = '/login';
+		}
+		if (valid) {
+			if (pocketbase.authStore?.record?.kys_status === true) {
+				window.location.href = '/vendor/kys';
+				return;
+			}
+			inventoryProducts = await getMyProducts(4);
+		}
+	});
 </script>
 
 <Seo
@@ -27,7 +87,10 @@
 <div class={`flex min-h-screen h-auto ${darkmode ? 'bg-gray-900' : 'bg-gray-100'}`}>
 	<!-- Sidebar -->
 	<aside
-		class={`fixed top-0 left-0 h-screen transition-all duration-300 z-20 ${sidebarCollapsed ? 'w-[95px]' : 'w-[300px]'} ${darkmode ? 'bg-gray-800' : 'bg-white'} shadow`}
+		class={`fixed top-0 left-0 h-screen transition-all duration-300 z-20 ${sidebarCollapsed ? 'w-[90px]' : 'w-[300px]'} ${darkmode ? 'bg-gray-800' : 'bg-white'} shadow
+			
+					`}
+		style="width: ${sidebarCollapsed ? '95px' : '300px'}"
 	>
 		<nav
 			class={`flex flex-col h-full border-r ${darkmode ? 'border-gray-700' : 'border-gray-200'} p-4`}
@@ -120,218 +183,236 @@
 				&copy; {new Date().getFullYear()} Vixstores
 			</p>
 		</nav>
+		<style>
+			@media (max-width: 640px) {
+				aside {
+					position: static !important;
+					width: 100vw !important;
+					height: auto !important;
+					z-index: 10 !important;
+				}
+				main {
+					margin-left: 0 !important;
+				}
+			}
+		</style>
 	</aside>
 
 	<!-- Main Content -->
 	<main
-		class="p-6 w-full transition-all duration-300"
+		class="p-4 sm:p-6 w-full transition-all duration-300"
 		style="margin-left: {sidebarCollapsed ? '95px' : '300px'}"
 	>
-		{#if selectedTab === 'dashboard'}
-			<h1 class={`text-2xl font-semibold mb-4 ${darkmode ? 'text-white' : 'text-gray-800'}`}>
-				Dashboard
-			</h1>
-			<p class={`${darkmode ? 'text-gray-300' : 'text-gray-700'}`}>
-				Welcome to your vendor dashboard. Here you can get an overview of your store's performance,
-				recent activity, and quick actions.
-			</p>
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-				<div
-					class={`p-4 rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}
-				>
-					<h2 class="text-lg font-semibold mb-2">Today's Orders</h2>
-					<p class="text-3xl font-bold">12</p>
-				</div>
-				<div
-					class={`p-4 rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}
-				>
-					<h2 class="text-lg font-semibold mb-2">Inventory</h2>
-					<p class="text-3xl font-bold">245</p>
-				</div>
-				<div
-					class={`p-4 rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}
-				>
-					<h2 class="text-lg font-semibold mb-2">Revenue</h2>
-					<p class="text-3xl font-bold">$1,230</p>
-				</div>
-				<div
-					class={`md:col-span-3 p-4 rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}
-				>
-					<h2 class="text-lg font-semibold mb-2">Pending Orders</h2>
-					<ul class="divide-y divide-gray-200 dark:divide-gray-700">
-						<li class="py-2 flex justify-between items-center">
-							<span>Order #1023</span>
-							<span
-								class="text-sm px-2 py-1 rounded bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-								>Pending</span
-							>
-						</li>
-						<li class="py-2 flex justify-between items-center">
-							<span>Order #1024</span>
-							<span
-								class="text-sm px-2 py-1 rounded bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-								>Pending</span
-							>
-						</li>
-						<li class="py-2 flex justify-between items-center">
-							<span>Order #1025</span>
-							<span
-								class="text-sm px-2 py-1 rounded bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-								>Pending</span
-							>
-						</li>
-					</ul>
-				</div>
-			</div>
-			<div
-				class={`md:col-span-3 p-4 rounded-lg shadow mt-6 ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}
-			>
-				<h2 class="text-lg font-semibold mb-2">Your Inventory</h2>
-				<div class="overflow-x-auto">
-					<table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-						<thead>
-							<tr>
-								<th
-									class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider ${darkmode
-										? 'text-gray-300'
-										: 'text-gray-700'}">Product</th
-								>
-								<th
-									class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider ${darkmode
-										? 'text-gray-300'
-										: 'text-gray-700'}">Stock</th
-								>
-								<th
-									class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider ${darkmode
-										? 'text-gray-300'
-										: 'text-gray-700'}">Price</th
-								>
-								<th
-									class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider ${darkmode
-										? 'text-gray-300'
-										: 'text-gray-700'}">Status</th
-								>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td class="px-4 py-2">Red T-shirt</td>
-								<td class="px-4 py-2">32</td>
-								<td class="px-4 py-2">$15.00</td>
-								<td class="px-4 py-2">
-									<span
-										class="px-2 py-1 rounded bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-										>Active</span
-									>
-								</td>
-							</tr>
-							<tr>
-								<td class="px-4 py-2">Blue Jeans</td>
-								<td class="px-4 py-2">12</td>
-								<td class="px-4 py-2">$40.00</td>
-								<td class="px-4 py-2">
-									<span
-										class="px-2 py-1 rounded bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-										>Low Stock</span
-									>
-								</td>
-							</tr>
-							<tr>
-								<td class="px-4 py-2">Sneakers</td>
-								<td class="px-4 py-2">0</td>
-								<td class="px-4 py-2">$60.00</td>
-								<td class="px-4 py-2">
-									<span
-										class="px-2 py-1 rounded bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-										>Out of Stock</span
-									>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</div>
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-				<!-- Finance History -->
-				<div
-					class={`p-4 rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}
-				>
-					<h2 class="text-lg font-semibold mb-2">Finance History</h2>
-					<ul class="divide-y divide-gray-200 dark:divide-gray-700">
-						<li class="py-2 flex justify-between">
-							<span>2024-06-01</span>
-							<span class="text-green-600 dark:text-green-400">+ $500.00</span>
-						</li>
-						<li class="py-2 flex justify-between">
-							<span>2024-05-28</span>
-							<span class="text-green-600 dark:text-green-400">+ $320.00</span>
-						</li>
-						<li class="py-2 flex justify-between">
-							<span>2024-05-20</span>
-							<span class="text-red-600 dark:text-red-400">- $50.00 (Refund)</span>
-						</li>
-						<li class="py-2 flex justify-between">
-							<span>2024-05-15</span>
-							<span class="text-green-600 dark:text-green-400">+ $200.00</span>
-						</li>
-					</ul>
-				</div>
-				<!-- Expected Payouts -->
-				<div
-					class={`p-4 rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}
-				>
-					<h2 class="text-lg font-semibold mb-2">Expected Payouts</h2>
-					<ul class="divide-y divide-gray-200 dark:divide-gray-700">
-						<li class="py-2 flex justify-between">
-							<span>2024-06-10</span>
-							<span class="text-green-600 dark:text-green-400">$400.00</span>
-						</li>
-						<li class="py-2 flex justify-between">
-							<span>2024-06-17</span>
-							<span class="text-green-600 dark:text-green-400">$350.00</span>
-						</li>
-						<li class="py-2 flex justify-between">
-							<span>2024-06-24</span>
-							<span class="text-green-600 dark:text-green-400">$600.00</span>
-						</li>
-					</ul>
-				</div>
-			</div>
-			<div
-				class={`md:col-span-3 p-4 rounded-lg shadow mt-6 ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}
-			>
-				<h2 class="text-lg font-semibold mb-2">Your Rating</h2>
-				<div class="flex items-center space-x-1 text-yellow-400 text-2xl">
-					<span>★</span>
-					<span>★</span>
-					<span>★</span>
-					<span>★</span>
-					<span class={`${darkmode ? 'text-gray-500' : 'text-gray-300'}`}>★</span>
-					<span class={`ml-2 text-base ${darkmode ? 'text-gray-300' : 'text-gray-600'}`}>4.0/5</span
+		<div class="max-w-full">
+			{#if selectedTab === 'dashboard'}
+				<h1 class={`text-2xl font-semibold mb-4 ${darkmode ? 'text-white' : 'text-gray-800'}`}>
+					Dashboard
+				</h1>
+				<p class={`${darkmode ? 'text-gray-300' : 'text-gray-700'}`}>
+					Welcome to your vendor dashboard. Here you can get an overview of your store's
+					performance, recent activity, and quick actions.
+				</p>
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+					<div
+						class={`p-4 rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}
 					>
+						<h2 class="text-lg font-semibold mb-2">Today's Orders</h2>
+						<p class="text-3xl font-bold">12</p>
+					</div>
+					<div
+						class={`p-4 rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}
+					>
+						<h2 class="text-lg font-semibold mb-2">Inventory</h2>
+						<p class="text-3xl font-bold">245</p>
+					</div>
+					<div
+						class={`p-4 rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}
+					>
+						<h2 class="text-lg font-semibold mb-2">Revenue</h2>
+						<p class="text-3xl font-bold">$1,230</p>
+					</div>
+					<div
+						class={`md:col-span-3 p-4 rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}
+					>
+						<h2 class="text-lg font-semibold mb-2">Pending Orders</h2>
+						<ul class="divide-y divide-gray-200 dark:divide-gray-700">
+							<li class="py-2 flex justify-between items-center flex-wrap">
+								<span>Order #1023</span>
+								<span
+									class="text-sm px-2 py-1 rounded bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+									>Pending</span
+								>
+							</li>
+							<li class="py-2 flex justify-between items-center flex-wrap">
+								<span>Order #1024</span>
+								<span
+									class="text-sm px-2 py-1 rounded bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+									>Pending</span
+								>
+							</li>
+							<li class="py-2 flex justify-between items-center flex-wrap">
+								<span>Order #1025</span>
+								<span
+									class="text-sm px-2 py-1 rounded bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+									>Pending</span
+								>
+							</li>
+						</ul>
+					</div>
 				</div>
-			</div>
-		{:else if selectedTab === 'orders'}
-			<h1 class={`text-2xl font-semibold mb-4 ${darkmode ? 'text-white' : 'text-gray-800'}`}>
-				Orders
-			</h1>
-			<p class={`${darkmode ? 'text-gray-300' : 'text-gray-700'}`}>
-				Here are your recent orders and status.
-			</p>
-		{:else if selectedTab === 'inventory'}
-			<h1 class={`text-2xl font-semibold mb-4 ${darkmode ? 'text-white' : 'text-gray-800'}`}>
-				Wishlist
-			</h1>
-			<p class={`${darkmode ? 'text-gray-300' : 'text-gray-700'}`}>
-				These are the products you love!
-			</p>
-		{:else if selectedTab === 'finance'}
-			<h1 class={`text-2xl font-semibold mb-4 ${darkmode ? 'text-white' : 'text-gray-800'}`}>
-				Vendor Dashboard
-			</h1>
-			<p class={`${darkmode ? 'text-gray-300' : 'text-gray-700'}`}>
-				Manage your store, products, and analytics here.
-			</p>
-		{/if}
+				<div
+					class={`md:col-span-3 p-4 rounded-lg shadow mt-6 ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}
+				>
+					<h2 class="text-lg font-semibold mb-2">Your Inventory</h2>
+					<div class="overflow-x-auto">
+						<table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
+							<thead>
+								<tr>
+									<th
+										class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider ${darkmode
+											? 'text-gray-300'
+											: 'text-gray-700'}">Product</th
+									>
+									<th
+										class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider ${darkmode
+											? 'text-gray-300'
+											: 'text-gray-700'}">Stock</th
+									>
+									<th
+										class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider ${darkmode
+											? 'text-gray-300'
+											: 'text-gray-700'}">Price</th
+									>
+									<th
+										class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider ${darkmode
+											? 'text-gray-300'
+											: 'text-gray-700'}">Status</th
+									>
+								</tr>
+							</thead>
+							<tbody>
+								{#if inventoryProducts.length > 0}
+									{#each inventoryProducts as product}
+										<tr>
+											<td class="px-4 py-2">{product.title}</td>
+											<td class="px-4 py-2">{product.quantity}</td>
+											<td class="px-4 py-2">${product.price.toLocaleString()}</td>
+											<td class="px-4 py-2">
+												{#if product.quantity > product.threshold}
+													<span
+														class="px-2 py-1 rounded bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+														>Active</span
+													>
+												{:else if product.quantity === 0}
+													<span
+														class="px-2 py-1 rounded bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+														>Out of Stock</span
+													>
+												{:else}
+													<span
+														class="px-2 py-1 rounded bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+														>Low Stock</span
+													>
+												{/if}
+											</td>
+										</tr>
+									{/each}
+								{:else}
+									<tr>
+										<td class="px-4 py-2 italic" colspan="4">No products found</td>
+									</tr>
+								{/if}
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+					<!-- Finance History -->
+					<div
+						class={`p-4 rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}
+					>
+						<h2 class="text-lg font-semibold mb-2">Finance History</h2>
+						<ul class="divide-y divide-gray-200 dark:divide-gray-700">
+							<li class="py-2 flex justify-between flex-wrap">
+								<span>2024-06-01</span>
+								<span class="text-green-600 dark:text-green-400">+ $500.00</span>
+							</li>
+							<li class="py-2 flex justify-between flex-wrap">
+								<span>2024-05-28</span>
+								<span class="text-green-600 dark:text-green-400">+ $320.00</span>
+							</li>
+							<li class="py-2 flex justify-between flex-wrap">
+								<span>2024-05-20</span>
+								<span class="text-red-600 dark:text-red-400">- $50.00 (Refund)</span>
+							</li>
+							<li class="py-2 flex justify-between flex-wrap">
+								<span>2024-05-15</span>
+								<span class="text-green-600 dark:text-green-400">+ $200.00</span>
+							</li>
+						</ul>
+					</div>
+					<!-- Expected Payouts -->
+					<div
+						class={`p-4 rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}
+					>
+						<h2 class="text-lg font-semibold mb-2">Expected Payouts</h2>
+						<ul class="divide-y divide-gray-200 dark:divide-gray-700">
+							<li class="py-2 flex justify-between flex-wrap">
+								<span>2024-06-10</span>
+								<span class="text-green-600 dark:text-green-400">$400.00</span>
+							</li>
+							<li class="py-2 flex justify-between flex-wrap">
+								<span>2024-06-17</span>
+								<span class="text-green-600 dark:text-green-400">$350.00</span>
+							</li>
+							<li class="py-2 flex justify-between flex-wrap">
+								<span>2024-06-24</span>
+								<span class="text-green-600 dark:text-green-400">$600.00</span>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<div
+					class={`md:col-span-3 p-4 rounded-lg shadow mt-6 ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}
+				>
+					<h2 class="text-lg font-semibold mb-2">Your Rating</h2>
+					<div class="flex items-center space-x-1 text-yellow-400 text-2xl">
+						<span>★</span>
+						<span>★</span>
+						<span>★</span>
+						<span>★</span>
+						<span class={`${darkmode ? 'text-gray-500' : 'text-gray-300'}`}>★</span>
+						<span class={`ml-2 text-base ${darkmode ? 'text-gray-300' : 'text-gray-600'}`}
+							>4.0/5</span
+						>
+					</div>
+				</div>
+			{:else if selectedTab === 'orders'}
+				<h1 class={`text-2xl font-semibold mb-4 ${darkmode ? 'text-white' : 'text-gray-800'}`}>
+					Orders
+				</h1>
+				<p class={`${darkmode ? 'text-gray-300' : 'text-gray-700'}`}>
+					Here are your recent orders and status.
+				</p>
+			{:else if selectedTab === 'inventory'}
+				<!-- Upload Product Button and Modal -->
+				<Inventory {darkmode} />
+			{:else if selectedTab === 'finance'}
+				<h1 class={`text-2xl font-semibold mb-4 ${darkmode ? 'text-white' : 'text-gray-800'}`}>
+					Vendor Dashboard
+				</h1>
+				<p class={`${darkmode ? 'text-gray-300' : 'text-gray-700'}`}>
+					Manage your store, products, and analytics here.
+				</p>
+			{/if}
+		</div>
 	</main>
+
+	<style>
+		@media (max-width: 640px) {
+			main {
+				margin-left: 0 !important;
+			}
+		}
+	</style>
 </div>
