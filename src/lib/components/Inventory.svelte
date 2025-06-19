@@ -286,7 +286,7 @@
 					</select>
 				</div>
 				<div class="mb-3">
-					<label class={`block mb-1 text-sm font-medium ${darkmode ? 'text-gray-200' : ''}`
+					<label class={`block mb-1 text-sm font-medium ${darkmode ? 'text-gray-200' : ''}`}
 						>Stock</label
 					>
 					<input

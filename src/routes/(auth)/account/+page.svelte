@@ -318,7 +318,14 @@
 				<h2 class="text-xl font-semibold {darkmode ? 'text-white' : 'text-gray-800'} mb-4">
 					Vendor Dashboard
 				</h2>
-				<p class={darkmode ? 'text-gray-400' : 'text-gray-600'}>Manage your store settings here.</p>
+				<p class={darkmode ? 'text-gray-400' : 'text-gray-600'}>
+					Manage your store <a
+						href="/vendor/dashboard"
+						class={darkmode ? 'text-white' : 'text-blue'}
+					>
+						here</a
+					>.
+				</p>
 			</section>
 		{/if}
 	</main>
