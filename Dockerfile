@@ -17,7 +17,7 @@ COPY . .
 RUN npm run build
 
 # Expose the default port used by the Node adapter
-EXPOSE 3000
+EXPOSE 4173
 
 # Run the built app
 CMD ["node", "build"]
