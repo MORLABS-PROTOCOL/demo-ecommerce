@@ -474,7 +474,7 @@
 									<ul class="space-y-1">
 										<li>
 											<a
-												href="/vendor/dashboard"
+												href="/vendor/kys"
 												class="block px-4 py-2 hover:bg-gray-100 rounded"
 												onclick={() => (showCategories = false)}
 											>
