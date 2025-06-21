@@ -264,7 +264,8 @@
 				</div>
 				<div class="mb-3">
 					<label class={`block mb-1 text-sm font-medium ${darkmode ? 'text-gray-200' : ''}`}
-						>Category</label>
+						>Category</label
+					>
 					<select
 						bind:value={editPayload.category}
 						required
@@ -298,7 +299,7 @@
 					/>
 				</div>
 				<div class="mb-3">
-					<label class={`block mb-1 text-sm font-medium ${darkmode ? 'text-gray-200' : ''}`
+					<label class={`block mb-1 text-sm font-medium ${darkmode ? 'text-gray-200' : ''}`}
 						>Price</label
 					>
 					<input
@@ -311,7 +312,7 @@
 					/>
 				</div>
 				<div class="mb-3">
-					<label class={`block mb-1 text-sm font-medium ${darkmode ? 'text-gray-200' : ''}`
+					<label class={`block mb-1 text-sm font-medium ${darkmode ? 'text-gray-200' : ''}`}
 						>Image</label
 					>
 					<input
@@ -321,7 +322,7 @@
 						class={`w-full ${darkmode ? 'bg-gray-700 text-white border-gray-600' : ''}`}
 					/>
 				</div>
-				<label class={`block mb-1 text-sm font-medium ${darkmode ? 'text-gray-200' : ''}`
+				<label class={`block mb-1 text-sm font-medium ${darkmode ? 'text-gray-200' : ''}`}
 					>Description</label
 				>
 				<textarea
@@ -329,7 +330,7 @@
 					class={`w-full px-3 py-2 border rounded ${darkmode ? 'bg-gray-700 text-white border-gray-600' : ''}`}
 				></textarea>
 				<div class="mb-3">
-					<label class={`block mb-1 text-sm font-medium ${darkmode ? 'text-gray-200' : ''}`
+					<label class={`block mb-1 text-sm font-medium ${darkmode ? 'text-gray-200' : ''}`}
 						>Threshold</label
 					>
 					<input
