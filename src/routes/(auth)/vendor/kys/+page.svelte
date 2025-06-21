@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { kysRegistration, pocketbase, validateAuthState } from '$lib/controls.svelte';
+	import { kysRegistration, notify, pocketbase, validateAuthState } from '$lib/controls.svelte';
 	import { Button, Form, FormGroup, Select, SelectItem, TextInput } from 'carbon-components-svelte';
 	import { onMount } from 'svelte';
 
@@ -32,6 +32,8 @@
 		} else {
 			if (user.kys_status === 'verified') {
 				window.location.href = '/vendor/dashboard';
+			} else if (user.kys_status === 'rejected') {
+				notify('Rejected', 'Your KYS registration has been rejected. Please try again.', 'error');
 			} else {
 				return;
 			}
