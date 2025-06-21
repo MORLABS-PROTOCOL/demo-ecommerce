@@ -562,7 +562,7 @@
 					<div class="hidden px-4 w-full md:flex justify-end items-center">
 						<button
 							class="bg-black text-white p-3"
-							onclick={() => (window.location.href = '/vendor/dashboard')}
+							onclick={() => (window.location.href = '/vendor/kys')}
 							>Become a Seller &nbsp;{'>'}</button
 						>
 					</div>
