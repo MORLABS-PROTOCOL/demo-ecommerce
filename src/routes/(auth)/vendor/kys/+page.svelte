@@ -39,7 +39,7 @@
 	});
 </script>
 
-{#if valid && user.kys_status === 'unverified'}
+{#if (valid && user.kys_status === 'unverified') || user.kys_status === 'rejected' || user.kys_status === null}
 	<div class="flex mx-auto p-10 justify-center items-center">
 		<div>
 			<FormGroup>
