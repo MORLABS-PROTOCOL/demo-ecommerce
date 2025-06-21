@@ -9,6 +9,7 @@ if (dev) {
 
     pocketbase = new Client(`${PUBLIC_SDK_URL}`)
 } else {
+    console.log("Accessing SDK")
     pocketbase = new Client(`https://manage.morlabsprotocol.com`)
 }
 export let user: {

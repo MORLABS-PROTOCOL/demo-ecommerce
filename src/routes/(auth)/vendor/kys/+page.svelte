@@ -22,17 +22,18 @@
 		);
 		// console.log(payload);
 	}
-	let user: any;
+	let user: any = $state({});
+	let busy: boolean = $state(false);
 	onMount(async () => {
 		user = await pocketbase.collection('users').getOne(pocketbase.authStore?.record?.id);
 		valid = validateAuthState();
-		console.log(user.kys_status);
+		console.log('User: ', user);
 		if (!valid) {
 			window.location.href = '/login';
 		} else {
-			if (user.kys_status === 'verified') {
+			if (user && user.kys_status === 'verified') {
 				window.location.href = '/vendor/dashboard';
-			} else if (user.kys_status === 'rejected') {
+			} else if (user && user.kys_status === 'rejected') {
 				notify('Rejected', 'Your KYS registration has been rejected. Please try again.', 'error');
 			} else {
 				return;

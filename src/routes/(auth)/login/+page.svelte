@@ -23,6 +23,40 @@
 	});
 
 	let busy: boolean = $state(false);
+	async function login() {
+		busy = true;
+		if (formData && !formData.checkValidity()) {
+			formData.reportValidity();
+		} else {
+			try {
+				let authData = await pocketbase
+					.collection('users')
+					.authWithPassword(userData.email, userData.password);
+				if (authData) {
+					notify('Success', 'Logged in successfully');
+					const cartItems = localStorage.getItem('cartItems');
+					if (cartItems) {
+						const items = JSON.parse(cartItems);
+						try {
+							for (const item of items) {
+								await addToCart(item.productId, item.quantity);
+							}
+							localStorage.removeItem('cartItems');
+						} catch (e) {
+							notify('Error', 'Failed to sync cart items', 'error');
+						} finally {
+							await refreshCart();
+						}
+					}
+					window.location.href = '/';
+				}
+				busy = false;
+			} catch (error) {
+				notify('Error', `Invalid Login Credentials`, 'error');
+				busy = false;
+			}
+		}
+	}
 </script>
 
 <Seo title="Vixstores | Login" description="login" keywords="vixstores, login" />
@@ -49,41 +83,11 @@
 				</FormGroup>
 
 				<button
-					disabled={busy || !userData.email || !userData.password}
+					disabled={true}
+					type="submit"
 					class="w-full text-center bg-blue-700 p-3 font-bold rounded-lg text-white"
 					onclick={async () => {
-						busy = true;
-						if (formData && !formData.checkValidity()) {
-							formData.reportValidity();
-						} else {
-							try {
-								let authData = await pocketbase
-									.collection('users')
-									.authWithPassword(userData.email, userData.password);
-								if (authData) {
-									notify('Success', 'Logged in successfully');
-									const cartItems = localStorage.getItem('cartItems');
-									if (cartItems) {
-										const items = JSON.parse(cartItems);
-										try {
-											for (const item of items) {
-												await addToCart(item.productId, item.quantity);
-											}
-											localStorage.removeItem('cartItems');
-										} catch (e) {
-											notify('Error', 'Failed to sync cart items', 'error');
-										} finally {
-											await refreshCart();
-										}
-									}
-									window.location.href = '/';
-								}
-								busy = false;
-							} catch (error) {
-								notify('Error', `Invalid Login Credentials`, 'error');
-								busy = false;
-							}
-						}
+						await login();
 					}}>Log In</button
 				>
 				<p class="text-xs text-center py-2">
