@@ -83,9 +83,9 @@
 				</FormGroup>
 
 				<button
-					disabled={true}
+					disabled={busy || !userData.email || !userData.password}
 					type="submit"
-					class="w-full text-center bg-blue-700 p-3 font-bold rounded-lg text-white"
+					class="w-full text-center bg-blue-700 p-3 font-bold rounded-lg text-white disabled:bg-gray-500 disabled:opacity-50"
 					onclick={async () => {
 						await login();
 					}}>Log In</button
