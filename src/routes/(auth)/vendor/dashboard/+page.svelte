@@ -64,13 +64,32 @@
 		}
 	};
 	let valid: any = $state(false);
+	let user: any = $state({});
 	onMount(async () => {
 		valid = validateAuthState();
 		if (!valid) {
 			window.location.href = '/login';
-		}
-		if (valid) {
-			if (pocketbase.authStore?.record?.kys_status === true) {
+		} else {
+			let vendor: any = $state({});
+			try {
+				const userId = pocketbase.authStore?.record?.id;
+				const result = await pocketbase.collection('vendors').getFullList({
+					filter: `userId="${userId}"`
+				});
+				vendor = result[0];
+			} catch (e) {
+				// Vendor does not exist, just return silently
+				return;
+			}
+			if (!vendor) {
+				console.log('No vendor');
+
+				return;
+			}
+			user = vendor;
+			// console.log('User: ', user);
+			// console.log('Vendor: ', user);
+			if (user.kys_status === 'pending' || user.kys_status === 'rejected') {
 				window.location.href = '/vendor/kys';
 				return;
 			}
