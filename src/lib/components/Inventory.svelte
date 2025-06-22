@@ -5,7 +5,8 @@
 		pocketbase,
 		uploadProduct,
 		updateProductById,
-		currency
+		currency,
+		deleteProduct
 	} from '$lib/controls.svelte';
 	import type { RecordModel } from 'pocketbase';
 	import { onMount } from 'svelte';
@@ -103,6 +104,22 @@
 			result = await getMyProducts();
 		} catch (e) {
 			// Error notification handled in updateProductById
+		}
+	}
+
+	let openMenuId: string | null = $state(null);
+
+	function openMenu(id: string) {
+		openMenuId = id;
+	}
+
+	function closeMenu() {
+		openMenuId = null;
+	}
+
+	async function confirmDelete(productId: string) {
+		if (window.confirm('Are you sure you want to delete this product?')) {
+			await deleteProduct(productId);
 		}
 	}
 </script>
@@ -249,7 +266,9 @@
 		<div
 			class={`${darkmode ? ' bg-gray-800' : 'bg-white '} rounded-lg shadow-lg p-6 w-full max-w-md`}
 		>
-			<h2 class={`text-lg font-semibold mb-4 ${darkmode ? 'text-white' : ''}`}>Edit Product</h2>
+			<h2 class={`text-lg font-semibold mb-4 ${darkmode ? 'text-white' : 'text-black'}`}>
+				Edit Product
+			</h2>
 			<form onsubmit={handleProductEditSubmit}>
 				<div class="mb-3">
 					<label class={`block mb-1 text-sm font-medium ${darkmode ? 'text-gray-200' : ''}`}
@@ -401,7 +420,7 @@
 			</thead>
 			<tbody>
 				{#if result.length > 0}
-					{#each result as product}
+					{#each result as product (product.id)}
 						<tr class="align-middle">
 							<td class="px-4 py-2">
 								{#if product.imageUrl}
@@ -435,19 +454,61 @@
 									>
 								{/if}
 							</td>
-							<td class="px-4 py-2 align-middle">
+							<td class="px-4 py-2 align-middle relative">
+								<!-- Action menu trigger -->
 								<button
-									class="px-2 py-1 rounded bg-blue-500 text-white hover:bg-blue-600"
-									onclick={() => handleEditProduct(product)}
+									class="p-2 rounded {darkmode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'}"
+									onclick={() => (openMenuId === product.id ? closeMenu() : openMenu(product.id))}
+									aria-label="Actions"
 								>
-									Edit
+									<!-- Three horizontal dots SVG -->
+									<svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+										<circle cx="5" cy="12" r="2" fill="currentColor" />
+										<circle cx="12" cy="12" r="2" fill="currentColor" />
+										<circle cx="19" cy="12" r="2" fill="currentColor" />
+									</svg>
 								</button>
+								{#if openMenuId === product.id}
+									<!-- Context menu -->
+									<div
+										class="fixed z-50 mt-2 w-32 bg-white {darkmode
+											? 'bg-gray-800'
+											: 'bg-white'} border {darkmode
+											? 'border-gray-700'
+											: 'border-gray-200'} rounded shadow-lg"
+										tabindex="0"
+										use:clickOutside={() => closeMenu()}
+									>
+										<button
+											class="w-full text-left px-4 py-2 rounded {darkmode
+												? 'hover:bg-gray-700 text-black hover:text-white'
+												: 'hover:bg-gray-100 text-black'}"
+											onclick={() => {
+												closeMenu();
+												handleEditProduct(product);
+											}}
+										>
+											Edit
+										</button>
+										<button
+											class="w-full text-left px-4 py-2 {darkmode
+												? 'hover:bg-gray-700'
+												: 'hover:bg-gray-100'} text-red-600"
+											onclick={() => {
+												closeMenu();
+												confirmDelete(product.id);
+											}}
+										>
+											Delete
+										</button>
+									</div>
+								{/if}
 							</td>
 						</tr>
 					{/each}
 				{:else}
 					<tr>
-						<td class="px-4 py-2 italic" colspan="4">No products found</td>
+						<td class="px-4 py-2 italic" colspan="6">No products found</td>
 					</tr>
 				{/if}
 			</tbody>

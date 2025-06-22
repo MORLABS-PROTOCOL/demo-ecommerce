@@ -546,3 +546,21 @@ export async function updateProductById(id: string, data: {
         throw error;
     }
 }
+
+export async function deleteProduct(productId: string) {
+    if (!pocketbase.authStore.isValid) {
+        notify("Error", "You must be logged in to delete a product.", "error");
+        return null;
+    }
+    try {
+        await pocketbase.collection("products").delete(productId, {
+            requestKey: Date.now().toString()
+        });
+        notify("Success", "Product deleted successfully!", "success");
+        return true;
+    } catch (error) {
+        console.error("Error deleting product:", error);
+        notify("Error", "Failed to delete product.", "error");
+        return false;
+    }
+}
