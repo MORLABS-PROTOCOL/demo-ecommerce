@@ -423,6 +423,12 @@ export async function kysRegistration(
     }
 
     try {
+        // Check for existing vendor record for this user
+        const existing = await pocketbase.collection("vendors").getFullList({
+            filter: `userId="${userId}"`,
+            requestKey: Date.now().toString()
+        });
+
         const formData = new FormData();
         formData.append("userId", userId);
         formData.append("store_name", store_name);
@@ -448,9 +454,16 @@ export async function kysRegistration(
         formData.append("finance", JSON.stringify([]));
         formData.append("kys_status", "pending");
 
-        const vendorRecord = await pocketbase.collection("vendors").create(formData, { requestKey: Date.now().toString() });
-
-        notify("Success", "Vendor registration initialized. You will be notified once your registration is approved", "success");
+        let vendorRecord: any = $state({});
+        if (existing.length > 0) {
+            // Update existing record
+            vendorRecord = await pocketbase.collection("vendors").update(existing[0].id, formData, { requestKey: Date.now().toString() });
+            notify("Success", "Vendor registration updated. You will be notified once your registration is approved", "success");
+        } else {
+            // Create new record
+            vendorRecord = await pocketbase.collection("vendors").create(formData, { requestKey: Date.now().toString() });
+            notify("Success", "Vendor registration initialized. You will be notified once your registration is approved", "success");
+        }
         return vendorRecord;
     } catch (error) {
         console.error("Error initializing vendor registration:", error);
