@@ -40,7 +40,20 @@
 			payload.store_niche,
 			payload.address,
 			payload.country,
-			payload.website
+			payload.state,
+			payload.city,
+			payload.dob,
+			payload.personal_phone,
+			payload.proof_of_occupancy,
+			payload.store_address,
+			payload.store_description,
+			payload.store_phone,
+			payload.store_logo,
+			payload.store_banner,
+			payload.valid_id,
+			payload.bank_details,
+			payload.website,
+			payload.agreed
 		);
 		window.location.reload();
 		// console.log(payload);

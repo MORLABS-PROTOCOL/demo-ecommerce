@@ -391,7 +391,26 @@ export async function makePayment(email: string, amount: number) {
     }
 }
 
-export async function kysRegistration(store_name: string, store_niche: string, address: string, country: string, website?: string) {
+export async function kysRegistration(
+    store_name: string,
+    store_niche: string,
+    address: string,
+    country: string,
+    state: string,
+    city: string,
+    dob: string,
+    personal_phone: string,
+    proof_of_occupancy: File,
+    store_address: string,
+    store_description: string,
+    store_phone: string,
+    store_logo: File,
+    store_banner: File,
+    valid_id: File,
+    bank_details: any,
+    website?: string,
+    agreed?: boolean
+) {
     if (!pocketbase.authStore.isValid) {
         notify("Error", "You must be logged in to register as a vendor.", "error");
         return null;
@@ -404,13 +423,32 @@ export async function kysRegistration(store_name: string, store_niche: string, a
     }
 
     try {
-        const vendorRecord = await pocketbase.collection("vendors").create({
-            userId: userId,
-            inventory: [],
-            orders: [],
-            store_name, store_niche, website_url: website, address, country: country,
-            finance: [], kys_status: "pending"
-        }, { requestKey: Date.now().toString() });
+        const formData = new FormData();
+        formData.append("userId", userId);
+        formData.append("store_name", store_name);
+        formData.append("store_niche", store_niche);
+        formData.append("address", address);
+        formData.append("country", country);
+        formData.append("state", state);
+        formData.append("city", city);
+        formData.append("dob", dob);
+        formData.append("personal_phone", personal_phone);
+        formData.append("proof_of_occupancy", proof_of_occupancy);
+        formData.append("store_address", store_address);
+        formData.append("store_description", store_description);
+        formData.append("store_phone", store_phone);
+        formData.append("store_logo", store_logo);
+        formData.append("store_banner", store_banner);
+        formData.append("valid_id", valid_id);
+        formData.append("bank_details", JSON.stringify(bank_details));
+        if (website) formData.append("website_url", website);
+        if (agreed !== undefined) formData.append("agreed", agreed ? "true" : "false");
+        formData.append("inventory", JSON.stringify([]));
+        formData.append("orders", JSON.stringify([]));
+        formData.append("finance", JSON.stringify([]));
+        formData.append("kys_status", "pending");
+
+        const vendorRecord = await pocketbase.collection("vendors").create(formData, { requestKey: Date.now().toString() });
 
         notify("Success", "Vendor registration initialized. You will be notified once your registration is approved", "success");
         return vendorRecord;
