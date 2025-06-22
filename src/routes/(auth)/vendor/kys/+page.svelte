@@ -31,15 +31,23 @@
 		} else {
 			let vendor: any = $state({});
 			try {
-				vendor = await pocketbase.collection('vendors').getOne(pocketbase.authStore?.record?.id);
+				const userId = pocketbase.authStore?.record?.id;
+				const result = await pocketbase.collection('vendors').getFullList({
+					filter: `userId="${userId}"`
+				});
+				vendor = result[0];
 			} catch (e) {
 				// Vendor does not exist, just return silently
 				return;
 			}
 			if (!vendor) {
+				console.log('No vendor');
+
 				return;
 			}
 			user = vendor;
+			console.log('User: ', user);
+
 			console.log('Vendor: ', user);
 			if (user.kys_status === 'verified') {
 				window.location.href = '/vendor/dashboard';
