@@ -555,9 +555,9 @@
 						</button>
 					</div>
 					<div class="px-5 text-white lg:flex justify-evenly w-full items-center hidden">
-						<p class="font-semibold">About</p>
-						<p class="font-semibold">Contact</p>
-						<p class="font-semibold">FAQ</p>
+						<a href="/about" class="font-semibold text-white">About</a>
+						<a href="/contact" class="font-semibold text-white">Contact</a>
+						<a href="/faq" class="font-semibold text-white">FAQ</a>
 					</div>
 					<div class="hidden px-4 w-full md:flex justify-end items-center">
 						<button
