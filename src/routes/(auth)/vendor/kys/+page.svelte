@@ -20,6 +20,7 @@
 			payload.country,
 			payload.website
 		);
+		window.location.reload();
 		// console.log(payload);
 	}
 	let user: any = $state({});
