@@ -409,11 +409,9 @@ export async function kysRegistration(store_name: string, store_niche: string, a
             inventory: [],
             orders: [],
             store_name, store_niche, website_url: website, address, country: country,
-            finance: []
+            finance: [], kys_status: "pending"
         }, { requestKey: Date.now().toString() });
-        await pocketbase.collection("users").update(userId, {
-            kys_status: "pending"
-        }, { requestKey: Date.now().toString() });
+
         notify("Success", "Vendor registration initialized. You will be notified once your registration is approved", "success");
         return vendorRecord;
     } catch (error) {

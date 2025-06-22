@@ -29,11 +29,21 @@
 		if (!valid) {
 			window.location.href = '/login';
 		} else {
-			user = await pocketbase.collection('users').getOne(pocketbase.authStore?.record?.id);
-			console.log('User: ', user);
-			if (user && user.kys_status === 'verified') {
+			let vendor: any = $state({});
+			try {
+				vendor = await pocketbase.collection('vendors').getOne(pocketbase.authStore?.record?.id);
+			} catch (e) {
+				// Vendor does not exist, just return silently
+				return;
+			}
+			if (!vendor) {
+				return;
+			}
+			user = vendor;
+			console.log('Vendor: ', user);
+			if (user.kys_status === 'verified') {
 				window.location.href = '/vendor/dashboard';
-			} else if (user && user.kys_status === 'rejected') {
+			} else if (user.kys_status === 'rejected') {
 				notify('Rejected', 'Your KYS registration has been rejected. Please try again.', 'error');
 			} else {
 				return;
@@ -42,7 +52,7 @@
 	});
 </script>
 
-{#if (valid && user.kys_status === 'unverified') || user.kys_status === 'rejected' || user.kys_status === null}
+{#if valid && (!user || user == null || user.kys_status === 'rejected' || user.kys_status == null)}
 	<div class="flex mx-auto p-10 justify-center items-center">
 		<div>
 			<FormGroup>
@@ -113,7 +123,7 @@
 						type="url"
 						bind:value={payload.website}
 						pattern="https?://.+"
-						invalid={payload.website && !/^https?:\/\/.+/.test(payload.website)}
+						invalid={!!payload.website && !/^https?:\/\/.+/.test(payload.website)}
 						invalidText="Please enter a valid URL (starting with http:// or https://)"
 					/>
 				</FormGroup>
@@ -121,18 +131,18 @@
 				<button
 					type="submit"
 					class="mt-4 px-6 py-4 bg-blue-600 w-full text-white rounded disabled:bg-gray-500 disabled:opacity-50"
-					disabled={!payload.store_name ||
-						!payload.store_niche ||
-						!payload.address ||
-						!payload.country ||
-						(payload.website && !/^https?:\/\/.+/.test(payload.website))}
+					disabled={!Boolean(payload.store_name) ||
+						!Boolean(payload.store_niche) ||
+						!Boolean(payload.address) ||
+						!Boolean(payload.country) ||
+						(!!payload.website && !/^https?:\/\/.+/.test(payload.website))}
 				>
 					Save
 				</button>
 			</Form>
 		</div>
 	</div>
-{:else if valid && user.kys_status === 'pending'}
+{:else if valid && user && user.kys_status === 'pending'}
 	<div class="flex mx-auto p-10 justify-center items-center">
 		<div class="bg-white rounded-lg shadow-lg p-8 max-w-md text-center">
 			<h2 class="text-2xl font-semibold mb-4 text-blue-700">Registration Pending</h2>
