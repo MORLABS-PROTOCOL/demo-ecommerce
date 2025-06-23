@@ -214,6 +214,7 @@
 					<!-- Proof of Occupancy -->
 					<FormGroup>
 						<FileUploader
+							status="complete"
 							buttonLabel="Upload Proof of Occupancy"
 							labelTitle="Proof of Occupancy *"
 							accept={['.jpg', '.jpeg', '.png', '.pdf']}
@@ -258,6 +259,7 @@
 					<!-- Store Logo -->
 					<FormGroup>
 						<FileUploader
+							status="complete"
 							buttonLabel="Upload Store Logo"
 							labelTitle="Store Logo *"
 							accept={['.jpg', '.jpeg', '.png']}
@@ -268,6 +270,7 @@
 					<!-- Store Banner -->
 					<FormGroup>
 						<FileUploader
+							status="complete"
 							buttonLabel="Upload Store Banner"
 							labelTitle="Store Banner *"
 							accept={['.jpg', '.jpeg', '.png']}
@@ -278,6 +281,7 @@
 					<!-- Valid ID -->
 					<FormGroup>
 						<FileUploader
+							status="complete"
 							buttonLabel="Upload Valid ID"
 							labelTitle="Valid ID *"
 							accept={['.jpg', '.jpeg', '.png', '.pdf']}
