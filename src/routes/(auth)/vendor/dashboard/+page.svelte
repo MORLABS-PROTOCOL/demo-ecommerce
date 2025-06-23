@@ -90,7 +90,7 @@
 			user = vendor;
 			// console.log('User: ', user);
 			// console.log('Vendor: ', user);
-			if (user.kys_status === 'pending' || user.kys_status === 'rejected') {
+			if (user.kys_status !== 'verified') {
 				window.location.href = '/vendor/kys';
 				return;
 			}
