@@ -429,7 +429,7 @@ export async function kysRegistration(
             requestKey: Date.now().toString()
         });
 
-        const formData = $state(new FormData());
+        const formData = new FormData();
         formData.append("userId", userId);
         formData.append("store_name", store_name);
         formData.append("store_niche", store_niche);
