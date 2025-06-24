@@ -400,13 +400,13 @@ export async function kysRegistration(
     city: string,
     dob: string,
     personal_phone: string,
-    proof_of_occupancy: File,
+    proof_of_occupancy: [File],
     store_address: string,
     store_description: string,
     store_phone: string,
-    store_logo: File,
-    store_banner: File,
-    valid_id: File,
+    store_logo: [File],
+    store_banner: [File],
+    valid_id: [File],
     bank_details: any,
     website?: string,
     agreed?: boolean
@@ -439,13 +439,13 @@ export async function kysRegistration(
         formData.append("city", city);
         formData.append("dob", dob);
         formData.append("personal_phone", personal_phone);
-        formData.append("proof_of_occupancy", proof_of_occupancy);
+        formData.append("proof_of_occupancy", proof_of_occupancy[0]);
         formData.append("store_address", store_address);
         formData.append("store_description", store_description);
         formData.append("store_phone", store_phone);
-        formData.append("store_logo", store_logo);
-        formData.append("store_banner", store_banner);
-        formData.append("valid_id", valid_id);
+        formData.append("store_logo", store_logo[0]);
+        formData.append("store_banner", store_banner[0]);
+        formData.append("valid_id", valid_id[0]);
         formData.append("bank_details", JSON.stringify(bank_details));
         if (website) formData.append("website_url", website);
         if (agreed !== undefined) formData.append("agreed", agreed ? "true" : "false");
