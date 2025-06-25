@@ -107,211 +107,205 @@
 			</FormGroup>
 
 			<Form on:submit={handleSubmit}>
-				<!-- Store Name -->
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-					<FormGroup>
-						<TextInput
-							labelText="Store Name *"
-							bind:value={payload.store_name}
-							required
-							invalid={payload.store_name === ''}
-							invalidText="Store name is required"
-						/>
-					</FormGroup>
+				<!-- Personal Information -->
+				<FormGroup>
+					<h2 class="text-lg font-semibold mb-2">Personal Information</h2>
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+						<FormGroup>
+							<TextInput
+								labelText="Store Name *"
+								bind:value={payload.store_name}
+								required
+								invalid={payload.store_name === ''}
+								invalidText="Store name is required"
+							/>
+						</FormGroup>
+						<FormGroup>
+							<Select
+								labelText="Store Niche *"
+								bind:selected={payload.store_niche}
+								required
+								invalid={payload.store_niche === ''}
+								invalidText="Please select a store niche"
+							>
+								<SelectItem value="" text="Select a niche" disabled />
+								<SelectItem value="fashion" text="Fashion" />
+								<SelectItem value="electronics" text="Electronics" />
+								<SelectItem value="beauty" text="Beauty & Personal Care" />
+								<SelectItem value="home" text="Home & Living" />
+								<SelectItem value="sports" text="Sports & Outdoors" />
+								<SelectItem value="toys" text="Toys & Games" />
+								<SelectItem value="food" text="Food & Beverages" />
+								<SelectItem value="books" text="Books & Stationery" />
+								<SelectItem value="automotive" text="Automotive" />
+								<SelectItem value="health" text="Health & Wellness" />
+								<SelectItem value="other" text="Other" />
+							</Select>
+						</FormGroup>
+						<FormGroup>
+							<TextInput
+								labelText="Date of Birth *"
+								type="date"
+								bind:value={payload.dob}
+								required
+								invalid={payload.dob === ''}
+								invalidText="Date of birth is required"
+							/>
+						</FormGroup>
+						<FormGroup>
+							<TextInput
+								labelText="Personal Phone *"
+								type="tel"
+								bind:value={payload.personal_phone}
+								required
+								invalid={payload.personal_phone === ''}
+								invalidText="Phone number is required"
+							/>
+						</FormGroup>
+					</div>
+				</FormGroup>
 
-					<!-- Store Niche -->
-					<FormGroup>
-						<Select
-							labelText="Store Niche *"
-							bind:selected={payload.store_niche}
-							required
-							invalid={payload.store_niche === ''}
-							invalidText="Please select a store niche"
-						>
-							<SelectItem value="" text="Select a niche" disabled />
-							<SelectItem value="fashion" text="Fashion" />
-							<SelectItem value="electronics" text="Electronics" />
-							<SelectItem value="beauty" text="Beauty & Personal Care" />
-							<SelectItem value="home" text="Home & Living" />
-							<SelectItem value="sports" text="Sports & Outdoors" />
-							<SelectItem value="toys" text="Toys & Games" />
-							<SelectItem value="food" text="Food & Beverages" />
-							<SelectItem value="books" text="Books & Stationery" />
-							<SelectItem value="automotive" text="Automotive" />
-							<SelectItem value="health" text="Health & Wellness" />
-							<SelectItem value="other" text="Other" />
-						</Select>
-					</FormGroup>
+				<!-- Address Information -->
+				<FormGroup>
+					<h2 class="text-lg font-semibold mb-2 mt-6">Address Information</h2>
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+						<FormGroup>
+							<TextInput
+								labelText="Permanent Address *"
+								bind:value={payload.address}
+								required
+								invalid={payload.address === ''}
+								invalidText="Address is required"
+							/>
+						</FormGroup>
+						<FormGroup>
+							<TextInput
+								labelText="Country *"
+								bind:value={payload.country}
+								required
+								invalid={payload.country === ''}
+								invalidText="Country is required"
+							/>
+						</FormGroup>
+						<FormGroup>
+							<TextInput
+								labelText="State *"
+								bind:value={payload.state}
+								required
+								invalid={payload.state === ''}
+								invalidText="State is required"
+							/>
+						</FormGroup>
+						<FormGroup>
+							<TextInput
+								labelText="City/Town *"
+								bind:value={payload.city}
+								required
+								invalid={payload.city === ''}
+								invalidText="City/Town is required"
+							/>
+						</FormGroup>
+					</div>
+				</FormGroup>
 
-					<!-- Permanent Address -->
-					<FormGroup>
-						<TextInput
-							labelText="Permanent Address *"
-							bind:value={payload.address}
-							required
-							invalid={payload.address === ''}
-							invalidText="Address is required"
-						/>
-					</FormGroup>
+				<!-- Store Information -->
+				<FormGroup>
+					<h2 class="text-lg font-semibold mb-2 mt-6">Store Information</h2>
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+						<FormGroup>
+							<TextInput
+								labelText="Store Address *"
+								bind:value={payload.store_address}
+								required
+								invalid={payload.store_address === ''}
+								invalidText="Store address is required"
+							/>
+						</FormGroup>
+						<FormGroup>
+							<TextInput
+								labelText="Store Phone *"
+								type="tel"
+								bind:value={payload.store_phone}
+								required
+								invalid={payload.store_phone === ''}
+								invalidText="Store phone is required"
+							/>
+						</FormGroup>
+					</div>
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+						<FormGroup>
+							<TextArea
+								labelText="Store Description *"
+								bind:value={payload.store_description}
+								required
+								invalid={payload.store_description === ''}
+								invalidText="Description is required"
+							/>
+						</FormGroup>
+						<FormGroup>
+							<TextArea
+								labelText="Bank Details *"
+								bind:value={payload.bank_details}
+								required
+								invalid={payload.bank_details === ''}
+								invalidText="Bank details are required"
+							/>
+						</FormGroup>
+					</div>
+				</FormGroup>
+				<FormGroup>
+					<TextInput
+						labelText="Website"
+						type="url"
+						bind:value={payload.website}
+						pattern="https?://.+"
+						invalid={!!payload.website && !/^https?:\/\/.+/.test(payload.website)}
+						invalidText="Please enter a valid URL (starting with http:// or https://)"
+					/>
+				</FormGroup>
+				<!-- Uploads -->
+				<FormGroup>
+					<h2 class="text-lg font-semibold mb-2 mt-6">Uploads</h2>
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+						<FormGroup>
+							<FileUploader
+								status="complete"
+								buttonLabel="Upload Proof of Occupancy"
+								labelTitle="Proof of Occupancy *"
+								accept={['.jpg', '.jpeg', '.png', '.pdf']}
+								bind:files={payload.proof_of_occupancy}
+							/>
+						</FormGroup>
+						<FormGroup>
+							<FileUploader
+								status="complete"
+								buttonLabel="Upload Store Logo"
+								labelTitle="Store Logo *"
+								accept={['.jpg', '.jpeg', '.png']}
+								bind:files={payload.store_logo}
+							/>
+						</FormGroup>
+						<FormGroup>
+							<FileUploader
+								status="complete"
+								buttonLabel="Upload Store Banner"
+								labelTitle="Store Banner *"
+								accept={['.jpg', '.jpeg', '.png']}
+								bind:files={payload.store_banner}
+							/>
+						</FormGroup>
+						<FormGroup>
+							<FileUploader
+								status="complete"
+								buttonLabel="Upload Valid ID"
+								labelTitle="Valid ID *"
+								accept={['.jpg', '.jpeg', '.png', '.pdf']}
+								bind:files={payload.valid_id}
+							/>
+						</FormGroup>
+					</div>
+				</FormGroup>
 
-					<!-- Country -->
-					<FormGroup>
-						<TextInput
-							labelText="Country *"
-							bind:value={payload.country}
-							required
-							invalid={payload.country === ''}
-							invalidText="Country is required"
-						/>
-					</FormGroup>
-
-					<!-- State -->
-					<FormGroup>
-						<TextInput
-							labelText="State *"
-							bind:value={payload.state}
-							required
-							invalid={payload.state === ''}
-							invalidText="State is required"
-						/>
-					</FormGroup>
-
-					<!-- City/Town -->
-					<FormGroup>
-						<TextInput
-							labelText="City/Town *"
-							bind:value={payload.city}
-							required
-							invalid={payload.city === ''}
-							invalidText="City/Town is required"
-						/>
-					</FormGroup>
-
-					<!-- Date of Birth -->
-					<FormGroup>
-						<TextInput
-							labelText="Date of Birth *"
-							type="date"
-							bind:value={payload.dob}
-							required
-							invalid={payload.dob === ''}
-							invalidText="Date of birth is required"
-						/>
-					</FormGroup>
-
-					<!-- Personal Phone -->
-					<FormGroup>
-						<TextInput
-							labelText="Personal Phone *"
-							type="tel"
-							bind:value={payload.personal_phone}
-							required
-							invalid={payload.personal_phone === ''}
-							invalidText="Phone number is required"
-						/>
-					</FormGroup>
-
-					<!-- Proof of Occupancy -->
-					<FormGroup>
-						<FileUploader
-							status="complete"
-							buttonLabel="Upload Proof of Occupancy"
-							labelTitle="Proof of Occupancy *"
-							accept={['.jpg', '.jpeg', '.png', '.pdf']}
-							bind:files={payload.proof_of_occupancy}
-						/>
-					</FormGroup>
-
-					<!-- Store Address -->
-					<FormGroup>
-						<TextInput
-							labelText="Store Address *"
-							bind:value={payload.store_address}
-							required
-							invalid={payload.store_address === ''}
-							invalidText="Store address is required"
-						/>
-					</FormGroup>
-
-					<!-- Store Description -->
-					<FormGroup>
-						<TextArea
-							labelText="Store Description *"
-							bind:value={payload.store_description}
-							required
-							invalid={payload.store_description === ''}
-							invalidText="Description is required"
-						/>
-					</FormGroup>
-
-					<!-- Store Phone -->
-					<FormGroup>
-						<TextInput
-							labelText="Store Phone *"
-							type="tel"
-							bind:value={payload.store_phone}
-							required
-							invalid={payload.store_phone === ''}
-							invalidText="Store phone is required"
-						/>
-					</FormGroup>
-
-					<!-- Store Logo -->
-					<FormGroup>
-						<FileUploader
-							status="complete"
-							buttonLabel="Upload Store Logo"
-							labelTitle="Store Logo *"
-							accept={['.jpg', '.jpeg', '.png']}
-							bind:files={payload.store_logo}
-						/>
-					</FormGroup>
-
-					<!-- Store Banner -->
-					<FormGroup>
-						<FileUploader
-							status="complete"
-							buttonLabel="Upload Store Banner"
-							labelTitle="Store Banner *"
-							accept={['.jpg', '.jpeg', '.png']}
-							bind:files={payload.store_banner}
-						/>
-					</FormGroup>
-
-					<!-- Valid ID -->
-					<FormGroup>
-						<FileUploader
-							status="complete"
-							buttonLabel="Upload Valid ID"
-							labelTitle="Valid ID *"
-							accept={['.jpg', '.jpeg', '.png', '.pdf']}
-							bind:files={payload.valid_id}
-						/>
-					</FormGroup>
-
-					<!-- Bank Details -->
-					<FormGroup>
-						<TextArea
-							labelText="Bank Details *"
-							bind:value={payload.bank_details}
-							required
-							invalid={payload.bank_details === ''}
-							invalidText="Bank details are required"
-						/>
-					</FormGroup>
-
-					<!-- Website (Optional) -->
-					<FormGroup>
-						<TextInput
-							labelText="Website"
-							type="url"
-							bind:value={payload.website}
-							pattern="https?://.+"
-							invalid={!!payload.website && !/^https?:\/\/.+/.test(payload.website)}
-							invalidText="Please enter a valid URL (starting with http:// or https://)"
-						/>
-					</FormGroup>
-				</div>
 				<!-- Agree to Terms -->
 				<FormGroup>
 					<label class="flex items-center space-x-2">
@@ -322,8 +316,8 @@
 						>
 					</label>
 				</FormGroup>
-				<!-- Submit Button -->
 
+				<!-- Submit Button -->
 				<button
 					type="submit"
 					class="mt-4 px-6 py-4 bg-blue-600 w-full text-white rounded disabled:bg-gray-500 disabled:opacity-50"
@@ -347,8 +341,8 @@
 						(!!payload.website && !/^https?:\/\/.+/.test(payload.website))}
 				>
 					Save
-				</button></Form
-			>
+				</button>
+			</Form>
 		</div>
 	</div>
 {:else if valid && user && user.kys_status === 'pending'}
