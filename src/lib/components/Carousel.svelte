@@ -46,7 +46,7 @@
 		{#key current}
 			<div class="absolute w-1/2 mx-auto flex justify-start pl-12 items-center">
 				<div class="flex-col gap-y-4">
-					<h2 class="text-3xl {current === 1 ? 'text-white' : 'text-blue'} py-6">
+					<h2 class="text-3xl {current === 1 ? 'text-white' : 'text-blue-600'} py-6">
 						Welcome to Vixstores!
 					</h2>
 					<div class="text-7xl font-extrabold pb-6 {current === 1 ? 'text-white' : 'text-black'}">
