@@ -23,15 +23,14 @@
 <Seo title="Vixstores | Signup" description="signup" keywords="vixstores, signup" />
 
 <Form bind:ref={formData}>
-	<main class="h-screen overflow-hidden mx-auto flex justify-center items-center">
-		<div class="h-[500px] w-[500px] gap-y-3 sm:flex bg-gray-500 px-3 sm:px-0 hidden">
-			<!-- <img src="./e-commerce.png" alt="Logo" class="w-[100px] h-[100px]" /> -->
-		</div>
+	<main
+		class="min-h-screen h-screen top-0 overflow-hidden mx-auto flex sm:pt-10 pt-5 justify-center"
+	>
 		<div class="h-[500px] w-[500px] gap-y-3 px-3 sm:px-1">
 			<!-- {#if step === 1} -->
 			<div class="sm:flex sm:flex-col sm:items-center px-3">
-				<div class="items-center flex sm:hidden text-center justify-center">
-					<img src={pageSettings.logoUrl} alt="Logo" class="w-[100px] h-[100px]" />
+				<div class="items-center flex text-center justify-center">
+					<img src="./Logo chosen HQ.png" alt="Logo" class="w-[130px] h-[100px]" />
 				</div>
 				<h3 class="justify-center items-center flex">Sign Up</h3>
 				<FormGroup class="w-full">
