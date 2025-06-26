@@ -615,3 +615,17 @@ export async function deleteProduct(productId: string) {
         return false;
     }
 }
+
+
+export async function fuzzySearchProducts(searchTerm: string, limit: number = 10): Promise<RecordModel[]> {
+    // Use PocketBase's ~ operator for partial/fuzzy matching on title and description
+    const filter = `title~"${searchTerm}" || description~"${searchTerm}"`;
+    const results = await pocketbase.collection("products").getList(1, limit, {
+        filter,
+        requestKey: `fuzzy-${searchTerm}-${Date.now()}`
+    });
+    return results.items.map((p) => ({
+        ...p,
+        imageUrl: pocketbase.files.getURL(p, p.product_image)
+    }));
+}
