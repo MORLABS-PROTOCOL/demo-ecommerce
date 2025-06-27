@@ -110,7 +110,7 @@
 			<div class="text-xs w-screen mx-auto text-gray-500 font-semibold py-2 px-4">
 				<div class="flex max-w-6xl justify-between mx-auto items-center">
 					<ul class="flex justify-start w-full items-center gap-x-4 text-black">
-						<li><a href="/profile" class="text-black">Account</a></li>
+						<li><a href="/account" class="text-black">Account</a></li>
 						<li><a href="/orders/track" class="text-black">Track Order</a></li>
 						<li><a href="/support" class="text-black">Support</a></li>
 					</ul>
