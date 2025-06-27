@@ -46,13 +46,15 @@
 		{#key current}
 			<div class="absolute w-1/2 mx-auto flex justify-start pl-12 items-center">
 				<div class="flex-col gap-y-4">
-					<h2 class="text-3xl font-semibold text-blue-600 py-6">Welcome to Vixstores!</h2>
-					<div class="text-7xl font-extrabold pb-6 text-black">
+					<h2 class="text-xl sm:text-2xl md:text-3xl font-semibold text-blue-600 py-4 sm:py-6">
+						Welcome to Vixstores!
+					</h2>
+					<div class="text-3xl sm:text-5xl md:text-7xl font-extrabold pb-4 sm:pb-6 text-black">
 						Explore our tech collection perfect gadgets
 					</div>
 					<div>
 						<button
-							class="bg-blue-600 px-6 text-lg py-3 flex items-center rounded-md text-white font-semibold"
+							class="bg-blue-600 px-4 sm:px-6 text-base sm:text-lg py-2 sm:py-3 flex items-center rounded-md text-white font-semibold"
 						>
 							Shop Now !
 						</button>
