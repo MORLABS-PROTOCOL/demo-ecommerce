@@ -32,7 +32,7 @@
 </script>
 
 {#if images && images.length > 0}
-	<div class="relative w-screen flex items-center h-screen">
+	<div class="relative w-screen flex items-center h-[50%] md:h-screen">
 		<!-- Prev Button -->
 		<button
 			class="absolute left-2 z-10 bg-white/70 hover:bg-white rounded-full p-2 shadow"
