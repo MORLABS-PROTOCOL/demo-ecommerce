@@ -112,7 +112,7 @@
 					<ul class="flex justify-start w-full items-center gap-x-4 text-black">
 						<li><a href="/account" class="text-black">Account</a></li>
 						<li><a href="/orders/track" class="text-black">Track Order</a></li>
-						<li><a href="/support" class="text-black">Support</a></li>
+						<li><a href="/contact" class="text-black">Support</a></li>
 					</ul>
 					<ul class="md:flex hidden items-center gap-x-4 ml-auto">
 						<li>
