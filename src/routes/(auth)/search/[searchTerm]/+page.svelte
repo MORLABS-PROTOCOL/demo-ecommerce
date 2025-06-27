@@ -30,7 +30,7 @@
 						flashSale={product.flashSale}
 						image={product.imageUrl}
 						discountPercentage={product.discountPercentage}
-						productId={product.productId}
+						productId={product.id}
 						dateCreated={product.dateCreated}
 						threshold={product.threshold}
 					/>
