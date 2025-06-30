@@ -2,6 +2,7 @@
 	import { calculateNewPrice, currency, modifyWishList, notify } from '$lib/controls.svelte';
 	import { CheckmarkOutline, Share, StarFilled } from 'carbon-icons-svelte';
 	import { onMount } from 'svelte';
+	import { wishlist } from '$lib/realtime';
 	import Exit from './Icons/Exit-sm.svelte';
 	import Heart from './Icons/Heart.svelte';
 
@@ -86,7 +87,13 @@
 		<button
 			class="bg-white shadow-md p-2 rounded-full hover:bg-gray-50 transition-colors"
 			aria-label="Add to wishlist"
-			onclick={() => modifyWishList(productId)}
+			onclick={async () => {
+				const isInWishlist = $wishlist.some((item) => item.id === productId);
+				await modifyWishList(productId);
+				if (!isInWishlist) {
+					notify('Success', 'Added to wishlist!', 'success');
+				}
+			}}
 		>
 			<Heart fillColor="none" strokeColor="#000" />
 		</button>

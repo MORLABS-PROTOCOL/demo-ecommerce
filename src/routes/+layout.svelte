@@ -308,10 +308,10 @@
 						</a>
 						<!-- Cart -->
 						<a href="/cart" class="relative hover:shadow hover:rounded-full p-2">
-							<ShoppingBag />
+							<ShoppingCart size={24} />
 							{#if $cart && $cart.items.length > 0}
 								<span
-									class="absolute top-0 right-0 h-4 w-4 bg-blue-700 text-white text-xs flex items-center justify-center rounded-full"
+									class="absolute top-0 right-0 h-4 w-4 bg-red-600 text-white text-xs flex items-center justify-center rounded-full"
 								>
 									{$cart.items.length}
 								</span>
