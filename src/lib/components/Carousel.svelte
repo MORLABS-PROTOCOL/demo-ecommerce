@@ -44,10 +44,8 @@
 
 		<!-- Image with sliding effect -->
 		{#key current}
-			<div
-				class="absolute inset-0 flex items-center justify-center p-8 text-center md:justify-start md:p-12 md:text-left"
-			>
-				<div class="w-full space-y-4 md:w-2/3 lg:w-1/2">
+			<div class="absolute inset-0 flex items-center justify-start p-8 text-left md:p-12">
+				<div class="w-full space-y-2 md:w-2/3 lg:w-1/2">
 					<h2 class="text-[4vmin] font-semibold text-blue-600">Welcome to Vixstores!</h2>
 					<div class="text-[7vmin] font-extrabold leading-tight text-black">
 						Explore our tech collection perfect gadgets
