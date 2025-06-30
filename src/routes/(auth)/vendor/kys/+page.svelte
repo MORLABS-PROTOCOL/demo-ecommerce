@@ -10,7 +10,7 @@
 		TextArea,
 		TextInput
 	} from 'carbon-components-svelte';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 
 	let payload = $state({
 		store_name: '',
@@ -55,43 +55,52 @@
 			payload.website,
 			payload.agreed
 		);
-		window.location.reload();
+
 		// console.log(payload);
 	}
 	let user: any = $state({});
 	let busy: boolean = $state(false);
+	let unsubscribe: () => void;
 	onMount(async () => {
 		valid = validateAuthState();
 		if (!valid) {
 			window.location.href = '/login';
 		} else {
-			let vendor: any = $state({});
+			const userId = pocketbase.authStore?.record?.id;
+			if (!userId) {
+				return;
+			}
 			try {
-				const userId = pocketbase.authStore?.record?.id;
 				const result = await pocketbase.collection('vendors').getFullList({
 					filter: `userId="${userId}"`
 				});
-				vendor = result[0];
+				if (result.length > 0) {
+					user = result[0];
+					handleKysStatus(user);
+				}
 			} catch (e) {
 				// Vendor does not exist, just return silently
-				return;
 			}
-			if (!vendor) {
-				console.log('No vendor');
 
-				return;
-			}
-			user = vendor;
-			// console.log('User: ', user);
+			unsubscribe = await pocketbase.collection('vendors').subscribe('*', (e) => {
+				if (e.record.userId === userId) {
+					user = e.record;
+					handleKysStatus(user);
+				}
+			});
+		}
+	});
 
-			// console.log('Vendor: ', user);
-			if (user.kys_status === 'verified') {
-				window.location.href = '/vendor/dashboard';
-			} else if (user.kys_status === 'rejected') {
-				notify('Rejected', 'Your KYS registration has been rejected. Please try again.', 'error');
-			} else {
-				return;
-			}
+	function handleKysStatus(vendor: any) {
+		if (vendor.kys_status === 'verified') {
+			window.location.href = '/vendor/dashboard';
+		} else if (vendor.kys_status === 'rejected') {
+			notify('Rejected', 'Your KYS registration has been rejected. Please try again.', 'error');
+		}
+	}
+	onDestroy(() => {
+		if (unsubscribe) {
+			unsubscribe();
 		}
 	});
 </script>

@@ -44,18 +44,16 @@
 
 		<!-- Image with sliding effect -->
 		{#key current}
-			<div class="absolute w-1/2 mx-auto flex justify-start pl-12 items-center">
-				<div class="flex-col gap-y-4">
-					<h2 class="text-xl sm:text-2xl md:text-3xl font-semibold text-blue-600 py-4 sm:py-6">
-						Welcome to Vixstores!
-					</h2>
-					<div class="text-3xl sm:text-5xl md:text-7xl font-extrabold pb-4 sm:pb-6 text-black">
+			<div
+				class="absolute inset-0 flex items-center justify-center p-8 text-center md:justify-start md:p-12 md:text-left"
+			>
+				<div class="w-full space-y-4 md:w-2/3 lg:w-1/2">
+					<h2 class="text-[4vmin] font-semibold text-blue-600">Welcome to Vixstores!</h2>
+					<div class="text-[7vmin] font-extrabold leading-tight text-black">
 						Explore our tech collection perfect gadgets
 					</div>
 					<div>
-						<button
-							class="bg-blue-600 px-4 sm:px-6 text-base sm:text-lg py-2 sm:py-3 flex items-center rounded-md text-white font-semibold"
-						>
+						<button class="rounded-md bg-blue-600 px-6 py-3 text-[3vmin] font-semibold text-white">
 							Shop Now !
 						</button>
 					</div>

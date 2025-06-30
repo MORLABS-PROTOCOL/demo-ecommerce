@@ -2,20 +2,15 @@
 	import '../app.css';
 	import {
 		currency,
-		getCart,
 		pocketbase,
 		pullAds,
 		user,
 		userData,
 		validateAuthState,
-		refreshCart,
-		cart,
-		getLogo,
 		pageSettings,
-		wishList,
-		refreshWishList,
 		addToNewsLetter
 	} from '$lib/controls.svelte';
+	import { cart, wishlist, settings, initializeStores, cleanupStores } from '$lib/realtime';
 	import Carousel from '$lib/components/Carousel.svelte';
 	import 'carbon-components-svelte/css/white.css';
 	import HamburgerMenu from '$lib/components/Icons/Hamburger-Menu.svelte';
@@ -61,19 +56,17 @@
 	]);
 	let filteredCategories: string[] = $state(categories);
 	let email = $state('');
-	let userCartTotals: any;
 	let queryCategory: string = $state('All');
 	if (browser) {
 		(async () => {
-			await refreshCart();
-			await getLogo();
-			await refreshWishList();
+			await initializeStores();
 		})();
 	}
 	let showDropdown: boolean = $state(false);
 	let loginState: boolean = $state(false);
 	let dropdownRef: HTMLDivElement | null = $state(null);
 	onMount(() => {
+		initializeStores();
 		loginState = pocketbase.authStore.isValid;
 		const handleClickOutside = (event) => {
 			if (dropdownRef && !dropdownRef.contains(event.target)) {
@@ -86,6 +79,7 @@
 		// Clean up the listener when component is destroyed
 		onDestroy(() => {
 			document.removeEventListener('click', handleClickOutside);
+			cleanupStores();
 		});
 	});
 	let formData: HTMLFormElement | undefined = $state();
@@ -154,7 +148,16 @@
 			<div class="flex max-w-6xl mx-auto justify-between items-center py-4 gap-4">
 				<!-- Logo -->
 				<a href="/" class="flex-shrink-0">
-					<img src={pageSettings.logoUrl} alt="logo" class="h-[80px] w-auto object-contain" />
+					<img
+						src={$settings.find((s) => s.name === 'logo')
+							? pocketbase.files.getURL(
+									$settings.find((s) => s.name === 'logo'),
+									$settings.find((s) => s.name === 'logo')?.image
+								)
+							: ''}
+						alt="logo"
+						class="h-[80px] w-auto object-contain"
+					/>
 				</a>
 
 				<!-- Search Bar (Desktop) -->
@@ -293,28 +296,26 @@
 						</div>
 
 						<!-- Wishlist -->
-						<a href="/wishlist" class="relative">
-							<div>
-								<button class="p-2 rounded-full hover:shadow hover:border-blue-700">
-									<Heart />
-									<span
-										class="absolute -top-1 -right-1 text-xs bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
-									>
-										{wishList.items.length}
-									</span>
-								</button>
-							</div>
+						<a href="/wishlist" class="relative hover:shadow hover:rounded-full p-2">
+							<Heart />
+							{#if $wishlist && $wishlist.items.length > 0}
+								<span
+									class="absolute top-0 right-0 h-4 w-4 bg-red-500 text-white text-xs flex items-center justify-center rounded-full"
+								>
+									{$wishlist.items.length}
+								</span>
+							{/if}
 						</a>
 						<!-- Cart -->
-						<a href="/cart" class="relative text-black">
-							<button class="p-2 rounded-full hover:shadow hover:border-blue-700">
-								<ShoppingCart size={24} />
+						<a href="/cart" class="relative hover:shadow hover:rounded-full p-2">
+							<ShoppingBag />
+							{#if $cart && $cart.items.length > 0}
 								<span
-									class="absolute -top-1 -right-1 text-xs bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
+									class="absolute top-0 right-0 h-4 w-4 bg-blue-700 text-white text-xs flex items-center justify-center rounded-full"
 								>
-									{cart?.length}
+									{$cart.items.length}
 								</span>
-							</button>
+							{/if}
 						</a>
 					{:else}
 						<!-- Mobile Search Toggle -->
@@ -512,35 +513,35 @@
 
 			<!-- Mobile Search Bar -->
 			{#if showSearchBar}
-				<Form
-					class="w-full sm:hidden px-3 pb-3"
-					bind:ref={formData}
-					on:submit={() => {
-						window.location.href = `/search/${searchTerm}`;
-					}}
+				<div
+					class="fixed inset-0 bg-black bg-opacity-50 z-40"
+					transition:fly={{ y: -20, duration: 300 }}
+					onclick={() => (showSearchBar = false)}
 				>
-					<div class="flex items-center gap-2">
-						<select
-							class="h-10 w-[90px] border border-gray-300 text-sm bg-gray-100"
-							onchange={(e) => {
-								queryCategory = e?.target.value;
+					<div class="bg-white p-4" transition:fly={{ y: 0, duration: 300 }}>
+						<Form
+							class="w-full flex items-center"
+							bind:ref={formData}
+							on:submit={() => {
+								window.location.href = `/search/${searchTerm}`;
 							}}
 						>
-							<option>All</option>
-							{#each categories as category}
-								<option>{category}</option>
-							{/each}
-						</select>
-						<input
-							bind:value={searchTerm}
-							placeholder="Search..."
-							class="flex-grow h-10 px-3 border border-gray-300 focus:outline-none"
-						/>
-						<button type="submit" class="h-10 px-3 bg-blue-700 text-white font-semibold rounded">
-							Search
-						</button>
+							<input
+								type="text"
+								required
+								bind:value={searchTerm}
+								placeholder="Search..."
+								class="flex-grow h-10 px-3 border border-gray-300 focus:outline-none"
+							/>
+							<button
+								type="submit"
+								class="h-10 px-4 bg-blue-600 text-white font-semibold hover:bg-blue-700"
+							>
+								Search
+							</button>
+						</Form>
 					</div>
-				</Form>
+				</div>
 			{/if}
 			<div class=" w-full font-semibold min-w-screen h-fit text-white bg-blue-700">
 				<div class="md:flex md:justify-between block max-w-6xl mx-auto">

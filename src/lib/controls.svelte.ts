@@ -3,15 +3,25 @@ import { page } from "$app/state"
 import Client, { type ListResult, type RecordModel } from "pocketbase"
 import { writable, type Writable } from "svelte/store"
 import { PUBLIC_PAYSTACK_SECRET_KEY, PUBLIC_SDK_URL } from "$env/static/public"
+import { initializeStores, cleanupStores } from './realtime'
+
 
 export let pocketbase: Client;
 if (dev) {
-
-    pocketbase = new Client(`${PUBLIC_SDK_URL}`)
+    pocketbase = new Client(PUBLIC_SDK_URL)
 } else {
     console.log("Accessing SDK")
     pocketbase = new Client(`https://manage.morlabsprotocol.com`)
 }
+
+pocketbase.authStore.onChange((auth) => {
+    if (pocketbase.authStore.isValid) {
+        initializeStores();
+    } else {
+        cleanupStores();
+    }
+});
+
 export let user: {
     country: string
     name: string
@@ -82,7 +92,9 @@ export async function getAllProducts(): Promise<RecordModel[]> {
 }
 export function notify(title: string, text: string = "", status: string = "info") {
     new Notify({
-        title, text, status
+        title,
+        text,
+        status
     });
 }
 export function validateAuthState() {
@@ -199,46 +211,56 @@ export async function addToCart(productId: string, quantity: number) {
 
     if (pocketbase.authStore.isValid) {
         // Authenticated user: use PocketBase cart
-        let existingCartArr = await pocketbase.collection("carts").getFullList({
-            filter: `userId="${pocketbase.authStore.record?.id}" && status="pending"`,
-            requestKey: Date.now().toString()
-        });
-        let cart: { length: number, total: number, items: any[] } = $state({ length: 0, total: 0, items: [] });
-        if (existingCartArr.length > 0) {
-            cart = existingCartArr[0];
-            let existingItem = cart.items.find((item: any) => item.product.id === productId);
+        let existingCart: RecordModel | null = null;
+        try {
+            existingCart = await pocketbase
+                .collection('carts')
+                .getFirstListItem(
+                    `userId="${pocketbase.authStore.record?.id}" && status="pending"`
+                );
+        } catch (e) {
+            // no cart
+        }
+
+        if (existingCart) {
+            const items = existingCart.items || [];
+            let existingItem = items.find((item: any) => item.product.id === productId);
             if (existingItem) {
                 existingItem.quantity = quantity;
                 existingItem.total = existingItem.quantity * productInfo.price;
             } else {
-                cart.items.push({
+                items.push({
                     quantity,
                     product: productInfo,
                     total: productInfo.price * quantity
                 });
             }
-            cart.total = cart.items.reduce((sum: number, item: any) => sum + item.total, 0);
-            await pocketbase.collection("carts").update(cart.id, {
-                items: cart.items,
-                total: cart.total
-            }, { requestKey: Date.now().toString() });
+            const total = items.reduce((sum: number, item: any) => sum + item.total, 0);
+            await pocketbase.collection('carts').update(existingCart.id, {
+                items: items,
+                total: total
+            });
         } else {
-            cart = await pocketbase.collection("carts").create({
-                items: [{
-                    quantity,
-                    product: productInfo,
-                    total: productInfo.price * quantity
-                }],
+            const newCart = await pocketbase.collection('carts').create({
+                items: [
+                    {
+                        quantity,
+                        product: productInfo,
+                        total: productInfo.price * quantity
+                    }
+                ],
                 userId: pocketbase.authStore.record?.id,
-                status: "pending",
+                status: 'pending',
                 total: productInfo.price * quantity
-            }, { requestKey: Date.now().toString() });
-            await pocketbase.collection("users").update(pocketbase.authStore.record?.id as string, {
-                carts: [...(pocketbase.authStore.record?.carts || []), cart.id]
-            }, { requestKey: Date.now().toString() });
+            });
+            await pocketbase
+                .collection('users')
+                .update(pocketbase.authStore.record?.id as string, {
+                    'carts+': newCart.id
+                });
         }
         await refreshCart();
-        return cart;
+        return { length: cart.length, total: cart.total };
     } else if (browser) {
         // Guest user: use localStorage
         let localCart = localStorage.getItem("cartItems");
@@ -256,7 +278,7 @@ export async function addToCart(productId: string, quantity: number) {
         }
         localStorage.setItem("cartItems", JSON.stringify(cartItems));
         await refreshCart();
-        return cartItems;
+        return { length: cart.length, total: cart.total };
     }
 }
 
@@ -400,13 +422,13 @@ export async function kysRegistration(
     city: string,
     dob: string,
     personal_phone: string,
-    proof_of_occupancy: [File],
+    proof_of_occupancy: File[],
     store_address: string,
     store_description: string,
     store_phone: string,
-    store_logo: [File],
-    store_banner: [File],
-    valid_id: [File],
+    store_logo: File[],
+    store_banner: File[],
+    valid_id: File[],
     bank_details: any,
     website?: string,
     agreed?: boolean
@@ -439,20 +461,29 @@ export async function kysRegistration(
         formData.append("city", city);
         formData.append("dob", dob);
         formData.append("personal_phone", personal_phone);
-        formData.append("proof_of_occupancy", proof_of_occupancy[0]);
+        if (proof_of_occupancy && proof_of_occupancy[0]) {
+            formData.append("proof_of_occupancy", proof_of_occupancy[0]);
+        }
         formData.append("store_address", store_address);
         formData.append("store_description", store_description);
         formData.append("store_phone", store_phone);
-        formData.append("store_logo", store_logo[0]);
-        formData.append("store_banner", store_banner[0]);
-        formData.append("valid_id", valid_id[0]);
+        if (store_logo && store_logo[0]) {
+            formData.append("store_logo", store_logo[0]);
+        }
+        if (store_banner && store_banner[0]) {
+            formData.append("store_banner", store_banner[0]);
+        }
+        if (valid_id && valid_id[0]) {
+            formData.append("valid_id", valid_id[0]);
+        }
         formData.append("bank_details", JSON.stringify(bank_details));
-        if (website) formData.append("website_url", website);
-        if (agreed !== undefined) formData.append("agreed", agreed ? "true" : "false");
+        if (website) formData.append("website", website);
+        if (agreed) formData.append("agreed", agreed.toString());
         formData.append("inventory", JSON.stringify([]));
         formData.append("orders", JSON.stringify([]));
         formData.append("finance", JSON.stringify([]));
         formData.append("kys_status", "pending");
+        formData.append("userId", pocketbase.authStore.record?.id || '');
 
         let vendorRecord: any = $state({});
         if (existing.length > 0) {
@@ -530,7 +561,12 @@ export async function uploadProduct(product: {
     quantity: number;
 }) {
     if (!pocketbase.authStore.isValid) {
-        notify("Error", "You must be logged in to upload a product.", "error");
+        notify('Error', 'You must be logged in to upload a product.', 'error');
+        return null;
+    }
+    const vendorId = pocketbase.authStore?.record?.id;
+    if (!vendorId) {
+        notify('Error', 'Could not find vendor ID.', 'error');
         return null;
     }
     try {
@@ -547,7 +583,7 @@ export async function uploadProduct(product: {
             formData.append("quantity", product.quantity.toString());
         }
 
-        formData.append("vendor_id", pocketbase.authStore?.record?.id);
+        formData.append("vendor_id", vendorId);
         console.log(product)
         const created = await pocketbase.collection("products").create(formData, {
             requestKey: Date.now().toString()
