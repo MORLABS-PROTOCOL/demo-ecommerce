@@ -3,7 +3,9 @@ import { page } from "$app/state"
 import Client, { type ListResult, type RecordModel } from "pocketbase"
 import { writable, type Writable } from "svelte/store"
 import { PUBLIC_PAYSTACK_SECRET_KEY, PUBLIC_SDK_URL } from "$env/static/public"
-import { initializeStores, cleanupStores } from './realtime'
+import { initializeStores, cleanupStores, wishlist } from './realtime'
+import { get } from 'svelte/store'
+import type { WishlistItem } from './types'
 
 
 export let pocketbase: Client;
@@ -291,61 +293,42 @@ export function shuffleArray<T>(array: T[]): T[] {
     return shuffled;
 }
 
-let wishlist = $state({ items: [] });
-
 export async function modifyWishList(productId: string) {
-    if (pocketbase.authStore.isValid) {
-        const user = await pocketbase.collection("users").getFullList({ filter: `id="${pocketbase.authStore.record?.id}"`, requestKey: Date.now().toString() })
-        const product = await pocketbase.collection("products").getOne(productId, { requestKey: Date.now().toString() })
-        const productImage = pocketbase.files.getURL(product, product.product_image)
+    if (!pocketbase.authStore.isValid) {
+        notify('Error', 'You must be logged in to modify your wishlist.', 'error');
+        if (browser) window.location.href = '/login';
+        return;
+    }
+
+    const userId = pocketbase.authStore.record?.id;
+    if (!userId) return;
+
+    const currentWishlist = get(wishlist) || [];
+    const productIndex = currentWishlist.findIndex((item: WishlistItem) => item.id === productId);
+
+    let updatedWishlist;
+
+    if (productIndex > -1) {
+        updatedWishlist = currentWishlist.filter((item: WishlistItem) => item.id !== productId);
+    } else {
+        const product = await pocketbase.collection('products').getOne(productId);
         const productDetails = {
             id: product.id,
             name: product.title,
-            productImage: productImage,
-            price: product.discount_percentage < 1 ? product.price : calculateNewPrice(product.price, product.discount_percentage),
+            productImage: pocketbase.files.getURL(product, product.product_image),
+            price:
+                product.discount_percentage < 1
+                    ? product.price
+                    : calculateNewPrice(product.price, product.discount_percentage),
             oldPrice: product.price,
             discount: product.discount_percentage < 1 ? 0 : product.discount_percentage
-        }
-        if (user[0].wishlist === null) user[0].wishlist = [];
-        if (user[0].wishlist.some((item: { id: string }) => item.id === productId)) {
-            user[0].wishlist = user[0].wishlist.filter((item: { id: string }) => item.id !== productId);
-            await pocketbase.collection("users").update(pocketbase.authStore.record?.id as string, {
-                wishlist: user[0].wishlist
-            }, { requestKey: Date.now().toString() });
-        } else {
-            user[0].wishlist.push(productDetails);
-            await pocketbase.collection("users").update(pocketbase.authStore.record?.id as string, {
-                wishlist: user[0].wishlist
-            }, { requestKey: Date.now().toString() });
-        }
-        await refreshWishList()
-        wishList.items = user[0].wishlist;
-        return user[0].wishlist
-    } else {
-        if (browser) {
-            notify("Error", "You must be logged in to modify your wishlist.", "error");
-            window.location.href = '/login';
-        }
+        };
+        updatedWishlist = [...currentWishlist, productDetails];
     }
-}
 
-
-export async function clearWishList() {
-    wishList.items = [];
-    await pocketbase.collection('users').update(pocketbase.authStore.record?.id as string, {
-        wishlist: []
+    await pocketbase.collection('users').update(userId, {
+        wishlist: updatedWishlist
     });
-}
-export async function getWishList() {
-    const user = await pocketbase.collection("users").getFullList({ filter: `id="${pocketbase.authStore.record?.id}"`, requestKey: Date.now().toString() })
-    return user[0].wishlist
-}
-
-export let wishList: { items: any[] } = $state({ items: [] })
-export async function refreshWishList() {
-    let user = await pocketbase.collection("users").getFullList({ filter: `id="${pocketbase.authStore.record?.id}"`, requestKey: Date.now().toString() })
-
-    wishList.items = user[0].wishlist;
 }
 
 export async function removeFromCart(productId: string) {
@@ -357,18 +340,6 @@ export async function removeFromCart(productId: string) {
         , total: cartItems[0].items.reduce((sum: number, item: any) => sum + (item.quantity * item.product.price), 0)
     }, { requestKey: Date.now().toString() });
     await refreshCart()
-}
-
-export async function removeFromWishList(productId: string) {
-    let user = await pocketbase.collection("users").getFullList({ filter: `id="${pocketbase.authStore.record?.id}"`, requestKey: Date.now().toString() });
-    if (user[0].wishlist && user[0].wishlist.includes(productId)) {
-        user[0].wishlist = user[0].wishlist.filter((id: string) => id !== productId);
-        await pocketbase.collection("users").update(pocketbase.authStore.record?.id as string, {
-            wishlist: user[0].wishlist
-        }, { requestKey: Date.now().toString() });
-        await refreshWishList();
-    }
-    return user[0].wishlist;
 }
 
 export async function updateCart(productId: string, quantity: number) {

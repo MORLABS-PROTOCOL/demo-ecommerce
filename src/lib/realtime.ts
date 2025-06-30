@@ -1,6 +1,7 @@
 import { pocketbase } from './controls.svelte';
 import { writable } from 'svelte/store';
 import type { RecordModel } from 'pocketbase';
+import type { WishlistItem } from './types';
 
 // --- Products Store ---
 export const products = writable<RecordModel[]>([]);
@@ -68,31 +69,27 @@ async function initCart() {
 }
 
 // --- Wishlist Store ---
-export const wishlist = writable<RecordModel | null>(null);
-let wishlistUnsubscribe: () => void;
+export const wishlist = writable<WishlistItem[]>([]);
+let userUnsubscribe: () => void;
 
 async function initWishlist() {
-    if (wishlistUnsubscribe) wishlistUnsubscribe();
-    const userId = pocketbase.authStore.record?.id;
-    if (!userId) {
-        wishlist.set(null);
+    if (userUnsubscribe) userUnsubscribe();
+    const user = pocketbase.authStore.record;
+    if (!user) {
+        wishlist.set([]);
         return;
     }
+
     try {
-        const wishlistData = await pocketbase
-            .collection('wishlists')
-            .getFirstListItem(`user="${userId}"`);
-        wishlist.set(wishlistData);
-        if (wishlistData) {
-            wishlistUnsubscribe = await pocketbase
-                .collection('wishlists')
-                .subscribe(wishlistData.id, (e) => {
-                    wishlist.set(e.record);
-                });
-        }
+        const userData = await pocketbase.collection('users').getOne(user.id);
+        wishlist.set(userData.wishlist || []);
+
+        userUnsubscribe = await pocketbase.collection('users').subscribe(user.id, (e) => {
+            wishlist.set(e.record.wishlist || []);
+        });
     } catch (error) {
         console.error('Failed to initialize wishlist:', error);
-        wishlist.set(null); // No wishlist found
+        wishlist.set([]);
     }
 }
 
@@ -131,6 +128,6 @@ export function cleanupStores() {
     if (productsUnsubscribe) productsUnsubscribe();
     if (productUnsubscribe) productUnsubscribe();
     if (cartUnsubscribe) cartUnsubscribe();
-    if (wishlistUnsubscribe) wishlistUnsubscribe();
+    if (userUnsubscribe) userUnsubscribe();
     if (settingsUnsubscribe) settingsUnsubscribe();
 } 

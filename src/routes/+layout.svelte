@@ -298,11 +298,11 @@
 						<!-- Wishlist -->
 						<a href="/wishlist" class="relative hover:shadow hover:rounded-full p-2">
 							<Heart />
-							{#if $wishlist && $wishlist.items.length > 0}
+							{#if $wishlist && $wishlist.length > 0}
 								<span
 									class="absolute top-0 right-0 h-4 w-4 bg-red-500 text-white text-xs flex items-center justify-center rounded-full"
 								>
-									{$wishlist.items.length}
+									{$wishlist.length}
 								</span>
 							{/if}
 						</a>

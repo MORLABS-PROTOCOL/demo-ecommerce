@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { calculateNewPrice, currency, modifyWishList } from '$lib/controls.svelte';
-	import { CheckmarkOutline, StarFilled } from 'carbon-icons-svelte';
+	import { calculateNewPrice, currency, modifyWishList, notify } from '$lib/controls.svelte';
+	import { CheckmarkOutline, Share, StarFilled } from 'carbon-icons-svelte';
 	import { onMount } from 'svelte';
 	import Exit from './Icons/Exit-sm.svelte';
 	import Heart from './Icons/Heart.svelte';
@@ -21,6 +21,31 @@
 	onMount(() => {
 		newPrice = calculateNewPrice(price, discountPercentage);
 	});
+
+	async function shareProduct(productId: string, title: string) {
+		const url = `${window.location.origin}/products/${productId}`;
+		const shareData = {
+			title: title,
+			text: `Check out this product: ${title}`,
+			url: url
+		};
+
+		if (navigator.share) {
+			try {
+				await navigator.share(shareData);
+			} catch (err) {
+				// This can happen if the user cancels the share dialog
+				console.error('Share failed:', err);
+			}
+		} else {
+			try {
+				await navigator.clipboard.writeText(url);
+				notify('Copied!', 'Product link copied to clipboard.', 'success');
+			} catch (err) {
+				notify('Error', 'Failed to copy link.', 'error');
+			}
+		}
+	}
 </script>
 
 <div
@@ -54,16 +79,23 @@
 		{/if}
 	</div>
 
-	<!-- Heart Wishlist Button -->
+	<!-- Heart Wishlist & Share Buttons -->
 	<div
-		class="absolute top-[10%] right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+		class="absolute top-[10%] right-2 z-20 flex flex-col gap-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
 	>
 		<button
 			class="bg-white shadow-md p-2 rounded-full hover:bg-gray-50 transition-colors"
 			aria-label="Add to wishlist"
 			onclick={() => modifyWishList(productId)}
 		>
-			<Heart />
+			<Heart fillColor="none" strokeColor="#000" />
+		</button>
+		<button
+			class="bg-white shadow-md p-2 rounded-full hover:bg-gray-50 transition-colors"
+			aria-label="Share this product"
+			onclick={() => shareProduct(productId, title)}
+		>
+			<Share />
 		</button>
 	</div>
 
@@ -73,7 +105,7 @@
 		<!-- Rating -->
 		<div class="flex items-center mt-[26%]">
 			{#each Array(5) as _, i}
-				<StarFilled size={17} fill="gold" class="mr-0.5" />
+				<StarFilled size={16} fill="gold" class="mr-0.5" />
 			{/each}
 		</div>
 

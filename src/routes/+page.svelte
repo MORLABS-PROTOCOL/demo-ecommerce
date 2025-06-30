@@ -42,6 +42,7 @@
 		adImages = await pullAds();
 		await getLogo();
 		products = await getAllProducts();
+		console.log(products);
 		// busy = true;
 		// busy = false;
 	});
