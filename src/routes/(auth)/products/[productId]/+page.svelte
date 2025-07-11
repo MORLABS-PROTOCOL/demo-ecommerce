@@ -42,7 +42,6 @@
 		newPrice = calculateNewPrice(product?.price, product?.discount_percentage);
 		productsByCategory = await getProductsByCategory(product.category, 5);
 		products = productsByCategory;
-		await refreshWishList();
 
 		cartItems = await getCart();
 		cartItems = cartItems[0].items || [];
@@ -50,6 +49,7 @@
 		tempCart = tempCart.find((item) => item.product.id === productId);
 		console.log(tempCart, 'Temp Cart ');
 		// console.log(cartItems[0].items, 'Cart Items Length');
+		await refreshWishList();
 	});
 </script>
 

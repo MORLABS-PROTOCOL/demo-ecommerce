@@ -9,12 +9,10 @@ import type { WishlistItem } from './types'
 
 
 export let pocketbase: Client;
-if (dev) {
-    pocketbase = new Client(PUBLIC_SDK_URL)
-} else {
+
     console.log("Accessing SDK")
     pocketbase = new Client(`https://manage.morlabsprotocol.com`)
-}
+
 
 pocketbase.authStore.onChange((auth) => {
     if (pocketbase.authStore.isValid) {
@@ -329,6 +327,25 @@ export async function modifyWishList(productId: string) {
     await pocketbase.collection('users').update(userId, {
         wishlist: updatedWishlist
     });
+}
+
+export async function refreshWishList() {
+    if (!pocketbase.authStore.isValid) {
+        wishlist.set([]);
+        return;
+    }
+    try {
+        const userId = pocketbase.authStore.record?.id;
+        if (!userId) {
+            wishlist.set([]);
+            return;
+        }
+        const userData = await pocketbase.collection('users').getOne(userId);
+        wishlist.set(userData.wishlist || []);
+    } catch (error) {
+        console.error('Failed to refresh wishlist:', error);
+        wishlist.set([]);
+    }
 }
 
 export async function removeFromCart(productId: string) {

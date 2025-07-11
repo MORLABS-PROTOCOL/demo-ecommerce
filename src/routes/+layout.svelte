@@ -31,6 +31,7 @@
 		UserOnline,
 		UserProfile
 	} from 'carbon-icons-svelte';
+	import Home from '$lib/components/Icons/Home.svelte';
 	import Exit from '$lib/components/Icons/Exit.svelte';
 	import { onDestroy, onMount } from 'svelte';
 	import { Form } from 'carbon-components-svelte';
@@ -575,7 +576,7 @@
 		</div>
 
 		{#if page.url.pathname !== '/login' && page.url.pathname !== '/vendor/dashboard' && page.url.pathname !== '/signup' && page.url.pathname !== '/login/forgot-password'}
-			<footer class="bg-blue-700 text-white pt-10 pb-4 px-4">
+			<footer class="bg-blue-700 text-white pt-10 pb-4 px-4 hidden md:block">
 				<!-- Newsletter Subscription Section -->
 				<div
 					class="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 pb-8 border-b border-blue-500"
@@ -679,6 +680,28 @@
 					&copy; {new Date().getFullYear()} Vixstores. All rights reserved.
 				</div>
 			</footer>
+			<!-- Mobile Bottom Navigation -->
+			<nav class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow md:hidden flex justify-around items-center h-16">
+				<a href="/" class="flex flex-col items-center justify-center text-blue-700 hover:text-blue-900">
+					<Home />
+					<span class="text-xs">Home</span>
+				</a>
+				<button onclick={() => (showSearchBar = !showSearchBar)} class="flex flex-col items-center justify-center text-blue-700 hover:text-blue-900 focus:outline-none">
+					<Search />
+					<span class="text-xs">Search</span>
+				</button>
+				<a href="/cart" class="flex flex-col items-center justify-center text-blue-700 hover:text-blue-900 relative">
+					<ShoppingCart />
+					{#if $cart && $cart.items.length > 0}
+						<span class="absolute -top-1 right-2 bg-red-600 text-white text-xs rounded-full px-1">{$cart.items.length}</span>
+					{/if}
+					<span class="text-xs">Cart</span>
+				</a>
+				<a href="/account" class="flex flex-col items-center justify-center text-blue-700 hover:text-blue-900">
+					<User />
+					<span class="text-xs">Account</span>
+				</a>
+			</nav>
 		{/if}
 	</main>
 </div>
