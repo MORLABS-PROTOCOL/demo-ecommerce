@@ -519,7 +519,7 @@
 					transition:fly={{ y: -20, duration: 300 }}
 					onclick={() => (showSearchBar = false)}
 				>
-					<div class="bg-white p-4" transition:fly={{ y: 0, duration: 300 }} onclick="event.stopPropagation()">
+					<div class="bg-white p-4" transition:fly={{ y: 0, duration: 300 }} >
 						<Form
 							class="w-full flex items-center"
 							bind:ref={formData}
