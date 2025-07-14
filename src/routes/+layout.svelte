@@ -519,7 +519,7 @@
 					transition:fly={{ y: -20, duration: 300 }}
 					onclick={() => (showSearchBar = false)}
 				>
-					<div class="bg-white p-4" transition:fly={{ y: 0, duration: 300 }} >
+					<div class="bg-white p-4" transition:fly={{ y: 0, duration: 300 }} onclick="event.stopPropagation()">
 						<Form
 							class="w-full flex items-center"
 							bind:ref={formData}
@@ -682,24 +682,10 @@
 			</footer>
 			<!-- Mobile Bottom Navigation -->
 			<nav class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow md:hidden flex justify-around items-center h-16">
-				<a href="/" class="flex flex-col items-center justify-center text-blue-700 hover:text-blue-900">
-					<Home />
-					<span class="text-xs">Home</span>
-				</a>
-				<button onclick={() => (showSearchBar = !showSearchBar)} class="flex flex-col items-center justify-center text-blue-700 hover:text-blue-900 focus:outline-none">
-					<Search />
-					<span class="text-xs">Search</span>
-				</button>
-				<a href="/cart" class="flex flex-col items-center justify-center text-blue-700 hover:text-blue-900 relative">
-					<ShoppingCart />
-					{#if $cart && $cart.items.length > 0}
-						<span class="absolute -top-1 right-2 bg-red-600 text-white text-xs rounded-full px-1">{$cart.items.length}</span>
-					{/if}
-					<span class="text-xs">Cart</span>
-				</a>
-				<a href="/account" class="flex flex-col items-center justify-center text-blue-700 hover:text-blue-900">
-					<User />
-					<span class="text-xs">Account</span>
+				<!-- Only show wishlist icon on mobile -->
+				<a href="/wishlist" class="flex flex-col items-center justify-center text-blue-700 hover:text-blue-900">
+					<Heart />
+					<span class="text-xs">Wishlist</span>
 				</a>
 			</nav>
 		{/if}
