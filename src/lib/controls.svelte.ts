@@ -401,7 +401,8 @@ export async function makePayment(email: string, amount: number) {
     }
 }
 
-export async function kysRegistration(
+export async function kysRegistration(payload: {
+    user_id: string,
     store_name: string,
     store_niche: string,
     address: string,
@@ -420,76 +421,95 @@ export async function kysRegistration(
     bank_details: any,
     website?: string,
     agreed?: boolean
-) {
+}) {
     if (!pocketbase.authStore.isValid) {
         notify("Error", "You must be logged in to register as a vendor.", "error");
         return null;
     }
 
-    const userId = pocketbase.authStore.record?.id;
-    if (!userId) {
+    // Attach the currently authenticated user's ID
+    payload.user_id = pocketbase.authStore.record?.id as string;
+
+    if (!payload.user_id) {
         notify("Error", "User ID not found.", "error");
         return null;
     }
 
     try {
-        // Check for existing vendor record for this user
+        // Check if the vendor record already exists for this user
         const existing = await pocketbase.collection("vendors").getFullList({
-            filter: `userId="${userId}"`,
+            filter: `user_id="${payload.user_id}"`,
             requestKey: Date.now().toString()
         });
 
+        // Helper to append multiple files
+        const appendFiles = (key: string, files: File[]) => {
+            files?.forEach(file => {
+                if (file instanceof File) {
+                    formData.append(key, file);
+                }
+            });
+        };
+
+        // Prepare FormData
         const formData = new FormData();
-        formData.append("userId", userId);
-        formData.append("store_name", store_name);
-        formData.append("store_niche", store_niche);
-        formData.append("address", address);
-        formData.append("country", country);
-        formData.append("state", state);
-        formData.append("city", city);
-        formData.append("dob", dob);
-        formData.append("personal_phone", personal_phone);
-        if (proof_of_occupancy && proof_of_occupancy[0]) {
-            formData.append("proof_of_occupancy", proof_of_occupancy[0]);
-        }
-        formData.append("store_address", store_address);
-        formData.append("store_description", store_description);
-        formData.append("store_phone", store_phone);
-        if (store_logo && store_logo[0]) {
-            formData.append("store_logo", store_logo[0]);
-        }
-        if (store_banner && store_banner[0]) {
-            formData.append("store_banner", store_banner[0]);
-        }
-        if (valid_id && valid_id[0]) {
-            formData.append("valid_id", valid_id[0]);
-        }
-        formData.append("bank_details", JSON.stringify(bank_details));
-        if (website) formData.append("website", website);
-        if (agreed) formData.append("agreed", agreed.toString());
+        formData.append("user_id", payload.user_id);
+        formData.append("store_name", payload.store_name);
+        formData.append("store_niche", payload.store_niche);
+        formData.append("address", payload.address);
+        formData.append("country", payload.country);
+        formData.append("state", payload.state);
+        formData.append("city", payload.city);
+        formData.append("dob", payload.dob);
+        formData.append("personal_phone", payload.personal_phone);
+        formData.append("store_address", payload.store_address);
+        formData.append("store_description", payload.store_description);
+        formData.append("store_phone", payload.store_phone);
+        formData.append("bank_details", JSON.stringify(payload.bank_details));
+        formData.append("kys_status", "pending");
         formData.append("inventory", JSON.stringify([]));
         formData.append("orders", JSON.stringify([]));
         formData.append("finance", JSON.stringify([]));
-        formData.append("kys_status", "pending");
-        formData.append("userId", pocketbase.authStore.record?.id || '');
+        if (payload.website) {
+            formData.append("website_url", payload.website);
+        }
+        formData.append("agreed", payload.agreed ? "true" : "false");
 
-        let vendorRecord: any = $state({});
+        // Append file fields
+        appendFiles("proof_of_occupancy", payload.proof_of_occupancy);
+        appendFiles("store_logo", payload.store_logo);
+        appendFiles("store_banner", payload.store_banner);
+        appendFiles("valid_id", payload.valid_id);
+
+        // Optional: Debug FormData contents
+        // for (const [key, value] of formData.entries()) {
+        //     console.log(`${key}:`, value);
+        // }
+
+        let vendorRecord: any;
         if (existing.length > 0) {
             // Update existing record
-            vendorRecord = await pocketbase.collection("vendors").update(existing[0].id, formData, { requestKey: Date.now().toString() });
-            notify("Success", "Vendor registration updated. You will be notified once your registration is approved", "success");
+            vendorRecord = await pocketbase.collection("vendors").update(existing[0].id, formData, {
+                requestKey: Date.now().toString()
+            });
+            notify("Success", "Vendor registration updated. You will be notified once your registration is approved.", "success");
         } else {
             // Create new record
-            vendorRecord = await pocketbase.collection("vendors").create(formData, { requestKey: Date.now().toString() });
-            notify("Success", "Vendor registration initialized. You will be notified once your registration is approved", "success");
+            vendorRecord = await pocketbase.collection("vendors").create(formData, {
+                requestKey: Date.now().toString()
+            });
+            notify("Success", "Vendor registration initialized. You will be notified once your registration is approved.", "success");
         }
+
         return vendorRecord;
+
     } catch (error) {
         console.error("Error initializing vendor registration:", error);
         notify("Error", "Failed to register vendor.", "error");
         throw error;
     }
 }
+
 
 // async function removeBg(imageURL: string): Promise<ArrayBuffer> {
 //     if (!imageURL) {
@@ -641,14 +661,15 @@ export async function deleteProduct(productId: string) {
 }
 
 
-export async function fuzzySearchProducts(searchTerm: string, limit: number = 10): Promise<RecordModel[]> {
-    // Use PocketBase's ~ operator for partial/fuzzy matching on title and description
-    const sanitizedTerm = searchTerm.replace(/[^a-zA-Z0-9\s]/g, "").trim();
-    const filter = `title~"${searchTerm}" || description~"${searchTerm}"`;
+export async function fuzzySearchProducts(searchTerm: string, limit: number = 50): Promise<RecordModel[]> {
+    // Use PocketBase's ~ operator for partial/fuzzy matching on title and description, case-insensitive
+    const sanitizedTerm = searchTerm.trim();
+    if (!sanitizedTerm) return [];
+    const filter = `title~"${sanitizedTerm}" || description~"${sanitizedTerm}"`;
     const results = await pocketbase.collection("products").getFullList({
         filter,
-        requestKey: `fuzzy-${searchTerm}-${Date.now()}`,
-        ...(limit ? { limit } : {})
+        requestKey: `fuzzy-${sanitizedTerm}-${Date.now()}`,
+        limit
     });
     return results.map((p) => ({
         ...p,

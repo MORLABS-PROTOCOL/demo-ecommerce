@@ -100,7 +100,7 @@
 
 <div class="font-jost overflow-hidden">
 	<main class=" mx-auto">
-		{#if page.url.pathname !== '/login' && page.url.pathname !== '/vendor/dashboard' && page.url.pathname !== '/signup' && page.url.pathname !== '/login/forgot-password'}
+		{#if page.url.pathname !== '/login' && page.url.pathname!=='/dashboard/superadmin' && page.url.pathname !== '/vendor/dashboard' && page.url.pathname !== '/signup' && page.url.pathname !== '/login/forgot-password'}
 			<!-- Top Info Bar -->
 			<div class="text-xs w-screen mx-auto text-gray-500 font-semibold py-2 px-4">
 				<div class="flex max-w-6xl justify-between mx-auto items-center">
@@ -519,7 +519,7 @@
 					transition:fly={{ y: -20, duration: 300 }}
 					onclick={() => (showSearchBar = false)}
 				>
-					<div class="bg-white p-4" transition:fly={{ y: 0, duration: 300 }}>
+					<div class="bg-white p-4" transition:fly={{ y: 0, duration: 300 }} >
 						<Form
 							class="w-full flex items-center"
 							bind:ref={formData}
@@ -575,7 +575,7 @@
 			{@render children()}
 		</div>
 
-		{#if page.url.pathname !== '/login' && page.url.pathname !== '/vendor/dashboard' && page.url.pathname !== '/signup' && page.url.pathname !== '/login/forgot-password'}
+		{#if page.url.pathname !== '/login'&&page.url.pathname!=='/dashboard/superadmin' && page.url.pathname !== '/vendor/dashboard' && page.url.pathname !== '/signup' && page.url.pathname !== '/login/forgot-password'}
 			<footer class="bg-blue-700 text-white pt-10 pb-4 px-4 hidden md:block">
 				<!-- Newsletter Subscription Section -->
 				<div

@@ -13,6 +13,7 @@
 	import { onDestroy, onMount } from 'svelte';
 
 	let payload = $state({
+		user_id: '',
 		store_name: '',
 		store_niche: '',
 		address: '',
@@ -32,30 +33,19 @@
 		website: '',
 		agreed: false
 	});
+	let userId: string | undefined = $state('')
+	onMount(() => {
+		userId = pocketbase.authStore.record?.id
+	})
 	let valid: boolean = $state(false);
 	async function handleSubmit() {
-		// You can send payload to an API here
-		await kysRegistration(
-			payload.store_name,
-			payload.store_niche,
-			payload.address,
-			payload.country,
-			payload.state,
-			payload.city,
-			payload.dob,
-			payload.personal_phone,
-			payload.proof_of_occupancy,
-			payload.store_address,
-			payload.store_description,
-			payload.store_phone,
-			payload.store_logo,
-			payload.store_banner,
-			payload.valid_id,
-			payload.bank_details,
-			payload.website,
-			payload.agreed
-		);
-
+		payload.user_id = userId as string;
+		busy = true;
+		try {
+			await kysRegistration(payload);
+		} finally {
+			busy = false;
+		}
 		// console.log(payload);
 	}
 	let user: any = $state({});
@@ -66,7 +56,7 @@
 		if (!valid) {
 			window.location.href = '/login';
 		} else {
-			const userId = pocketbase.authStore?.record?.id;
+			
 			if (!userId) {
 				return;
 			}
@@ -330,7 +320,7 @@
 				<button
 					type="submit"
 					class="mt-4 px-6 py-4 bg-blue-600 w-full text-white rounded disabled:bg-gray-500 disabled:opacity-50"
-					disabled={!payload.agreed ||
+					disabled={busy || !payload.agreed ||
 						!payload.store_name ||
 						!payload.store_niche ||
 						!payload.address ||
@@ -349,7 +339,11 @@
 						!payload.bank_details ||
 						(!!payload.website && !/^https?:\/\/.+/.test(payload.website))}
 				>
-					Save
+					{#if busy}
+						<span>Submitting...</span>
+					{:else}
+						Save
+					{/if}
 				</button>
 			</Form>
 		</div>
