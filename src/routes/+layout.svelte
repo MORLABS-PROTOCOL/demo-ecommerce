@@ -198,12 +198,13 @@
 				</Form>
 
 				<!-- User/Cart Section -->
-				<div class="flex items-center gap-3 px-3">
-					{#if loginState}
-						<!-- Mobile Search Toggle -->
-						<button class=" block md:hidden" onclick={() => (showSearchBar = !showSearchBar)}>
-							<Search />
-						</button>
+				{#if loginState}
+					<!-- Mobile Account Icon (top nav) -->
+					<a href="/account" class="block md:hidden relative hover:shadow hover:rounded-full p-2">
+						<User />
+					</a>
+					<!-- Desktop: show all icons as before -->
+					<div class="hidden md:flex items-center gap-3 px-3">
 						<!-- Profile -->
 						<!-- <div class="relative">
 							<select
@@ -250,7 +251,7 @@
 									</svg>
 									<span class="absolute top-0 right-0 w-2 h-2 bg-blue-500 rounded-full"></span>
 								</div>
-								<span class="hidden md:block">Hi, {userData?.username}</span>
+								<span class="block">Hi, {userData?.username}</span>
 								<svg
 									class="w-4 h-4 hidden md:block"
 									fill="none"
@@ -297,7 +298,7 @@
 						</div>
 
 						<!-- Wishlist -->
-						<a href="/wishlist" class="relative hover:shadow hover:rounded-full p-2">
+						<a href="/wishlist" class="hidden md:block relative hover:shadow hover:rounded-full p-2">
 							<Heart />
 							{#if $wishlist && $wishlist.length > 0}
 								<span
@@ -318,11 +319,78 @@
 								</span>
 							{/if}
 						</a>
-					{:else}
-						<!-- Mobile Search Toggle -->
-						<button class="block md:hidden" onclick={() => (showSearchBar = !showSearchBar)}>
-							<Search />
+					</div>
+				{:else}
+					<!-- Mobile Account Icon (top nav) for non-login state -->
+					<div class="relative inline-block text-left mr-5" bind:this={dropdownRef}>
+						<button
+							class="flex items-center gap-2 text-gray-700 hover:text-black focus:outline-none"
+							onclick={() => (showDropdown = !showDropdown)}
+						>
+							<div class="relative">
+								<svg
+									class="w-6 h-6"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="1.5"
+									viewBox="0 0 24 24"
+								>
+									<!-- User icon -->
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 0115 0"
+									/>
+								</svg>
+								<span class="absolute top-0 right-0 w-2 h-2 bg-blue-500 rounded-full"></span>
+							</div>
+							<span class="hidden md:block">Hi, {userData?.username}</span>
+							<svg
+								class="w-4 h-4 hidden md:block"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								viewBox="0 0 24 24"
+							>
+								<path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+							</svg>
 						</button>
+
+						{#if showDropdown}
+							<div
+								class="absolute right-0 mt-2 w-56 origin-top-right bg-white border border-gray-200 rounded-md shadow-lg z-50"
+							>
+								<ul class="py-1 text-sm text-gray-700">
+									<li>
+										<a href="/account" class="flex items-center px-4 py-2 hover:bg-gray-100">
+											<!-- <UserIcon class="w-5 h-5 mr-3" /> -->
+											My Account
+										</a>
+									</li>
+
+									<li>
+										<a href="/wishlist" class="flex items-center px-4 py-2 hover:bg-gray-100">
+											<!-- <HeartIcon class="w-5 h-5 mr-3" /> -->
+											Wishlist
+										</a>
+									</li>
+								</ul>
+								<div class="border-t border-gray-200">
+									<button
+										class="w-full px-4 py-2 text-sm text-orange-600 hover:bg-gray-100 text-left"
+										onclick={() => {
+											pocketbase.authStore.clear();
+											window.location.href = '/login';
+										}}
+									>
+										Logout
+									</button>
+								</div>
+							</div>
+						{/if}
+					</div>
+					<!-- Desktop: show login, wishlist, cart as before -->
+					<div class="hidden md:flex items-center gap-3 px-3">
 						<!-- Login -->
 						<a
 							href="/login"
@@ -359,163 +427,163 @@
 								>{cart?.length || 0}</span
 							>
 						</a>
-					{/if}
+					</div>
+				{/if}
 
-					{#if showCategories}
-						<div
-							transition:fly={{ x: -300, duration: 300 }}
-							class="fixed top-0 left-0 z-50 min-h-screen w-full sm:w-1/4 bg-white text-black transition-transform transform translate-x-0 sm:translate-x-0 ease-in-out"
-						>
-							<div class="p-3 w-full h-full overflow-y-auto max-h-screen">
-								<!-- Close button for large screens -->
-								<div class="hidden sm:flex justify-end pb-5 px-2">
-									<button class="font-bold text-black" onclick={() => (showCategories = false)}>
-										<Exit />
-									</button>
+				{#if showCategories}
+					<div
+						transition:fly={{ x: -300, duration: 300 }}
+						class="fixed top-0 left-0 z-50 min-h-screen w-full sm:w-1/4 bg-white text-black transition-transform transform translate-x-0 sm:translate-x-0 ease-in-out"
+					>
+						<div class="p-3 w-full h-full overflow-y-auto max-h-screen">
+							<!-- Close button for large screens -->
+							<div class="hidden sm:flex justify-end pb-5 px-2">
+								<button class="font-bold text-black" onclick={() => (showCategories = false)}>
+									<Exit />
+								</button>
+							</div>
+
+							<!-- Header for small screens -->
+							<h3
+								class="sm:hidden font-bold text-xl flex justify-evenly gap-x-2 items-center pb-5 text-black"
+							>
+								Menu
+								<button onclick={() => (showCategories = false)}><Exit /></button>
+							</h3>
+
+							<!-- Categories Section -->
+							<div class="mb-6">
+								<h4 class="font-semibold text-lg px-4 pb-2">Categories</h4>
+								<hr class="border-gray-300 mb-2" />
+								<!-- Category Search Bar -->
+								<div class="px-4 py-2">
+									<input
+										type="text"
+										placeholder="Search categories..."
+										class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
+										oninput={(e) => {
+											const value = e.target.value.toLowerCase();
+											filteredCategories = [
+												'Electronics',
+												'Fashion',
+												'Home & Kitchen',
+												'Beauty & Personal Care',
+												'Sports & Outdoors',
+												'Toys & Games',
+												'Books',
+												'Automotive',
+												'Health & Wellness',
+												'Groceries',
+												'Office Supplies',
+												'Pet Supplies'
+											].filter((cat) => cat.toLowerCase().includes(value));
+										}}
+									/>
 								</div>
-
-								<!-- Header for small screens -->
-								<h3
-									class="sm:hidden font-bold text-xl flex justify-evenly gap-x-2 items-center pb-5 text-black"
-								>
-									Menu
-									<button onclick={() => (showCategories = false)}><Exit /></button>
-								</h3>
-
-								<!-- Categories Section -->
-								<div class="mb-6">
-									<h4 class="font-semibold text-lg px-4 pb-2">Categories</h4>
-									<hr class="border-gray-300 mb-2" />
-									<!-- Category Search Bar -->
-									<div class="px-4 py-2">
-										<input
-											type="text"
-											placeholder="Search categories..."
-											class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
-											oninput={(e) => {
-												const value = e.target.value.toLowerCase();
-												filteredCategories = [
-													'Electronics',
-													'Fashion',
-													'Home & Kitchen',
-													'Beauty & Personal Care',
-													'Sports & Outdoors',
-													'Toys & Games',
-													'Books',
-													'Automotive',
-													'Health & Wellness',
-													'Groceries',
-													'Office Supplies',
-													'Pet Supplies'
-												].filter((cat) => cat.toLowerCase().includes(value));
-											}}
-										/>
-									</div>
-									<!-- Categories list -->
-									{#each filteredCategories as category}
-										<div class="flex justify-between items-center px-4 py-3 hover:bg-gray-100">
-											<div class="flex items-center gap-x-3">
-												<span class="text-gray-600">
-													<i class="fas fa-tag"></i>
-												</span>
-												<a
-													href="/products/category/{category.toLowerCase()}"
-													onclick={() => (showCategories = false)}
-													class="text-gray-800 font-medium text-sm"
-												>
-													{category}
-												</a>
-											</div>
-											<span class="text-gray-400">
-												<i class="fas fa-chevron-right"></i>
+								<!-- Categories list -->
+								{#each filteredCategories as category}
+									<div class="flex justify-between items-center px-4 py-3 hover:bg-gray-100">
+										<div class="flex items-center gap-x-3">
+											<span class="text-gray-600">
+												<i class="fas fa-tag"></i>
 											</span>
+											<a
+												href="/products/category/{category.toLowerCase()}"
+												onclick={() => (showCategories = false)}
+												class="text-gray-800 font-medium text-sm"
+											>
+												{category}
+											</a>
 										</div>
-										<hr class="border-gray-200 mx-4" />
-									{/each}
-								</div>
+										<span class="text-gray-400">
+											<i class="fas fa-chevron-right"></i>
+										</span>
+									</div>
+									<hr class="border-gray-200 mx-4" />
+								{/each}
+							</div>
 
-								<!-- Navigation Section -->
-								<div class="mb-6">
-									<h4 class="font-semibold text-lg px-4 pb-2">Navigation</h4>
-									<hr class="border-gray-300 mb-2" />
-									<ul class="space-y-1">
-										<li>
-											<a
-												href="/about"
-												class="block px-4 py-2 hover:bg-gray-100 rounded"
-												onclick={() => (showCategories = false)}
-											>
-												About
-											</a>
-										</li>
-										<li>
-											<a
-												href="/contact"
-												class="block px-4 py-2 hover:bg-gray-100 rounded"
-												onclick={() => (showCategories = false)}
-											>
-												Contact
-											</a>
-										</li>
-										<li>
-											<a
-												href="/faq"
-												class="block px-4 py-2 hover:bg-gray-100 rounded"
-												onclick={() => (showCategories = false)}
-											>
-												FAQ
-											</a>
-										</li>
-									</ul>
-								</div>
+							<!-- Navigation Section -->
+							<div class="mb-6">
+								<h4 class="font-semibold text-lg px-4 pb-2">Navigation</h4>
+								<hr class="border-gray-300 mb-2" />
+								<ul class="space-y-1">
+									<li>
+										<a
+											href="/about"
+											class="block px-4 py-2 hover:bg-gray-100 rounded"
+											onclick={() => (showCategories = false)}
+										>
+											About
+										</a>
+									</li>
+									<li>
+										<a
+											href="/contact"
+											class="block px-4 py-2 hover:bg-gray-100 rounded"
+											onclick={() => (showCategories = false)}
+										>
+											Contact
+										</a>
+									</li>
+									<li>
+										<a
+											href="/faq"
+											class="block px-4 py-2 hover:bg-gray-100 rounded"
+											onclick={() => (showCategories = false)}
+										>
+											FAQ
+										</a>
+									</li>
+								</ul>
+							</div>
 
-								<!-- Account Section -->
-								<div>
-									<h4 class="font-semibold text-lg px-4 pb-2">Account</h4>
-									<hr class="border-gray-300 mb-2" />
-									<ul class="space-y-1">
-										<li>
-											<a
-												href="/vendor/kys"
-												class="block px-4 py-2 hover:bg-gray-100 rounded"
-												onclick={() => (showCategories = false)}
-											>
-												Become a Seller
-											</a>
-										</li>
-										<li>
-											<a
-												href="/account"
-												class="block px-4 py-2 hover:bg-gray-100 rounded"
-												onclick={() => (showCategories = false)}
-											>
-												Account
-											</a>
-										</li>
-										<li>
-											<button
-												class="block w-full text-left px-4 py-2 hover:bg-gray-100 rounded text-red-600"
-												onclick={() => {
-													pocketbase.authStore.clear();
-													window.location.href = '/login';
-													showCategories = false;
-												}}
-											>
-												Logout
-											</button>
-										</li>
-									</ul>
-								</div>
+							<!-- Account Section -->
+							<div>
+								<h4 class="font-semibold text-lg px-4 pb-2">Account</h4>
+								<hr class="border-gray-300 mb-2" />
+								<ul class="space-y-1">
+									<li>
+										<a
+											href="/vendor/kys"
+											class="block px-4 py-2 hover:bg-gray-100 rounded"
+											onclick={() => (showCategories = false)}
+										>
+											Become a Seller
+										</a>
+									</li>
+									<li>
+										<a
+											href="/account"
+											class="block px-4 py-2 hover:bg-gray-100 rounded"
+											onclick={() => (showCategories = false)}
+										>
+											Account
+										</a>
+									</li>
+									<li>
+										<button
+											class="block w-full text-left px-4 py-2 hover:bg-gray-100 rounded text-red-600"
+											onclick={() => {
+												pocketbase.authStore.clear();
+												window.location.href = '/login';
+												showCategories = false;
+											}}
+										>
+											Logout
+										</button>
+									</li>
+								</ul>
 							</div>
 						</div>
-					{/if}
-				</div>
+					</div>
+				{/if}
 			</div>
 
 			<!-- Mobile Search Bar -->
 			{#if showSearchBar}
 				<div
-					class="fixed inset-0 bg-black bg-opacity-50 z-40"
+					class="fixed inset-0 bg-whites z-40 h-screen"
 					transition:fly={{ y: -20, duration: 300 }}
 					onclick={() => (showSearchBar = false)}
 				>
@@ -533,10 +601,12 @@
 								bind:value={searchTerm}
 								placeholder="Search..."
 								class="flex-grow h-10 px-3 border border-gray-300 focus:outline-none"
+								
 							/>
 							<button
 								type="submit"
 								class="h-10 px-4 bg-blue-600 text-white font-semibold hover:bg-blue-700"
+							
 							>
 								Search
 							</button>
@@ -682,10 +752,39 @@
 			</footer>
 			<!-- Mobile Bottom Navigation -->
 			<nav class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow md:hidden flex justify-around items-center h-16">
-				<!-- Only show wishlist icon on mobile -->
-				<a href="/wishlist" class="flex flex-col items-center justify-center text-blue-700 hover:text-blue-900">
+				<!-- Home -->
+				<a href="/" class="flex flex-col items-center justify-center text-blue-700 hover:text-blue-900">
+					<Home />
+					<span class="text-xs">Home</span>
+				</a>
+				<!-- Search (toggle search bar) -->
+				<button type="button" class="flex flex-col items-center justify-center text-blue-700 hover:text-blue-900 focus:outline-none" onclick={() => (showSearchBar = !showSearchBar)}>
+					<Search />
+					<span class="text-xs">Search</span>
+				</button>
+				<!-- Cart -->
+				<a href="/wishlist" class="md:hidden text-center flex flex-col justify-center items-center relative hover:shadow hover:rounded-full p-2">
 					<Heart />
+					{#if $wishlist && $wishlist.length > 0}
+						<span
+							class="absolute top-0 right-0 h-4 w-4 bg-red-500 text-white text-xs flex items-center justify-center rounded-full"
+						>
+							{$wishlist.length}
+						</span>
+					{/if}
 					<span class="text-xs">Wishlist</span>
+				</a>
+				<!-- Cart -->
+				<a href="/cart" class="relative hover:shadow text-center flex flex-col justify-center items-center hover:rounded-full p-2">
+					<ShoppingCart size={24} />
+					{#if $cart && $cart.items.length > 0}
+						<span
+							class="absolute top-0 right-0 h-4 w-4 bg-red-600 text-white text-xs flex items-center justify-center rounded-full"
+						>
+							{$cart.items.length}
+						</span>
+					{/if}
+					<span class="text-xs">Cart</span>
 				</a>
 			</nav>
 		{/if}

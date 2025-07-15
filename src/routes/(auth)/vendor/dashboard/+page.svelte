@@ -29,10 +29,44 @@
 	});
 
 	let productName = $state('');
-	let productStock: number | undefined = $state(0);
+	let productStock: number = $state(0);
 	let productPrice: number | '' = $state('');
 	let fileInput: HTMLInputElement | null = $state(null);
 	let inventoryProducts: any[] = $state([]);
+	let showEditModal = $state(false);
+	type VendorEditPayload = {
+		store_name: string;
+		store_niche: string;
+		store_address: string;
+		store_description: string;
+		store_phone: string;
+		[key: string]: any;
+	};
+	let editPayload = $state<VendorEditPayload>({
+		store_name: '',
+		store_niche: '',
+		store_address: '',
+		store_description: '',
+		store_phone: ''
+	});
+
+	function openEditModal() {
+		editPayload = { ...user };
+		showEditModal = true;
+	}
+
+	async function handleEditSubmit(e: Event) {
+		e.preventDefault();
+		const updateData = { ...editPayload, kys_status: 'pending' };
+		try {
+			await pocketbase.collection('vendors').update(user.id, updateData);
+			notify('Success', 'Your changes have been submitted and are pending approval.', 'success');
+			showEditModal = false;
+			window.location.reload();
+		} catch (err) {
+			notify('Error', 'Failed to update vendor info.', 'error');
+		}
+	}
 
 	async function handleProductUpload() {
 		if (!productName || !productPrice || !fileInput?.files?.[0]) {
@@ -46,7 +80,7 @@
 				price: Number(productPrice),
 				category: payload.category, // Replace with actual category if you have a field
 				product_image: fileInput.files[0],
-				quantity: productStock ? Number(productStock) : undefined
+				quantity: Number(productStock)
 			});
 			showUploadModal = false;
 			productName = '';
@@ -183,6 +217,16 @@
 							class={`flex items-center w-full px-4 py-2 rounded-md text-left ${darkmode ? 'text-white hover:bg-gray-700' : 'text-gray-800 hover:bg-indigo-100'} transition`}
 						>
 							💰 {sidebarCollapsed ? '' : 'Finance'}
+						</button>
+					</li>
+
+					<!-- Edit Store Info Sidebar Item -->
+					<li>
+						<button
+							onclick={openEditModal}
+							class={`flex items-center w-full px-4 py-2 rounded-md text-left ${darkmode ? 'text-white hover:bg-gray-700' : 'text-gray-800 hover:bg-indigo-100'} transition`}
+						>
+							✏️ {sidebarCollapsed ? '' : 'Edit Store Info'}
 						</button>
 					</li>
 				</ul>
@@ -413,6 +457,35 @@
 							>
 						</div>
 					</div>
+					{#if showEditModal}
+						<div class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+							<div class="bg-white p-6 rounded shadow max-w-lg w-full">
+								<h2 class="text-lg font-bold mb-4">Edit Store Information</h2>
+								<form onsubmit={handleEditSubmit}>
+									<label class="block mb-2">Store Name
+										<input class="w-full border px-2 py-1" bind:value={editPayload.store_name} required />
+									</label>
+									<label class="block mb-2">Store Niche
+										<input class="w-full border px-2 py-1" bind:value={editPayload.store_niche} required />
+									</label>
+									<label class="block mb-2">Store Address
+										<input class="w-full border px-2 py-1" bind:value={editPayload.store_address} required />
+									</label>
+									<label class="block mb-2">Store Description
+										<textarea class="w-full border px-2 py-1" bind:value={editPayload.store_description} required></textarea>
+									</label>
+									<label class="block mb-2">Store Phone
+										<input class="w-full border px-2 py-1" bind:value={editPayload.store_phone} required />
+									</label>
+									<!-- Add more fields as needed -->
+									<div class="flex gap-2 mt-4">
+										<button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Save Changes</button>
+										<button type="button" class="bg-gray-400 text-white px-4 py-2 rounded" onclick={() => showEditModal = false}>Cancel</button>
+									</div>
+								</form>
+							</div>
+						</div>
+					{/if}
 				{:else if selectedTab === 'orders'}
 					<h1 class={`text-2xl font-semibold mb-4 ${darkmode ? 'text-white' : 'text-gray-800'}`}>
 						Orders

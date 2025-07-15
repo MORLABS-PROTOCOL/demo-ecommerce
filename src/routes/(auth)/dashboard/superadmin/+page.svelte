@@ -102,14 +102,14 @@ onMount(async() => {
       {:else}
         {#if tab === 'kys'}
           <h2 class="text-lg font-semibold mb-2">KYS Applications</h2>
-          <div class="overflow-x-auto">
-            <table class="min-w-full bg-white border rounded">
+          <div class="overflow-x-auto text-center">
+            <table class="min-w-full text-center bg-white border rounded">
               <thead>
                 <tr>
-                  <th class="px-2 py-1 border">Store Name</th>
-                  <th class="px-2 py-1 border">Owner</th>
-                  <th class="px-2 py-1 border">Status</th>
-                  <th class="px-2 py-1 border">Actions</th>
+                  <th class="px-2 py-1 border font-bold">Store Name</th>
+                  <th class="px-2 py-1 border font-bold">Owner</th>
+                  <th class="px-2 py-1 border font-bold">Status</th>
+                  <th class="px-2 py-1 border font-bold">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -132,12 +132,12 @@ onMount(async() => {
         {:else if tab === 'users'}
           <h2 class="text-lg font-semibold mb-2">All Users</h2>
           <div class="overflow-x-auto">
-            <table class="min-w-full bg-white border rounded">
+            <table class="min-w-full text-center bg-white border rounded">
               <thead>
                 <tr>
-                  <th class="px-2 py-1 border">Email</th>
-                  <th class="px-2 py-1 border">Username</th>
-                  <th class="px-2 py-1 border">ID</th>
+                  <th class="px-2 py-1 border font-bold">Email</th>
+                  <th class="px-2 py-1 border font-bold">Username</th>
+                  <th class="px-2 py-1 border font-bold">ID</th>
                 </tr>
               </thead>
               <tbody>
@@ -154,12 +154,12 @@ onMount(async() => {
         {:else if tab === 'vendors'}
           <h2 class="text-lg font-semibold mb-2">All Vendors</h2>
           <div class="overflow-x-auto">
-            <table class="min-w-full bg-white border rounded">
+            <table class="min-w-full text-center bg-white border rounded">
               <thead>
                 <tr>
-                  <th class="px-2 py-1 border">Store Name</th>
-                  <th class="px-2 py-1 border">Owner</th>
-                  <th class="px-2 py-1 border">Status</th>
+                  <th class="px-2 font-bold py-1 border">Store Name</th>
+                  <th class="px-2 font-bold py-1 border">Owner</th>
+                  <th class="px-2 font-bold py-1 border">Status</th>
                 </tr>
               </thead>
               <tbody>
