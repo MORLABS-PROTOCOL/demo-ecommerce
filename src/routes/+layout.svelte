@@ -323,71 +323,13 @@
 				{:else}
 					<!-- Mobile Account Icon (top nav) for non-login state -->
 					<div class="relative inline-block text-left mr-5" bind:this={dropdownRef}>
-						<button
+						<a href="/login"
 							class="flex items-center gap-2 text-gray-700 hover:text-black focus:outline-none"
-							onclick={() => (showDropdown = !showDropdown)}
 						>
-							<div class="relative">
-								<svg
-									class="w-6 h-6"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="1.5"
-									viewBox="0 0 24 24"
-								>
-									<!-- User icon -->
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 0115 0"
-									/>
-								</svg>
-								<span class="absolute top-0 right-0 w-2 h-2 bg-blue-500 rounded-full"></span>
-							</div>
-							<span class="hidden md:block">Hi, {userData?.username}</span>
-							<svg
-								class="w-4 h-4 hidden md:block"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="2"
-								viewBox="0 0 24 24"
-							>
-								<path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-							</svg>
-						</button>
+							<User/>
+						</a>
 
-						{#if showDropdown}
-							<div
-								class="absolute right-0 mt-2 w-56 origin-top-right bg-white border border-gray-200 rounded-md shadow-lg z-50"
-							>
-								<ul class="py-1 text-sm text-gray-700">
-									<li>
-										<a href="/account" class="flex items-center px-4 py-2 hover:bg-gray-100">
-											<!-- <UserIcon class="w-5 h-5 mr-3" /> -->
-											My Account
-										</a>
-									</li>
-
-									<li>
-										<a href="/wishlist" class="flex items-center px-4 py-2 hover:bg-gray-100">
-											<!-- <HeartIcon class="w-5 h-5 mr-3" /> -->
-											Wishlist
-										</a>
-									</li>
-								</ul>
-								<div class="border-t border-gray-200">
-									<button
-										class="w-full px-4 py-2 text-sm text-orange-600 hover:bg-gray-100 text-left"
-										onclick={() => {
-											pocketbase.authStore.clear();
-											window.location.href = '/login';
-										}}
-									>
-										Logout
-									</button>
-								</div>
-							</div>
-						{/if}
+				
 					</div>
 					<!-- Desktop: show login, wishlist, cart as before -->
 					<div class="hidden md:flex items-center gap-3 px-3">
