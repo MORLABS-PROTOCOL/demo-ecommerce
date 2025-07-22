@@ -322,7 +322,7 @@
 					</div>
 				{:else}
 					<!-- Mobile Account Icon (top nav) for non-login state -->
-					<div class="relative inline-block text-left mr-5" bind:this={dropdownRef}>
+					<div class="relative md:hidden inline-block text-left mr-5" >
 						<a href="/login"
 							class="flex items-center gap-2 text-gray-700 hover:text-black focus:outline-none"
 						>
