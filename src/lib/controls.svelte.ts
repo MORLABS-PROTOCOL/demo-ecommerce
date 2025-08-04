@@ -161,7 +161,11 @@ export async function getCart() {
         return cart;
     } else if (browser) {
         // User not logged in, get cart from localStorage
-        const localCart = localStorage.getItem("cartItems");
+        let localCart: { items: any } = {
+            items: []
+        }
+        localCart.items = localStorage.getItem("cartItems");
+        console.log("local cart:", localCart)
         return localCart ? JSON.parse(localCart) : [];
     } else {
         return [];
@@ -219,11 +223,11 @@ export async function addToCart(productId: string, quantity: number) {
                     `userId="${pocketbase.authStore.record?.id}" && status="pending"`
                 );
         } catch (e) {
-            // no cart
+            console.error("Error fetching cart:", e);
         }
 
         if (existingCart) {
-            const items = existingCart.items || [];
+            let items = existingCart.items || [];
             let existingItem = items.find((item: any) => item.product.id === productId);
             if (existingItem) {
                 existingItem.quantity = quantity;
@@ -264,8 +268,9 @@ export async function addToCart(productId: string, quantity: number) {
     } else if (browser) {
         // Guest user: use localStorage
         let localCart = localStorage.getItem("cartItems");
+        console.log("Local: ",localCart)
         let cartItems = localCart ? JSON.parse(localCart) : [];
-        let existingItem = cartItems.find((item: any) => item.product.id === productId);
+        let existingItem = cartItems.find((item: any) => item.productId === productId);
         if (existingItem) {
             existingItem.quantity = quantity;
             existingItem.total = existingItem.quantity * productInfo.price;
@@ -675,4 +680,29 @@ export async function fuzzySearchProducts(searchTerm: string, limit: number = 50
         ...p,
         imageUrl: pocketbase.files.getURL(p, p.product_image)
     }));
+}
+
+/**
+ * Migrates cart items from localStorage to PocketBase cart after login.
+ * Should be called after user logs in, before redirecting.
+ */
+export async function migrateLocalCartToPocketbase() {
+    if (!pocketbase.authStore.isValid) return;
+    if (!browser) return;
+    const localCart = localStorage.getItem("cartItems");
+    if (!localCart) return;
+    let cartItems;
+    try {
+        cartItems = JSON.parse(localCart);
+    } catch (e) {
+        cartItems = [];
+    }
+    if (!Array.isArray(cartItems) || cartItems.length === 0) return;
+    for (const item of cartItems) {
+        // item.product.id, item.quantity
+        if (item && item.product && item.product.id && item.quantity) {
+            await addToCart(item.product.id, item.quantity);
+        }
+    }
+    localStorage.removeItem("cartItems");
 }

@@ -13,7 +13,7 @@
 		refreshCart,
 		refreshWishList,
 		validateAuthState,
-		wishList,
+	
 		cart,
 		notify
 	} from '$lib/controls.svelte';
@@ -36,7 +36,7 @@
 	let selectedImage = $state('');
 	let viewingInfo = $state('Description');
 	let cartItems = $state([]);
-	let tempCart = $state([]);
+	let tempCart: any = $state([]);
 	onMount(async () => {
 		product = await getProductById(page.params.productId);
 		newPrice = calculateNewPrice(product?.price, product?.discount_percentage);
@@ -46,9 +46,10 @@
 		cartItems = await getCart();
 		cartItems = cartItems[0].items || [];
 		tempCart = [...cartItems];
-		tempCart = tempCart.find((item) => item.product.id === productId);
+		tempCart = tempCart.find((item) => (item.product?.id === productId) || (item.productId === productId));
 		console.log(tempCart, 'Temp Cart ');
 		// console.log(cartItems[0].items, 'Cart Items Length');
+		console.log(tempCart)
 		await refreshWishList();
 	});
 </script>
@@ -108,7 +109,7 @@
 					{/if}
 				</div>
 				<!-- {console.log('Cart Items loaded: ', tempCart)} -->
-				{#if tempCart}
+				{#if tempCart.items != null}
 					<!-- Product is already in cart: show quantity controls only -->
 					<div class="flex items-center gap-4 py-4">
 						<div class="flex items-center border border-gray-300 rounded-md">
@@ -119,13 +120,13 @@
 									if (item && item.quantity > 1) {
 										item.quantity--;
 										quantity = item.quantity;
-										if (pocketbase.authStore.isValid) {
-											await addToCart(productId, quantity); // true = update
-											await refreshCart();
-										} else {
-											localStorage.setItem('cartItems', JSON.stringify(cartItems));
-											await getCart();
-										}
+										await addToCart(productId, quantity);
+										await refreshCart();
+										cartItems = await getCart();
+										cartItems = cartItems[0].items || [];
+										// Update tempCart to reflect the new quantity
+										tempCart = [...cartItems];
+										tempCart = tempCart.find((item) => (item.product?.id === productId) || (item.productId === productId));
 									}
 								}}>-</button
 							>
@@ -140,29 +141,19 @@
 									if (tempCart) {
 										tempCart.quantity++;
 										quantity = tempCart.quantity;
-										if (pocketbase.authStore.isValid) {
-											await addToCart(productId, quantity);
-											await refreshCart();
-											cartItems = await getCart();
-											cartItems = cartItems[0].items || [];
-
-											// Update tempCart to reflect the new quantity
-											// This is necessary to ensure the UI reflects the updated quantity
-											tempCart = [...cartItems];
-											tempCart = tempCart.find((item) => item.product.id === productId);
-										} else {
-											localStorage.setItem('cartItems', JSON.stringify(cartItems));
-										}
-									}
+										await addToCart(productId, quantity);
+										await refreshCart();
 									cartItems = await getCart();
 									cartItems = cartItems[0].items || [];
 									tempCart = [...cartItems];
-									tempCart = tempCart.find((item) => item.product.id === productId);
+									tempCart = tempCart.find((item) => item.product.id === productId || item.productId === productId);
 									busy = false;
 									notify('Success', 'Cart updated successfully');
-								}}>+</button
-							>
-						</div>
+									}
+								}}
+							>+</button
+						>
+					</div>
 					</div>
 				{:else}
 					<!-- Product not in cart: show add to cart button and quantity controls -->
@@ -177,40 +168,41 @@
 							<span class="px-4 py-2 text-lg font-medium">{quantity}</span>
 							<button
 								class="px-4 py-2 text-lg text-gray-700 hover:bg-gray-100 rounded-r-md"
-								onclick={() => quantity++}>+</button
-							>
-						</div>
-						<button
-							disabled={busy}
-							onclick={async () => {
-								busy = true;
-								let authState = pocketbase.authStore.isValid;
-								if (!authState) {
-									let cartItemsLocal: any = localStorage.getItem('cartItems');
-									if (!cartItemsLocal) {
-										cartItemsLocal = [];
-									} else {
-										cartItemsLocal = JSON.parse(cartItemsLocal);
-									}
-									cartItemsLocal.push({ productId, quantity });
-									localStorage.setItem('cartItems', JSON.stringify(cartItemsLocal));
-									cartItems = cartItemsLocal;
-								}
-								await addToCart(productId, quantity);
-								await refreshCart();
+								onclick={async () => {
+									quantity++
+									await addToCart(productId, quantity);
+									await refreshCart();
 								cartItems = await getCart();
 								cartItems = cartItems[0].items || [];
+									console.log('Quantity increased:', quantity);
+									notify('Success', 'Cart updated successfully');
+									tempCart = [...cartItems];
+									tempCart = tempCart.find((item) => item.productId === productId);
+								}}>+</button
+							>
+						</div>
+						{#if !tempCart || tempCart.productId !== productId}
+							<button
+								disabled={busy}
+								onclick={async () => {
+									busy = true;
+									
+									await addToCart(productId, quantity);
+									await refreshCart();
+									cartItems = await getCart();
+									cartItems = cartItems[0].items || [];
 
-								tempCart = [...cartItems];
-								tempCart = tempCart.find((item) => item.product.id === productId);
-								busy = false;
-								notify('Success', 'Product added to cart successfully');
-								console.log('Cart Items:', cartItems);
-							}}
-							class="flex-1 py-3 bg-black hover:bg-[#224981] text-white font-semibold text-md rounded-md transition-colors"
-						>
-							Add To Cart
-						</button>
+									tempCart = [...cartItems];
+									tempCart = tempCart.find((item) => item.productId === productId);
+									busy = false;
+									notify('Success', 'Product added to cart successfully');
+									console.log('Cart Items:', cartItems);
+								}}
+								class="flex-1 py-3 bg-black hover:bg-[#224981] text-white font-semibold text-md rounded-md transition-colors"
+							>
+								Add To Cart
+							</button>
+						{/if}
 					</div>
 				{/if}
 

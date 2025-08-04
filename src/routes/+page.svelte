@@ -51,7 +51,7 @@
 <Seo title="Vixstores | Home" description="home" keywords="vixstores" />
 <Carousel images={adImages} />
 <main class="mx-auto bg-[#eeeeee] min-h-screen">
-	<div class="mt-10">
+	<div class="md:mt-10">
 		<div class="max-w-7xl mx-auto">
 			<!-- {#each adImages as ad}
 				<div class="flex justify-center items-center">

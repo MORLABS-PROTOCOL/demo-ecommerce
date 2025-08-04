@@ -40,7 +40,6 @@
 	import Orders from '$lib/components/Icons/Orders.svelte';
 	let { children } = $props();
 	let showCategories = $state(false);
-	let showSearchBar = $state(false);
 	let categories: string[] = $state([
 		'Electronics',
 		'Fashion',
@@ -63,9 +62,11 @@
 			await initializeStores();
 		})();
 	}
+	let showSearchBar = $state(false);
 	let showDropdown: boolean = $state(false);
 	let loginState: boolean = $state(false);
 	let dropdownRef: HTMLDivElement | null = $state(null);
+	let dropdownRef2: HTMLDivElement | null = $state(null);
 	onMount(() => {
 		initializeStores();
 		loginState = pocketbase.authStore.isValid;
@@ -74,12 +75,22 @@
 				showDropdown = false;
 			}
 		};
-
-		document.addEventListener('click', handleClickOutside);
+		const handleClickOutside2 = (event) => {
+			if(dropdownRef2 && !dropdownRef2.contains(event.target)){
+				showSearchBar = false
+			}
+		}
+// dropdownRef2?.addEventListener('click', handleClickOutside2)
+		document.addEventListener('click', (e) => {
+			handleClickOutside(e)
+			handleClickOutside2(e)
+		});
 
 		// Clean up the listener when component is destroyed
 		onDestroy(() => {
 			document.removeEventListener('click', handleClickOutside);
+			// dropdownRef2?.removeEventListener('click', handleClickOutside2)
+
 			cleanupStores();
 		});
 	});
@@ -92,8 +103,9 @@
 
 <svelte:window
 	on:keydown={(e) => {
-		if (showCategories && e.key === 'Escape') {
+		if (showCategories || showSearchBar && e.key === 'Escape') {
 			showCategories = false;
+			showSearchBar = false
 		}
 	}}
 />
@@ -481,8 +493,8 @@
 							</div>
 
 							<!-- Account Section -->
-							<div>
-								<h4 class="font-semibold text-lg px-4 pb-2">Account</h4>
+							<div class="mb-12 md:mb-0">
+								<h4 class="font-semibold text-lg px-4 pb-2 ">Account</h4>
 								<hr class="border-gray-300 mb-2" />
 								<ul class="space-y-1">
 									<li>
@@ -527,7 +539,7 @@
 				<div
 					class="fixed inset-0 bg-whites z-40 h-screen"
 					transition:fly={{ y: -20, duration: 300 }}
-					onclick={() => (showSearchBar = false)}
+					bind:this={dropdownRef2}
 				>
 					<div class="bg-white p-4" transition:fly={{ y: 0, duration: 300 }} >
 						<Form

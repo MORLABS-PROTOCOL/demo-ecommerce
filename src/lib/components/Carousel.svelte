@@ -5,7 +5,7 @@
 	let { images } = $props();
 
 	let current = $state(0);
-	let direction = 1;
+	let direction = $state(1);
 
 	function prev() {
 		direction = -1;
@@ -23,7 +23,7 @@
 		}
 		setTimeout(() => {
 			if (current >= images.length) {
-				current = 0; // Reset to the first image if out of bounds
+				current = 0;
 			} else {
 				next();
 			}
@@ -32,7 +32,7 @@
 </script>
 
 {#if images && images.length > 0}
-	<div class="relative w-screen flex items-center h-[50%] md:h-screen">
+	<div class="relative w-screen flex items-center h-full md:h-screen">
 		<!-- Prev Button -->
 		<button
 			class="absolute left-2 z-10 bg-white/70 hover:bg-white rounded-full p-2 shadow"
@@ -45,24 +45,27 @@
 		<!-- Image with sliding effect -->
 		{#key current}
 			<div
-				class="absolute inset-0 flex items-center justify-start px-8 pb-4 pt-8 text-left md:p-12"
+				class="absolute inset-0 flex items-center justify-start px-4 sm:px-8 pt-8 pb-4 text-left md:p-12"
 			>
-				<div class="w-full space-y-2 md:w-2/3 lg:w-1/2">
-					<h2 class="text-[4vmin] font-semibold text-blue-600">Welcome to Vixstores!</h2>
-					<div class="text-[7vmin] font-extrabold leading-tight text-black">
+				<div class="w-full space-y-3 max-w-[95%] md:w-2/3 lg:w-1/2">
+					<h2 class="text-blue-600 text-xl sm:text-3xl font-semibold">
+						Welcome to Vixstores!
+					</h2>
+					<div class="text-black text-2xl sm:text-5xl font-extrabold leading-tight break-words max-w-full">
 						Explore our tech collection perfect gadgets
 					</div>
 					<div>
-						<button class="rounded-md bg-blue-600 px-6 py-3 text-[3vmin] font-semibold text-white">
-							Shop Now !
+						<button class="bg-blue-600 text-white text-sm sm:text-base font-semibold px-5 sm:px-6 py-2.5 sm:py-3 rounded-md w-fit hover:bg-blue-700 transition">
+							Shop Now
 						</button>
 					</div>
 				</div>
 			</div>
+
 			<img
 				src={images[current].imageUrl}
 				alt={images[current].alt || `Image_${current + 1}`}
-				class="w-full h-full object-cover"
+				class="w-[100%] md:w-full h-[50vh] md:h-full object-cover"
 				in:fly={{ x: 100 * direction, duration: 300 }}
 				out:fly={{ x: -100 * direction, duration: 300 }}
 			/>
