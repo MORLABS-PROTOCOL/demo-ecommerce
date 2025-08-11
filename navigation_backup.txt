@@ -1,3 +1,7 @@
+// BACKUP OF PREVIOUS RESPONSIVE NAVIGATION CODE
+// This was the working version before the meeting changes
+// Save this for potential restoration later
+
 <script lang="ts">
 	import '../app.css';
 	import {
@@ -67,54 +71,47 @@
 	let loginState: boolean = $state(false);
 	let dropdownRef: HTMLDivElement | null = $state(null);
 	let dropdownRef2: HTMLDivElement | null = $state(null);
-    let showMoreDropdown = $state(false);
-    let moreDropdownRefDesktop: HTMLDivElement | null = $state(null);
-    let moreDropdownRefMobile: HTMLDivElement | null = $state(null);
+	let showMoreDropdown = $state(false);
+	let moreDropdownRef: HTMLDivElement | null = $state(null);
 
-    function handleClickOutsideMore(event: MouseEvent) {
-        const targetNode = event.target as Node | null;
-        if (!targetNode) return;
-        const clickedInsideDesktop = moreDropdownRefDesktop?.contains(targetNode) ?? false;
-        const clickedInsideMobile = moreDropdownRefMobile?.contains(targetNode) ?? false;
-        if (!clickedInsideDesktop && !clickedInsideMobile) {
-            showMoreDropdown = false;
-        }
-    }
+	function handleClickOutsideMore(event) {
+		if (moreDropdownRef && !moreDropdownRef.contains(event.target)) {
+			showMoreDropdown = false;
+		}
+	}
 
-    function handleScroll() {
-        showMoreDropdown = false;
-    }
+	function handleScroll() {
+		showMoreDropdown = false;
+	}
 
-    onMount(() => {
+	onMount(() => {
 		initializeStores();
 		loginState = pocketbase.authStore.isValid;
-        const handleClickOutside = (event: MouseEvent) => {
-            const targetNode = event.target as Node | null;
-            if (dropdownRef && targetNode && !dropdownRef.contains(targetNode)) {
+		const handleClickOutside = (event) => {
+			if (dropdownRef && !dropdownRef.contains(event.target)) {
 				showDropdown = false;
 			}
 		};
-        const handleClickOutside2 = (event: MouseEvent) => {
-            const targetNode = event.target as Node | null;
-            if (dropdownRef2 && targetNode && !dropdownRef2.contains(targetNode)) {
-                showSearchBar = false;
+		const handleClickOutside2 = (event) => {
+			if (dropdownRef2 && !dropdownRef2.contains(event.target)) {
+				showSearchBar = false;
 			}
-        };
-// dropdownRef2?.addEventListener('click', handleClickOutside2)
+		};
+		// dropdownRef2?.addEventListener('click', handleClickOutside2)
 		document.addEventListener('click', (e) => {
-            handleClickOutside(e);
-            handleClickOutside2(e);
-            handleClickOutsideMore(e);
+			handleClickOutside(e);
+			handleClickOutside2(e);
+			handleClickOutsideMore(e);
 		});
 
-        window.addEventListener('scroll', handleScroll);
+		window.addEventListener('scroll', handleScroll);
 
 		// Clean up the listener when component is destroyed
 		onDestroy(() => {
 			document.removeEventListener('click', handleClickOutside);
 			// dropdownRef2?.removeEventListener('click', handleClickOutside2)
-            document.removeEventListener('click', handleClickOutsideMore);
-            window.removeEventListener('scroll', handleScroll);
+			document.removeEventListener('click', handleClickOutsideMore);
+			window.removeEventListener('scroll', handleScroll);
 
 			cleanupStores();
 		});
@@ -128,16 +125,16 @@
 
 <svelte:window
 	on:keydown={(e) => {
-        if (showCategories || (showSearchBar && e.key === 'Escape')) {
+		if (showCategories || (showSearchBar && e.key === 'Escape')) {
 			showCategories = false;
-            showSearchBar = false;
+			showSearchBar = false;
 		}
 	}}
 />
 
 <div class="font-jost overflow-hidden">
 	<main class=" mx-auto">
-        {#if page.url.pathname !== '/login' && page.url.pathname !== '/dashboard/superadmin' && page.url.pathname !== '/vendor/dashboard' && page.url.pathname !== '/signup' && page.url.pathname !== '/login/forgot-password'}
+		{#if page.url.pathname !== '/login' && page.url.pathname !== '/dashboard/superadmin' && page.url.pathname !== '/vendor/dashboard' && page.url.pathname !== '/signup' && page.url.pathname !== '/login/forgot-password'}
 			<!-- Top Info Bar -->
 			<div class="text-xs w-screen mx-auto text-gray-500 font-semibold py-2 px-4">
 				<div class="flex max-w-6xl justify-between mx-auto items-center">
@@ -164,14 +161,11 @@
 							</select>
 						</li>
 						<li>
-                            <select
+							<select
 								class="bg-transparent text-black font-semibold"
 								bind:value={selectedCurrency}
-                                onchange={(e: Event) => {
-                                    const target = e.target as HTMLSelectElement | null;
-                                    if (target) {
-                                        user.preferred_currency = target.value;
-                                    }
+								onchange={(e) => {
+									user.preferred_currency = e.target?.value;
 								}}
 							>
 								<option value="NGN">NGN</option>
@@ -189,13 +183,13 @@
 			<div class="flex max-w-6xl mx-auto justify-between items-center py-4 gap-4">
 				<!-- Logo -->
 				<a href="/" class="flex-shrink-0">
-                    <img
-                        src={(($settings.find((s) => s.name === 'logo')) && $settings.find((s) => s.name === 'logo')?.image)
-                            ? pocketbase.files.getURL(
-                                    $settings.find((s) => s.name === 'logo') as any,
-                                    $settings.find((s) => s.name === 'logo')?.image as any
-                                )
-                            : ''}
+					<img
+						src={$settings.find((s) => s.name === 'logo')
+							? pocketbase.files.getURL(
+									$settings.find((s) => s.name === 'logo'),
+									$settings.find((s) => s.name === 'logo')?.image
+								)
+							: ''}
 						alt="logo"
 						class="h-[80px] w-auto object-contain"
 					/>
@@ -209,13 +203,12 @@
 						window.location.href = `/search/${searchTerm}`;
 					}}
 				>
-                    <select
-                        class="h-10 px-2 border border-gray-300 bg-gray-100 text-sm text-black"
-                        onchange={(e: Event) => {
-                            const target = e.target as HTMLSelectElement | null;
-                            if (target) queryCategory = target.value;
-                        }}
-                    >
+					<select
+						class="h-10 px-2 border border-gray-300 bg-gray-100 text-sm text-black"
+						onchange={(e) => {
+							queryCategory = e?.target.value;
+						}}
+					>
 						<option>All</option>
 						{#each categories as category}
 							<option>{category}</option>
@@ -339,10 +332,10 @@
 						</div>
 
 						<!-- Wishlist -->
-                        <a
-                            href="/wishlist"
-                            class="hidden md:block relative hover:shadow hover:rounded-full p-2"
-                        >
+						<a
+							href="/wishlist"
+							class="hidden md:block relative hover:shadow hover:rounded-full p-2"
+						>
 							<Heart />
 							{#if $wishlist && $wishlist.length > 0}
 								<span
@@ -355,23 +348,23 @@
 						<!-- Cart -->
 						<a href="/cart" class="relative hover:shadow hover:rounded-full p-2">
 							<ShoppingCart size={24} />
-                            {#if $cart && $cart.items && $cart.items.length > 0}
+							{#if $cart && $cart.items.length > 0}
 								<span
 									class="absolute top-0 right-0 h-4 w-4 bg-red-600 text-white text-xs flex items-center justify-center rounded-full"
 								>
-                                    {$cart.items.length}
+									{$cart.items.length}
 								</span>
 							{/if}
 						</a>
 					</div>
 				{:else}
 					<!-- Mobile Account Icon (top nav) for non-login state -->
-                    <div class="relative md:hidden inline-block text-left mr-5">
-                        <a
-                            href="/login"
+					<div class="relative md:hidden inline-block text-left mr-5">
+						<a
+							href="/login"
 							class="flex items-center gap-2 text-gray-700 hover:text-black focus:outline-none"
 						>
-                            <User />
+							<User />
 						</a>
 					</div>
 					<!-- Desktop: show login, wishlist, cart as before -->
@@ -387,13 +380,13 @@
 
 						<!-- Wishlist -->
 						<div class="relative">
-                            <button
+							<button
 								onclick={() => {
 									window.location.href = '/login';
 								}}
 								class="p-2 rounded-full hover:shadow hover:border-blue-700"
 							>
-                                <Heart fillColor="red" strokeColor="#000" />
+								<Heart color="red" />
 								<span
 									class="absolute -top-1 -right-1 text-xs bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
 									>0</span
@@ -407,12 +400,10 @@
 							class="relative text-black flex items-center gap-1 p-3 font-semibold hover:shadow hover:border-blue-700 rounded-full cursor-pointer"
 						>
 							<ShoppingCart size={20} />
-                            {#if $cart}
-                                <span
-                                    class="absolute -top-1 -right-1 text-xs bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
-                                    >{$cart.items?.length || 0}</span
-                                >
-                            {/if}
+							<span
+								class="absolute -top-1 -right-1 text-xs bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
+								>{cart?.length || 0}</span
+							>
 						</a>
 					</div>
 				{/if}
@@ -444,14 +435,13 @@
 								<hr class="border-gray-300 mb-2" />
 								<!-- Category Search Bar -->
 								<div class="px-4 py-2">
-                                    <input
-                                        type="text"
-                                        placeholder="Search categories..."
-                                        class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
-                                        oninput={(e: Event) => {
-                                            const target = e.target as HTMLInputElement | null;
-                                            const value = (target?.value || '').toLowerCase();
-                                            filteredCategories = [
+									<input
+										type="text"
+										placeholder="Search categories..."
+										class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
+										oninput={(e) => {
+											const value = e.target.value.toLowerCase();
+											filteredCategories = [
 												'Electronics',
 												'Fashion',
 												'Home & Kitchen',
@@ -464,7 +454,7 @@
 												'Groceries',
 												'Office Supplies',
 												'Pet Supplies'
-                                            ].filter((cat) => cat.toLowerCase().includes(value));
+											].filter((cat) => cat.toLowerCase().includes(value));
 										}}
 									/>
 								</div>
@@ -528,7 +518,7 @@
 
 							<!-- Account Section -->
 							<div class="mb-12 md:mb-0">
-								<h4 class="font-semibold text-lg px-4 pb-2 ">Account</h4>
+								<h4 class="font-semibold text-lg px-4 pb-2">Account</h4>
 								<hr class="border-gray-300 mb-2" />
 								<ul class="space-y-1">
 									<li>
@@ -575,7 +565,7 @@
 					transition:fly={{ y: -20, duration: 300 }}
 					bind:this={dropdownRef2}
 				>
-                    <div class="bg-white p-4" transition:fly={{ y: 0, duration: 300 }}>
+					<div class="bg-white p-4" transition:fly={{ y: 0, duration: 300 }}>
 						<Form
 							class="w-full flex items-center"
 							bind:ref={formData}
@@ -601,126 +591,131 @@
 				</div>
 			{/if}
 			<div class=" w-full font-semibold min-w-screen h-fit text-white bg-blue-700">
-                <div class="flex flex-col lg:flex-row items-center max-w-6xl mx-auto justify-between bg-transparent py-2 px-0 my-2">
-                    <!-- Left: Browse all categories -->
-                    <div class="flex-shrink-0 w-full lg:w-auto">
+				<div class="flex flex-col lg:flex-row items-center max-w-6xl mx-auto justify-between bg-transparent py-2 px-0 my-2">
+					<!-- Left: Browse all categories -->
+					<div class="flex-shrink-0 w-full lg:w-auto">
 						<button
 							onclick={() => {
 								showCategories = !showCategories;
 							}}
-                            class="flex h-fit w-full md:bg-white items-center justify-start px-5 py-[8px] rounded-t-lg gap-x-3 font-bold text-black text-lg shadow"
+							class="flex h-fit w-full md:bg-white items-center justify-start px-5 py-[8px] rounded-t-lg gap-x-3 font-bold text-black text-lg shadow"
 						>
 							<HamburgerMenu />Browse all categories
 						</button>
 					</div>
 
-                    <!-- Center: Categories, More, About, Contact, FAQ -->
-                    <div class="flex-1 flex justify-center mb-0 w-full lg:w-auto">
-                        <!-- Desktop: Full category bar -->
-                        <div
-                            class="hidden lg:flex w-full max-w-4xl justify-evenly items-center  text-white ml-3 mb-0 rounded rounded-b-none  py-[8px] px-4"
-                        >
-                            {#each categories.slice(0, 3) as category}
-                                <a
-                                    href={`/products/category/${encodeURIComponent(category.toLowerCase())}`}
-                                    class="font-semibold text-white hover:text-gray-700 transition-colors"
-                                    >{category}</a
-                                >
-                            {/each}
-                            <div class="relative "  bind:this={moreDropdownRefDesktop}>
-                            <button
-                                    class="font-semibold  text-white px-4 py-2  cursor-pointer  "
-                                onclick={(e) => { e.stopPropagation(); showMoreDropdown = !showMoreDropdown; }}
-                                >
-                                    More...
-                                </button>
-                                {#if showMoreDropdown}
-                                    <div
-                                        class="absolute left-0 mt-2 w-48 bg-white text-black rounded shadow-lg z-50 animate-fade-in"
-                                    >
-                                        {#each categories.slice(3) as category}
-                                            <a
-                                                href={`/products/category/${encodeURIComponent(category.toLowerCase())}`}
-                                                class="block px-4 py-2 hover:bg-gray-100"
-                                                onclick={(e) => { e.stopPropagation(); showMoreDropdown = false; }}>{category}</a>
-                                        {/each}
-                                    </div>
-                                {/if}
-                            </div>
-                            <!-- <a
-                                href="/about"
-                                class="font-semibold text-blue-700 hover:text-blue-900 transition-colors">About</a
-                            >
-                            <a
-                                href="/contact"
-                                class="font-semibold text-blue-700 hover:text-blue-900 transition-colors">Contact</a
-                            >
-                            <a
-                                href="/faq"
-                                class="font-semibold text-blue-700 hover:text-blue-900 transition-colors">FAQ</a
-                            > -->
+					<!-- Center: Categories, More, About, Contact, FAQ -->
+					<div class="flex-1 flex justify-center mb-0 w-full lg:w-auto">
+						<!-- Desktop: Full category bar -->
+						<div
+							class="hidden lg:flex w-full max-w-4xl justify-evenly items-center bg-white ml-3 mb-0 rounded rounded-b-none shadow-md py-[8px] px-4"
+						>
+							{#each categories.slice(0, 3) as category}
+								<a
+									href={`/products/category/${encodeURIComponent(category.toLowerCase())}`}
+									class="font-semibold text-blue-700 hover:text-blue-900 transition-colors"
+									>{category}</a
+								>
+							{/each}
+							<div class="relative "  bind:this={moreDropdownRef}>
+								<button
+									class="font-semibold bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors shadow"
+									onclick={() => (showMoreDropdown = !showMoreDropdown)}
+								>
+									More...
+								</button>
+								{#if showMoreDropdown}
+									<div
+										class="absolute left-0 mt-2 w-48 bg-white text-black rounded shadow-lg z-50 animate-fade-in"
+									>
+										{#each categories.slice(3) as category}
+											<a
+												href={`/products/category/${encodeURIComponent(category.toLowerCase())}`}
+												class="block px-4 py-2 hover:bg-gray-100"
+												onclick={() => (showMoreDropdown = false)}>{category}</a
+											>
+										{/each}
+									</div>
+								{/if}
+							</div>
+							<a
+								href="/about"
+								class="font-semibold text-blue-700 hover:text-blue-900 transition-colors">About</a
+							>
+							<a
+								href="/contact"
+								class="font-semibold text-blue-700 hover:text-blue-900 transition-colors">Contact</a
+							>
+							<a
+								href="/faq"
+								class="font-semibold text-blue-700 hover:text-blue-900 transition-colors">FAQ</a
+							>
+						</div>
+
+						<!-- Mobile: Compact category bar with scroll -->
+						<div class="lg:hidden w-full bg-white rounded-t-lg shadow-md py-2 px-2">
+							<div class="flex items-center justify-between">
+								<!-- Scrollable categories -->
+								<div class="flex-1 overflow-x-auto scrollbar-hide">
+									<div class="flex space-x-4 px-2 min-w-max">
+										{#each categories.slice(0, 4) as category}
+											<a
+												href={`/products/category/${encodeURIComponent(category.toLowerCase())}`}
+												class="font-semibold text-blue-700 hover:text-blue-900 transition-colors whitespace-nowrap text-sm"
+												>{category}</a
+											>
+										{/each}
+										<div class="relative" bind:this={moreDropdownRef}>
+											<button
+												class="font-semibold bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors shadow"
+												onclick={() => (showMoreDropdown = !showMoreDropdown)}
+											>
+												More
+											</button>
+											{#if showMoreDropdown}
+												<div
+													class="absolute left-0 mt-2 w-40 bg-white text-black rounded shadow-lg z-50 animate-fade-in max-h-60 overflow-y-auto"
+												>
+													{#each categories.slice(4) as category}
+														<a
+															href={`/products/category/${encodeURIComponent(category.toLowerCase())}`}
+															class="block px-3 py-2 hover:bg-gray-100 text-sm"
+															onclick={() => (showMoreDropdown = false)}>{category}</a
+														>
+													{/each}
+													<hr class="border-gray-200 my-1" />
+													<a
+														href="/about"
+														class="block px-3 py-2 hover:bg-gray-100 text-sm"
+														onclick={() => (showMoreDropdown = false)}>About</a
+													>
+													<a
+														href="/contact"
+														class="block px-3 py-2 hover:bg-gray-100 text-sm"
+														onclick={() => (showMoreDropdown = false)}>Contact</a
+													>
+													<a
+														href="/faq"
+														class="block px-3 py-2 hover:bg-gray-100 text-sm"
+														onclick={() => (showMoreDropdown = false)}>FAQ</a
+													>
+												</div>
+											{/if}
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
 					</div>
 
-                        <!-- Mobile: Compact category bar with scroll -->
-                        <div class="lg:hidden w-full bg-white rounded-t-lg shadow-md py-2 px-2">
-                            <div class="flex items-center justify-between">
-                                <!-- Scrollable categories -->
-                                <div class="flex-1  left-0 right-0 z-100 scrollbar-hide">
-                                    <div class="flex space-x-4 px-2 min-w-max">
-                                        {#each categories.slice(0, 2) as category}
-                                            <a
-                                                href={`/products/category/${encodeURIComponent(category.toLowerCase())}`}
-                                                class="font-semibold text-blue-700 hover:text-blue-900 transition-colors whitespace-nowrap text-sm"
-                                                >{category}</a
-                                            >
-                                        {/each}
-                                        <div class="relative" bind:this={moreDropdownRefMobile}>
-                                            <button
-                                                class="font-semibold bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors shadow"
-                                                onclick={(e) => { e.stopPropagation(); showMoreDropdown = !showMoreDropdown; }}
-                                            >
-                                                More
-                                            </button>
-                                            {#if showMoreDropdown}
-                                                <div
-                                                    class="absolute left-0 mt-2 w-40 bg-white text-black rounded shadow-lg z-50 animate-fade-in max-h-60 overflow-y-auto"
-                                                >
-                                                    {#each categories.slice(4) as category}
-                                                        <a
-                                                            href={`/products/category/${encodeURIComponent(category.toLowerCase())}`}
-                                                            class="block px-3 py-2 hover:bg-gray-100 text-sm"
-                                                            onclick={(e) => { e.stopPropagation(); showMoreDropdown = false; }}>{category}</a>
-                                                    {/each}
-                                                    <hr class="border-gray-200 my-1" />
-                                                    <a
-                                                        href="/about"
-                                                        class="block px-3 py-2 hover:bg-gray-100 text-sm"
-                                                        onclick={(e) => { e.stopPropagation(); showMoreDropdown = false; }}>About</a>
-                                                    <a
-                                                        href="/contact"
-                                                        class="block px-3 py-2 hover:bg-gray-100 text-sm"
-                                                        onclick={(e) => { e.stopPropagation(); showMoreDropdown = false; }}>Contact</a>
-                                                    <a
-                                                        href="/faq"
-                                                        class="block px-3 py-2 hover:bg-gray-100 text-sm"
-                                                        onclick={(e) => { e.stopPropagation(); showMoreDropdown = false; }}>FAQ</a>
-                                                </div>
-                                            {/if}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Right: Become a Seller -->
-                    <div class="flex-shrink-0 hidden lg:flex px-4  w-auto justify-end items-center">
-                            <button
-                            class="bg-black text-white  py-4  px-3 font-bold rounded"
-                                onclick={(e) => { e.stopPropagation(); window.location.href = '/vendor/kys'; }}
-                        >
-                            Become a Seller &nbsp;{'>'}
-                        </button>
+					<!-- Right: Become a Seller -->
+					<div class="flex-shrink-0 hidden lg:flex px-4  w-auto justify-end items-center">
+						<button
+							class="bg-black text-white  py-4  px-3 font-bold rounded"
+							onclick={() => (window.location.href = '/vendor/kys')}
+						>
+							Become a Seller &nbsp;{'>'}
+						</button>
 					</div>
 				</div>
 			</div>
@@ -729,7 +724,7 @@
 			{@render children()}
 		</div>
 
-        {#if page.url.pathname !== '/login' && page.url.pathname !== '/dashboard/superadmin' && page.url.pathname !== '/vendor/dashboard' && page.url.pathname !== '/signup' && page.url.pathname !== '/login/forgot-password'}
+		{#if page.url.pathname !== '/login' && page.url.pathname !== '/dashboard/superadmin' && page.url.pathname !== '/vendor/dashboard' && page.url.pathname !== '/signup' && page.url.pathname !== '/login/forgot-password'}
 			<footer class="bg-blue-700 text-white pt-10 pb-4 px-4 hidden md:block">
 				<!-- Newsletter Subscription Section -->
 				<div
@@ -835,31 +830,31 @@
 				</div>
 			</footer>
 			<!-- Mobile Bottom Navigation -->
-            <nav
-                class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow md:hidden flex justify-around items-center h-16"
-            >
+			<nav
+				class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow md:hidden flex justify-around items-center h-16"
+			>
 				<!-- Home -->
-                <a
-                    href="/"
-                    class="flex flex-col items-center justify-center text-blue-700 hover:text-blue-900"
-                >
+				<a
+					href="/"
+					class="flex flex-col items-center justify-center text-blue-700 hover:text-blue-900"
+				>
 					<Home />
 					<span class="text-xs">Home</span>
 				</a>
 				<!-- Search (toggle search bar) -->
-                <button
-                    type="button"
-                    class="flex flex-col items-center justify-center text-blue-700 hover:text-blue-900 focus:outline-none"
-                    onclick={() => (showSearchBar = !showSearchBar)}
-                >
+				<button
+					type="button"
+					class="flex flex-col items-center justify-center text-blue-700 hover:text-blue-900 focus:outline-none"
+					onclick={() => (showSearchBar = !showSearchBar)}
+				>
 					<Search />
 					<span class="text-xs">Search</span>
 				</button>
 				<!-- Cart -->
-                <a
-                    href="/wishlist"
-                    class="md:hidden text-center flex flex-col justify-center items-center relative hover:shadow hover:rounded-full p-2"
-                >
+				<a
+					href="/wishlist"
+					class="md:hidden text-center flex flex-col justify-center items-center relative hover:shadow hover:rounded-full p-2"
+				>
 					<Heart />
 					{#if $wishlist && $wishlist.length > 0}
 						<span
@@ -871,12 +866,12 @@
 					<span class="text-xs">Wishlist</span>
 				</a>
 				<!-- Cart -->
-                <a
-                    href="/cart"
-                    class="relative hover:shadow text-center flex flex-col justify-center items-center hover:rounded-full p-2"
-                >
+				<a
+					href="/cart"
+					class="relative hover:shadow text-center flex flex-col justify-center items-center hover:rounded-full p-2"
+				>
 					<ShoppingCart size={24} />
-                    {#if $cart && $cart.items && $cart.items.length > 0}
+					{#if $cart && $cart.items.length > 0}
 						<span
 							class="absolute top-0 right-0 h-4 w-4 bg-red-600 text-white text-xs flex items-center justify-center rounded-full"
 						>
@@ -891,26 +886,34 @@
 </div>
 
 <style>
-    .animate-fade-in {
-        animation: fadeIn 0.2s ease;
-    }
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    /* Hide scrollbar for mobile category scrolling */
-    .scrollbar-hide {
-        -ms-overflow-style: none;  /* Internet Explorer 10+ */
-        scrollbar-width: none;  /* Firefox */
-    }
-    .scrollbar-hide::-webkit-scrollbar {
-        display: none;  /* Safari and Chrome */
-    }
+	.animate-fade-in {
+		animation: fadeIn 0.2s ease;
+	}
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+			transform: translateY(-10px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+	
+	/* Hide scrollbar for mobile category scrolling */
+	.scrollbar-hide {
+		-ms-overflow-style: none;  /* Internet Explorer 10+ */
+		scrollbar-width: none;  /* Firefox */
+	}
+	.scrollbar-hide::-webkit-scrollbar {
+		display: none;  /* Safari and Chrome */
+	}
 </style>
+
+// END OF BACKUP CODE
+// This was the working responsive navigation with:
+// - Mobile-first design
+// - Horizontal scrolling categories on mobile
+// - Proper responsive breakpoints
+// - Hidden scrollbars for clean mobile experience
+// - All categories preserved and accessible 
