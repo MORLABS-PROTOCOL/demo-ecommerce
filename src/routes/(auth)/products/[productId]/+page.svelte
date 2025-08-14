@@ -13,7 +13,6 @@
 		refreshCart,
 		refreshWishList,
 		validateAuthState,
-	
 		cart,
 		notify
 	} from '$lib/controls.svelte';
@@ -38,20 +37,58 @@
 	let cartItems = $state([]);
 	let tempCart: any = $state([]);
 	onMount(async () => {
-		product = await getProductById(page.params.productId);
-		newPrice = calculateNewPrice(product?.price, product?.discount_percentage);
-		productsByCategory = await getProductsByCategory(product.category, 5);
-		products = productsByCategory;
+		if (!pocketbase.authStore.isValid) {
+			product = await getProductById(page.params.productId);
+			newPrice = calculateNewPrice(product?.price, product?.discount_percentage);
+			productsByCategory = await getProductsByCategory(product.category, 5);
+			products = productsByCategory;
 
-		cartItems = await getCart();
-		cartItems = cartItems || [];
-		tempCart = [...cartItems];
-		console.log(tempCart, 'Temp Cart ');
-		tempCart = tempCart.find((item) => (item.product?.id === productId) || (item.productId === productId));
-		// console.log(cartItems[0], 'Cart Items Length');
-		console.log(tempCart)
-		await refreshWishList();
+			cartItems = await getCart();
+			cartItems = cartItems || [];
+			tempCart = [...cartItems];
+			tempCart = tempCart.find(
+				(item) => item.product?.id === productId || item.productId === productId
+			);
+			console.log(cartItems[0], 'Cart Items Length');
+			console.log(tempCart, 'Temp Cart ');
+			// console.log(tempCart)
+			await refreshWishList();
+		} else {
+			product = await getProductById(page.params.productId);
+			newPrice = calculateNewPrice(product?.price, product?.discount_percentage);
+			productsByCategory = await getProductsByCategory(product.category, 5);
+			products = productsByCategory;
+
+			cartItems = await getCart();
+			cartItems = cartItems[0].items || [];
+			tempCart = [...cartItems];
+			tempCart = tempCart.find(
+				(item) => item.product?.id === productId || item.productId === productId
+			);
+			console.log(cartItems[0], 'Cart Items Length');
+			console.log(tempCart, 'Temp Cart ');
+			// console.log(tempCart)
+			await refreshWishList();
+		}
 	});
+
+	async function updateCart() {
+		if (!pocketbase.authStore.isValid) {
+			cartItems = await getCart();
+			cartItems = cartItems || [];
+			tempCart = [...cartItems];
+			tempCart = tempCart.find(
+				(item) => item.product.id === productId || item.productId === productId
+			);
+		} else {
+			cartItems = await getCart();
+			cartItems = cartItems[0].items || [];
+			tempCart = [...cartItems];
+			tempCart = tempCart.find(
+				(item) => item.product.id === productId || item.productId === productId
+			);
+		}
+	}
 </script>
 
 <Seo
@@ -122,11 +159,7 @@
 										quantity = item.quantity;
 										await addToCart(productId, quantity);
 										await refreshCart();
-										cartItems = await getCart();
-										cartItems = cartItems || [];
-										// Update tempCart to reflect the new quantity
-										tempCart = [...cartItems];
-										tempCart = tempCart.find((item) => (item.product?.id === productId) || (item.productId === productId));
+										updateCart();
 									}
 								}}>-</button
 							>
@@ -143,17 +176,13 @@
 										quantity = tempCart.quantity;
 										await addToCart(productId, quantity);
 										await refreshCart();
-									cartItems = await getCart();
-									cartItems = cartItems || [];
-									tempCart = [...cartItems];
-									tempCart = tempCart.find((item) => item.product.id === productId || item.productId === productId);
-									busy = false;
-									notify('Success', 'Cart updated successfully');
+										updateCart();
+										busy = false;
+										notify('Success', 'Cart updated successfully');
 									}
-								}}
-							>+</button
-						>
-					</div>
+								}}>+</button
+							>
+						</div>
 					</div>
 				{:else}
 					<!-- Product not in cart: show add to cart button and quantity controls -->
@@ -169,15 +198,12 @@
 							<button
 								class="px-4 py-2 text-lg text-gray-700 hover:bg-gray-100 rounded-r-md"
 								onclick={async () => {
-									quantity++
+									quantity++;
 									await addToCart(productId, quantity);
 									await refreshCart();
-								cartItems = await getCart();
-								cartItems = cartItems || [];
-									console.log('Quantity increased:', quantity);
 									notify('Success', 'Cart updated successfully');
-									tempCart = [...cartItems];
-									tempCart = tempCart.find((item) => item.productId === productId);
+									console.log('Quantity increased:', quantity);
+									updateCart();
 								}}>+</button
 							>
 						</div>
@@ -186,19 +212,16 @@
 								disabled={busy}
 								onclick={async () => {
 									busy = true;
-									
+
 									await addToCart(productId, quantity);
 									await refreshCart();
-									cartItems = await getCart();
-									cartItems = cartItems || [];
-
-									tempCart = [...cartItems];
-									tempCart = tempCart.find((item) => item.productId === productId);
+									updateCart()
 									busy = false;
 									notify('Success', 'Product added to cart successfully');
-									console.log('Cart Items:', cartItems);
+
+									console.log('Cart Items:', tempCart);
 								}}
-								class="flex-1 py-3 bg-black hover:bg-[#224981] text-white font-semibold text-md rounded-md transition-colors"
+								class="flex-1 py-3 bg-black hover:bg-[#224981] text-white font-semibold text-md rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 							>
 								Add To Cart
 							</button>

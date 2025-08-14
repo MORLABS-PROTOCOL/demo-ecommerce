@@ -116,18 +116,12 @@
 				// Vendor does not exist, just return silently
 				return;
 			}
-			if (!vendor) {
+			if (!vendor || vendor.kys_status !== 'verified') {
 				console.log('No vendor');
-
-				return;
-			}
-			user = vendor;
-			// console.log('User: ', user);
-			// console.log('Vendor: ', user);
-			if (user.kys_status !== 'verified') {
 				window.location.href = '/vendor/kys';
 				return;
 			}
+
 			show = true;
 			inventoryProducts = await getMyProducts(4);
 		}
@@ -462,25 +456,56 @@
 							<div class="bg-white p-6 rounded shadow max-w-lg w-full">
 								<h2 class="text-lg font-bold mb-4">Edit Store Information</h2>
 								<form onsubmit={handleEditSubmit}>
-									<label class="block mb-2">Store Name
-										<input class="w-full border px-2 py-1" bind:value={editPayload.store_name} required />
+									<label class="block mb-2"
+										>Store Name
+										<input
+											class="w-full border px-2 py-1"
+											bind:value={editPayload.store_name}
+											required
+										/>
 									</label>
-									<label class="block mb-2">Store Niche
-										<input class="w-full border px-2 py-1" bind:value={editPayload.store_niche} required />
+									<label class="block mb-2"
+										>Store Niche
+										<input
+											class="w-full border px-2 py-1"
+											bind:value={editPayload.store_niche}
+											required
+										/>
 									</label>
-									<label class="block mb-2">Store Address
-										<input class="w-full border px-2 py-1" bind:value={editPayload.store_address} required />
+									<label class="block mb-2"
+										>Store Address
+										<input
+											class="w-full border px-2 py-1"
+											bind:value={editPayload.store_address}
+											required
+										/>
 									</label>
-									<label class="block mb-2">Store Description
-										<textarea class="w-full border px-2 py-1" bind:value={editPayload.store_description} required></textarea>
+									<label class="block mb-2"
+										>Store Description
+										<textarea
+											class="w-full border px-2 py-1"
+											bind:value={editPayload.store_description}
+											required
+										></textarea>
 									</label>
-									<label class="block mb-2">Store Phone
-										<input class="w-full border px-2 py-1" bind:value={editPayload.store_phone} required />
+									<label class="block mb-2"
+										>Store Phone
+										<input
+											class="w-full border px-2 py-1"
+											bind:value={editPayload.store_phone}
+											required
+										/>
 									</label>
 									<!-- Add more fields as needed -->
 									<div class="flex gap-2 mt-4">
-										<button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Save Changes</button>
-										<button type="button" class="bg-gray-400 text-white px-4 py-2 rounded" onclick={() => showEditModal = false}>Cancel</button>
+										<button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded"
+											>Save Changes</button
+										>
+										<button
+											type="button"
+											class="bg-gray-400 text-white px-4 py-2 rounded"
+											onclick={() => (showEditModal = false)}>Cancel</button
+										>
 									</div>
 								</form>
 							</div>

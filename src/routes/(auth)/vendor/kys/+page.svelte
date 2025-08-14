@@ -29,7 +29,9 @@
 		store_logo: [],
 		store_banner: [],
 		valid_id: [],
-		bank_details: '',
+		account_number: '',
+		bank_name:"",
+		account_name:"",
 		website: '',
 		agreed: false
 	});
@@ -239,23 +241,48 @@
 					</div>
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
 						<FormGroup>
-							<TextArea
-								labelText="Store Description *"
-								bind:value={payload.store_description}
+							<TextInput
+								labelText="Bank name*"
+								bind:value={payload.bank_name}
 								required
-								invalid={payload.store_description === ''}
-								invalidText="Description is required"
+								invalid={payload.bank_name === ''}
+								invalidText="Bank name is required"
 							/>
 						</FormGroup>
+						
 						<FormGroup>
-							<TextArea
-								labelText="Bank Details *"
-								bind:value={payload.bank_details}
+							<TextInput
+								labelText="Account number*"
+								bind:value={payload.account_number}
 								required
-								invalid={payload.bank_details === ''}
-								invalidText="Bank details are required"
+								invalid={payload.account_number === ''}
+								invalidText="Account number is required"
 							/>
 						</FormGroup>
+						<div class="col-span-1 md:col-span-2">
+
+							<FormGroup>
+									<TextInput
+										labelText="Account name*"
+										bind:value={payload.account_name}
+										required
+										invalid={payload.account_name === ''}
+										invalidText="Account name is required"
+									/>
+								</FormGroup>
+						</div>
+						<div class="col-span-1 md:col-span-2">
+
+							<FormGroup>
+								<TextArea
+									labelText="Store Description *"
+									bind:value={payload.store_description}
+									required
+									invalid={payload.store_description === ''}
+									invalidText="Description is required"
+								/>
+							</FormGroup>
+						</div>
 					</div>
 				</FormGroup>
 				<FormGroup>
@@ -342,7 +369,7 @@
 						payload.store_logo.length === 0 ||
 						payload.store_banner.length === 0 ||
 						payload.valid_id.length === 0 ||
-						!payload.bank_details ||
+						!payload.bank_name || !payload.account_name || !payload.account_number ||
 						(!!payload.website && !/^https?:\/\/.+/.test(payload.website))}
 				>
 					{#if busy}

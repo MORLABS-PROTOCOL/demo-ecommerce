@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import { page } from '$app/state';
 	import Seo from '$lib/components/Seo.svelte';
 	import {
@@ -21,42 +22,9 @@
 	onMount(async () => {
 		validateAuthState();
 	});
-
+	let verificationRequired = $state(false);
 	let busy: boolean = $state(false);
-	async function login() {
-		busy = true;
-		if (formData && !formData.checkValidity()) {
-			formData.reportValidity();
-		} else {
-			try {
-				let authData = await pocketbase
-					.collection('users')
-					.authWithPassword(userData.email, userData.password);
-				if (authData) {
-					notify('Success', 'Logged in successfully');
-					const cartItems = localStorage.getItem('cartItems');
-					if (cartItems) {
-						const items = JSON.parse(cartItems);
-						try {
-							for (const item of items) {
-								await addToCart(item.productId, item.quantity);
-							}
-							localStorage.removeItem('cartItems');
-						} catch (e) {
-							notify('Error', 'Failed to sync cart items', 'error');
-						} finally {
-							await refreshCart();
-						}
-					}
-					window.location.href = '/';
-				}
-				busy = false;
-			} catch (error) {
-				notify('Error', `Invalid Login Credentials`, 'error');
-				busy = false;
-			}
-		}
-	}
+	
 </script>
 
 <Seo title="Vixstores | Login" description="login" keywords="vixstores, login" />
@@ -84,12 +52,66 @@
 					type="submit"
 					class="w-full text-center bg-blue-700 p-3 font-bold rounded-lg text-white disabled:bg-gray-500 disabled:opacity-50"
 					onclick={async () => {
-						await login();
+					
+		busy = true;
+		if(browser){
+		if (formData && !formData.checkValidity()) {
+			formData.reportValidity();
+		} else {
+			try {
+				let authData = await pocketbase
+					.collection('users')
+					.authWithPassword(userData.email, userData.password);
+
+					
+					if (authData) {
+					if(!pocketbase.authStore.record?.verified){
+						notify('Error', 'Please verify your account before logging in', 'error');
+						pocketbase.authStore.clear();
+						let verificationReq = await pocketbase
+									.collection('users')
+									.requestVerification(userData.email);
+									console.log(verificationReq)
+						busy = false;
+						verificationRequired = true;
+						return;
+					}
+					
+					notify('Success', 'Logged in successfully');
+					const cartItems = localStorage.getItem('cartItems');
+					if (cartItems) {
+						const items = JSON.parse(cartItems);
+						try {
+							for (const item of items) {
+								await addToCart(item.product?.id, item.quantity);
+							}
+							localStorage.removeItem('cartItems');
+						} catch (e) {
+							notify('Error', 'Failed to sync cart items', 'error');
+						} finally {
+							await refreshCart();
+						}
+					}
+					window.location.href = '/';
+				}
+				busy = false;
+			} catch (error) {
+				// console.log(error);
+				notify('Error', `Invalid Login Credentials`, 'error');
+				busy = false;
+			}
+		
+	}}
 					}}>Log In</button
 				>
-				<p class="text-xs text-center py-2">
-					Don't have an account? <a href="/signup" class="text-blue-500">Sign Up</a>
+				<p>
+					Don't have an account?
+					<a href="/signup" class="text-blue-500">Sign Up</a>
 				</p>
+
+				{#if verificationRequired}
+				<p>A verification email has been sent to {userData.email}. Please check your inbox and follow the instructions to verify your account.</p>
+				{/if}
 			</div>
 		</div>
 	</main>

@@ -21,6 +21,7 @@
 	let data: any = $state([]);
 	onMount(async () => {
 		validateAuthState();
+		refreshCart();
 		data = await getCart();
 		cartDetails = data[0]; // assuming getCart() returns an array with the cart as the first item
 		cartItems = cartDetails.items || [];
@@ -174,8 +175,12 @@
 				>Details</a
 			> -->
 			</p>
-			<button
+			<button disabled={!pocketbase.authStore.isValid}
 				onclick={async () => {
+					if (!pocketbase.authStore.isValid) {
+						notify('Error', 'Please login to proceed with checkout', 'error');
+						return;
+					}
 					let redirectUrl = await makePayment(pocketbase?.authStore?.record.email, cart.total);
 					window.location.href = redirectUrl.data.authorization_url;
 				}}

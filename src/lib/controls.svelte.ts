@@ -157,7 +157,7 @@ export function calculateNewPrice(price: number, discountPercentage: number): nu
 export async function getCart() {
     if (pocketbase.authStore.isValid) {
         // User is logged in, fetch cart from PocketBase
-        let cart = await pocketbase.collection("carts").getFullList({ filter: `userId="${pocketbase.authStore.record?.id}" && status="pending"`, requestKey: Date.now().toString() });
+        let cart: any = await pocketbase.collection("carts").getFullList({ filter: `userId="${pocketbase.authStore.record?.id}" && status="pending"`, requestKey: Date.now().toString() });
         return cart;
     } else if (browser) {
         // User not logged in, get cart from localStorage
@@ -176,10 +176,10 @@ export async function getCart() {
 export let cart: { length: number, total: number } = $state({ length: 0, total: 0 });
 
 export let refreshCart = async () => {
-    let record = await getCart()
+    let record = await pocketbase.collection("carts").getFullList({ filter: `userId="${pocketbase.authStore.record?.id}" && status="pending"`, requestKey: Date.now().toString() });
 
-    cart.length = record[0].items?.length
-    cart.total = record[0].total
+    cart.length = record.length
+    cart.total = record.reduce((sum: number, item: any) => sum + item.total, 0);
 
 }
 let productDetails: { id: string, name: string, productImage: string, price: number, discount: string, oldPrice?: number } = $state({
@@ -228,6 +228,7 @@ export async function addToCart(productId: string, quantity: number) {
 
         if (existingCart) {
             let items = existingCart.items || [];
+            console.log("Existing Cart Items:", items);
             let existingItem = items.find((item: any) => item.product.id === productId);
             if (existingItem) {
                 existingItem.quantity = quantity;
@@ -423,7 +424,9 @@ export async function kysRegistration(payload: {
     store_logo: File[],
     store_banner: File[],
     valid_id: File[],
-    bank_details: any,
+   bank_name: string,
+   account_name: string,
+   account_number: string,
     website?: string,
     agreed?: boolean
 }) {
