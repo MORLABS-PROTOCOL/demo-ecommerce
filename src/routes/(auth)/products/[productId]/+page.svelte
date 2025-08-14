@@ -44,11 +44,11 @@
 		products = productsByCategory;
 
 		cartItems = await getCart();
-		cartItems = cartItems[0].items || [];
+		cartItems = cartItems || [];
 		tempCart = [...cartItems];
-		tempCart = tempCart.find((item) => (item.product?.id === productId) || (item.productId === productId));
 		console.log(tempCart, 'Temp Cart ');
-		// console.log(cartItems[0].items, 'Cart Items Length');
+		tempCart = tempCart.find((item) => (item.product?.id === productId) || (item.productId === productId));
+		// console.log(cartItems[0], 'Cart Items Length');
 		console.log(tempCart)
 		await refreshWishList();
 	});
@@ -109,7 +109,7 @@
 					{/if}
 				</div>
 				<!-- {console.log('Cart Items loaded: ', tempCart)} -->
-				{#if tempCart.items != null}
+				{#if tempCart != null}
 					<!-- Product is already in cart: show quantity controls only -->
 					<div class="flex items-center gap-4 py-4">
 						<div class="flex items-center border border-gray-300 rounded-md">
@@ -123,7 +123,7 @@
 										await addToCart(productId, quantity);
 										await refreshCart();
 										cartItems = await getCart();
-										cartItems = cartItems[0].items || [];
+										cartItems = cartItems || [];
 										// Update tempCart to reflect the new quantity
 										tempCart = [...cartItems];
 										tempCart = tempCart.find((item) => (item.product?.id === productId) || (item.productId === productId));
@@ -144,7 +144,7 @@
 										await addToCart(productId, quantity);
 										await refreshCart();
 									cartItems = await getCart();
-									cartItems = cartItems[0].items || [];
+									cartItems = cartItems || [];
 									tempCart = [...cartItems];
 									tempCart = tempCart.find((item) => item.product.id === productId || item.productId === productId);
 									busy = false;
@@ -173,7 +173,7 @@
 									await addToCart(productId, quantity);
 									await refreshCart();
 								cartItems = await getCart();
-								cartItems = cartItems[0].items || [];
+								cartItems = cartItems || [];
 									console.log('Quantity increased:', quantity);
 									notify('Success', 'Cart updated successfully');
 									tempCart = [...cartItems];
@@ -190,7 +190,7 @@
 									await addToCart(productId, quantity);
 									await refreshCart();
 									cartItems = await getCart();
-									cartItems = cartItems[0].items || [];
+									cartItems = cartItems || [];
 
 									tempCart = [...cartItems];
 									tempCart = tempCart.find((item) => item.productId === productId);

@@ -1,17 +1,28 @@
 <script lang="ts">
-	import { calculateNewPrice, currency } from '$lib/controls.svelte';
+		import { calculateNewPrice, currency, modifyWishList, notify } from '$lib/controls.svelte';
 	import { CheckmarkOutline, Share, StarFilled } from 'carbon-icons-svelte';
 	import { onMount } from 'svelte';
+	import { wishlist } from '$lib/realtime';
 	import Exit from './Icons/Exit-sm.svelte';
 	import Heart from './Icons/Heart.svelte';
-import { notify } from '$lib/controls.svelte';
-	let { price, title, quantity, flashSale, image, discountPercentage, productId, dateCreated } =
-		$props();
+
+	let {
+		price,
+		title,
+		quantity,
+		flashSale,
+		image,
+		discountPercentage,
+		productId,
+		dateCreated,
+		threshold
+	} = $props();
 	let newPrice: number = $state(0);
 
 	onMount(() => {
 		newPrice = calculateNewPrice(price, discountPercentage);
 	});
+
 	async function shareProduct(productId: string, title: string) {
 		const url = `${window.location.origin}/products/${productId}`;
 		const shareData = {
@@ -46,17 +57,29 @@ import { notify } from '$lib/controls.svelte';
 		class="absolute top-[10%] right-2 z-20 flex flex-col gap-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
 	>
 	<div
-		class="absolute top-2 right-2 transition-transform duration-300 ease-in-out -translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 z-10"
+		class="absolute top-[10%] right-2 z-20 flex flex-col gap-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
 	>
-		<Heart />
-	</div>
-	<button
+		<button
+			class="bg-white shadow-md p-2 rounded-full hover:bg-gray-50 transition-colors"
+			aria-label="Add to wishlist"
+			onclick={async () => {
+				const isInWishlist = $wishlist.some((item) => item.id === productId);
+				await modifyWishList(productId);
+				if (!isInWishlist) {
+					notify('Success', 'Added to wishlist!', 'success');
+				}
+			}}
+		>
+			<Heart fillColor="none" strokeColor="#000" />
+		</button>
+		<button
 			class="bg-white shadow-md p-2 rounded-full hover:bg-gray-50 transition-colors"
 			aria-label="Share this product"
 			onclick={() => shareProduct(productId, title)}
 		>
 			<Share />
 		</button>
+	</div>
 </div>
 	<!-- Product Image -->
 	<div class="w-[50%] flex items-center justify-center">

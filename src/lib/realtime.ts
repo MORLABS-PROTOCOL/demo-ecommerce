@@ -12,7 +12,7 @@ let productUnsubscribe: () => void;
 
 async function initProducts() {
     if (productsUnsubscribe) productsUnsubscribe();
-    const initialProducts = await pocketbase.collection('products').getFullList({ sort: '-created' });
+    const initialProducts = await pocketbase.collection('products').getFullList({ sort: '-created' , requestKey: Date.now().toString() });
     products.set(initialProducts);
 
     productsUnsubscribe = await pocketbase.collection('products').subscribe('*', (e) => {
@@ -32,7 +32,7 @@ async function initProducts() {
 
 export async function getProduct(id: string) {
     if (productUnsubscribe) productUnsubscribe();
-    const initialProduct = await pocketbase.collection('products').getOne(id);
+    const initialProduct = await pocketbase.collection('products').getOne(id, {requestKey: Date.now().toString()});
     product.set(initialProduct);
 
     productUnsubscribe = await pocketbase.collection('products').subscribe(id, (e) => {
@@ -55,7 +55,7 @@ async function initCart() {
     try {
         const cartData = await pocketbase
             .collection('carts')
-            .getFirstListItem(`userId="${userId}" && status="pending"`);
+            .getFirstListItem(`userId="${userId}" && status="pending"`, { requestKey: Date.now().toString() });
         cart.set(cartData);
         if (cartData) {
             cartUnsubscribe = await pocketbase.collection('carts').subscribe(cartData.id, (e) => {
@@ -81,7 +81,7 @@ async function initWishlist() {
     }
 
     try {
-        const userData = await pocketbase.collection('users').getOne(user.id);
+        const userData = await pocketbase.collection('users').getOne(user.id, { requestKey: Date.now().toString() });
         wishlist.set(userData.wishlist || []);
 
         userUnsubscribe = await pocketbase.collection('users').subscribe(user.id, (e) => {
@@ -98,7 +98,7 @@ export const settings = writable<RecordModel[]>([]);
 let settingsUnsubscribe: () => void;
 async function initSettings() {
     if (settingsUnsubscribe) settingsUnsubscribe();
-    const initialSettings = await pocketbase.collection('settings').getFullList();
+    const initialSettings = await pocketbase.collection('settings').getFullList({requestKey: Date.now().toString()});
     settings.set(initialSettings);
 
     settingsUnsubscribe = await pocketbase.collection('settings').subscribe('*', (e) => {

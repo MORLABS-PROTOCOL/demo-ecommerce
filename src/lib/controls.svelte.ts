@@ -161,12 +161,12 @@ export async function getCart() {
         return cart;
     } else if (browser) {
         // User not logged in, get cart from localStorage
-        let localCart: { items: any } = {
+        let localCart: { items: any } = $state({
             items: []
-        }
+        })
         localCart.items = localStorage.getItem("cartItems");
         console.log("local cart:", localCart)
-        return localCart ? JSON.parse(localCart) : [];
+        return localCart ? JSON.parse(localCart.items) : [];
     } else {
         return [];
     }
@@ -267,10 +267,10 @@ export async function addToCart(productId: string, quantity: number) {
         return { length: cart.length, total: cart.total };
     } else if (browser) {
         // Guest user: use localStorage
-        let localCart = localStorage.getItem("cartItems");
+        let localCart: any = localStorage.getItem("cartItems");
         console.log("Local: ",localCart)
-        let cartItems = localCart ? JSON.parse(localCart) : [];
-        let existingItem = cartItems.find((item: any) => item.productId === productId);
+        let cartItems = JSON.parse(localCart) || [];
+        let existingItem = cartItems.find((item: any) => item.product?.id === productId);
         if (existingItem) {
             existingItem.quantity = quantity;
             existingItem.total = existingItem.quantity * productInfo.price;
