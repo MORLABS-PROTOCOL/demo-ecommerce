@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { calculateNewPrice, currency } from '$lib/controls.svelte';
-	import { CheckmarkOutline, StarFilled } from 'carbon-icons-svelte';
+	import { CheckmarkOutline, Share, StarFilled } from 'carbon-icons-svelte';
 	import { onMount } from 'svelte';
 	import Exit from './Icons/Exit-sm.svelte';
 	import Heart from './Icons/Heart.svelte';
-
+import { notify } from '$lib/controls.svelte';
 	let { price, title, quantity, flashSale, image, discountPercentage, productId, dateCreated } =
 		$props();
 	let newPrice: number = $state(0);
@@ -12,18 +12,52 @@
 	onMount(() => {
 		newPrice = calculateNewPrice(price, discountPercentage);
 	});
+	async function shareProduct(productId: string, title: string) {
+		const url = `${window.location.origin}/products/${productId}`;
+		const shareData = {
+			title: title,
+			text: `Check out this product: ${title}`,
+			url: url
+		};
+
+		if (navigator.share) {
+			try {
+				await navigator.share(shareData);
+			} catch (err) {
+				// This can happen if the user cancels the share dialog
+				console.error('Share failed:', err);
+			}
+		} else {
+			try {
+				await navigator.clipboard.writeText(url);
+				notify('Copied!', 'Product link copied to clipboard.', 'success');
+			} catch (err) {
+				notify('Error', 'Failed to copy link.', 'error');
+			}
+		}
+	}
 </script>
 
 <div
 	class="relative group flex space-x-5 items-center w-full h-full lg:p-[30px] sm:p-5 p-2 bg-white"
 >
 	<!-- Heart Icon (hidden by default, slides in on hover) -->
+	 <div
+		class="absolute top-[10%] right-2 z-20 flex flex-col gap-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+	>
 	<div
 		class="absolute top-2 right-2 transition-transform duration-300 ease-in-out -translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 z-10"
 	>
 		<Heart />
 	</div>
-
+	<button
+			class="bg-white shadow-md p-2 rounded-full hover:bg-gray-50 transition-colors"
+			aria-label="Share this product"
+			onclick={() => shareProduct(productId, title)}
+		>
+			<Share />
+		</button>
+</div>
 	<!-- Product Image -->
 	<div class="w-[50%] flex items-center justify-center">
 		<img src={image} alt={title} class="object-contain h-32 md:h-40" />

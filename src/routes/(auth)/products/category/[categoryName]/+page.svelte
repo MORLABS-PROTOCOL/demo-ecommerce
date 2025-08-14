@@ -1,180 +1,37 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import ProductCard from '$lib/components/ProductCard.svelte';
-  import { Filter, Grid, List, StarFilled } from 'carbon-icons-svelte';
-  
-  const categoryName = $derived($page.params.categoryName);
-  
-  // Dummy data array for different categories
-  const dummyProducts = {
-    electronics: [
-      {
-        productId: 'elec-001',
-        title: 'Wireless Bluetooth Headphones',
-        price: 299.99,
-        discountPercentage: 15,
-        image: '/static/macbook.png',
-        quantity: 45,
-        threshold: 10,
-        dateCreated: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-        flashSale: false
-      },
-      {
-        productId: 'elec-002',
-        title: 'Smart LED TV 55"',
-        price: 899.99,
-        discountPercentage: 25,
-        image: '/static/macbook.png',
-        quantity: 12,
-        threshold: 5,
-        dateCreated: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
-        flashSale: true
-      },
-      {
-        productId: 'elec-003',
-        title: 'Gaming Laptop Pro',
-        price: 1299.99,
-        discountPercentage: 0,
-        image: '/static/macbook.png',
-        quantity: 8,
-        threshold: 3,
-        dateCreated: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
-        flashSale: false
-      },
-      {
-        productId: 'elec-004',
-        title: 'Wireless Charging Pad',
-        price: 49.99,
-        discountPercentage: 30,
-        image: '/static/macbook.png',
-        quantity: 67,
-        threshold: 15,
-        dateCreated: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), // 10 days ago
-        flashSale: false
-      },
-      {
-        productId: 'elec-005',
-        title: 'Smart Watch Series 5',
-        price: 399.99,
-        discountPercentage: 20,
-        image: '/static/macbook.png',
-        quantity: 23,
-        threshold: 8,
-        dateCreated: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-        flashSale: true
-      },
-      {
-        productId: 'elec-006',
-        title: 'Portable Bluetooth Speaker',
-        price: 79.99,
-        discountPercentage: 10,
-        image: '/static/macbook.png',
-        quantity: 34,
-        threshold: 12,
-        dateCreated: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
-        flashSale: false
-      }
-    ],
-    groceries: [
-      {
-        productId: 'cloth-001',
-        title: 'Premium Cotton T-Shirt',
-        price: 29.99,
-        discountPercentage: 0,
-        image: '/static/macbook.png',
-        quantity: 156,
-        threshold: 50,
-        dateCreated: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-        flashSale: false
-      },
-      {
-        productId: 'cloth-002',
-        title: 'Denim Jacket Classic',
-        price: 89.99,
-        discountPercentage: 15,
-        image: '/static/macbook.png',
-        quantity: 28,
-        threshold: 10,
-        dateCreated: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
-        flashSale: false
-      },
-      {
-        productId: 'cloth-003',
-        title: 'Running Shoes Pro',
-        price: 129.99,
-        discountPercentage: 25,
-        image: '/static/macbook.png',
-        quantity: 42,
-        threshold: 15,
-        dateCreated: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-        flashSale: true
-      }
-    ],
-    books: [
-      {
-        productId: 'book-001',
-        title: 'The Art of Programming',
-        price: 49.99,
-        discountPercentage: 10,
-        image: '/static/macbook.png',
-        quantity: 89,
-        threshold: 20,
-        dateCreated: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
-        flashSale: false
-      },
-      {
-        productId: 'book-002',
-        title: 'Business Strategy Guide',
-        price: 34.99,
-        discountPercentage: 0,
-        image: '/static/macbook.png',
-        quantity: 67,
-        threshold: 25,
-        dateCreated: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000),
-        flashSale: false
-      }
-    ],
-    home: [
-      {
-        productId: 'home-001',
-        title: 'Smart Coffee Maker',
-        price: 199.99,
-        discountPercentage: 20,
-        image: '/static/macbook.png',
-        quantity: 15,
-        threshold: 5,
-        dateCreated: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-        flashSale: true
-      },
-      {
-        productId: 'home-002',
-        title: 'LED Desk Lamp',
-        price: 59.99,
-        discountPercentage: 30,
-        image: '/static/macbook.png',
-        quantity: 78,
-        threshold: 20,
-        dateCreated: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-        flashSale: false
-      }
-    ]
-  };
+  import { getProductsByCategory } from '$lib/controls.svelte';
+  import { Filter, Grid, List } from 'carbon-icons-svelte';
+  import { onMount } from 'svelte';
 
-  // Get products for the current category
-  const categoryProducts = $derived(dummyProducts[categoryName as keyof typeof dummyProducts] || []);
-  
-  // State for filters and sorting
+  const categoryName = $derived($page.params.categoryName);
+
+  // Actual products from PocketBase
+  let products = $state([]);
+
+  onMount(async () => {
+    try {
+      // You can also pass a limit if needed: getProductsByCategory(categoryName, 20)
+      products = await getProductsByCategory(categoryName);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      products = []; // fallback to empty
+    }
+  });
+
+  // Filters and sorting state
   let sortBy = $state('featured');
-  let priceRange = $state({ min: 0, max: 2000 });
+  let priceRange = $state({ min: 0, max: 2000000 });
   let showDiscountOnly = $state(false);
-  let viewMode = $state('grid'); // 'grid' or 'list'
-  
+  let viewMode = $state('grid');
+
   // Pagination state
   let currentPage = $state(1);
   let itemsPerPage = $state(3);
-  
+
   // Filtered and sorted products
-  const filteredProducts = $derived(categoryProducts
+  const filteredProducts = $derived(products
     .filter(product => {
       if (showDiscountOnly && product.discountPercentage === 0) return false;
       if (product.price < priceRange.min || product.price > priceRange.max) return false;
@@ -193,7 +50,8 @@
         default:
           return 0;
       }
-    }));
+    })
+  );
 
   // Pagination calculations
   const totalPages = $derived(Math.ceil(filteredProducts.length / itemsPerPage));
@@ -203,10 +61,11 @@
 
   // Reset to page 1 when filters change
   $effect(() => {
-    filteredProducts; // Track dependency
+    filteredProducts;
     currentPage = 1;
   });
 </script>
+
 
 <div class="min-h-screen bg-gray-50">
   <!-- Header Section -->
@@ -377,11 +236,11 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {#each paginatedProducts as product}
               <ProductCard
-                productId={product.productId}
+                productId={product.id}
                 title={product.title}
                 price={product.price}
                 discountPercentage={product.discountPercentage}
-                image={product.image}
+                image={product.imageUrl}
                 quantity={product.quantity}
                 threshold={product.threshold}
                 dateCreated={product.dateCreated}

@@ -43,16 +43,16 @@
 	let categories: string[] = $state([
 		'Electronics',
 		'Fashion',
-		'Home & Kitchen',
-		'Beauty & Personal Care',
-		'Sports & Outdoors',
-		'Toys & Games',
+		'Home', "Kitchen",
+		'Beauty',
+		'Sports',
+		'Toys',
 		'Books',
 		'Automotive',
-		'Health & Wellness',
+		'Health',
 		'Groceries',
-		'Office Supplies',
-		'Pet Supplies'
+		'Office',
+		'Pet'
 	]);
 	let filteredCategories: string[] = $state(categories);
 	let email = $state('');
@@ -608,14 +608,14 @@
 							onclick={() => {
 								showCategories = !showCategories;
 							}}
-                            class="flex h-fit w-full md:bg-white items-center justify-start px-5 py-[8px] rounded-t-lg gap-x-3 font-bold text-black text-lg shadow"
+                            class="flex h-fit w-fit md:bg-white items-center justify-start px-5 py-[8px] rounded-t-lg gap-x-3 font-bold text-black text-lg shadow"
 						>
 							<HamburgerMenu />Browse all categories
 						</button>
 					</div>
 
                     <!-- Center: Categories, More, About, Contact, FAQ -->
-                    <div class="flex-1 flex justify-center mb-0 w-full lg:w-auto">
+                    <div class="flex-1 hidden lg:flex justify-center mb-0 w-full lg:w-auto">
                         <!-- Desktop: Full category bar -->
                         <div
                             class="hidden lg:flex w-full max-w-4xl justify-evenly items-center  text-white ml-3 mb-0 rounded rounded-b-none  py-[8px] px-4"
