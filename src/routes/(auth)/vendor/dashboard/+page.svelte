@@ -109,7 +109,7 @@
 			try {
 				const userId = pocketbase.authStore?.record?.id;
 				const result = await pocketbase.collection('vendors').getFullList({
-					filter: `userId="${userId}"`
+					filter: `user_id="${userId}"`
 				});
 				vendor = result[0];
 			} catch (e) {

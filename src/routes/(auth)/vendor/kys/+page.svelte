@@ -61,19 +61,21 @@
 				return;
 			}
 			try {
-				const result = await pocketbase.collection('vendors').getFullList({
-					filter: `userId="${userId}"`
+				let result = await pocketbase.collection('vendors').getFullList({
+					filter: `user_id="${userId}"`, requestKey: Date.now().toString()
 				});
+				console.log(result)
 				if (result.length > 0) {
 					user = result[0];
 					handleKysStatus(user);
 				}
 			} catch (e) {
 				// Vendor does not exist, just return silently
+				console.log("Error: ",e)
 			}
 
 			unsubscribe = await pocketbase.collection('vendors').subscribe('*', (e) => {
-				if (e.record.userId === userId) {
+				if (e.record.user_id === userId) {
 					user = e.record;
 					handleKysStatus(user);
 				}
@@ -82,10 +84,14 @@
 	});
 
 	function handleKysStatus(vendor: any) {
+		console.log('KYS Status:', vendor.kys_status);
+		
 		if (vendor.kys_status === 'verified') {
 			window.location.href = '/vendor/dashboard';
 		} else if (vendor.kys_status === 'rejected') {
 			notify('Rejected', 'Your KYS registration has been rejected. Please try again.', 'error');
+		} else if (vendor.kys_status === 'pending') {
+			notify('Pending', 'Your KYS registration is pending review.', 'info');
 		}
 	}
 	onDestroy(() => {
