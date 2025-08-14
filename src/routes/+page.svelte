@@ -26,7 +26,7 @@
 	onMount(async () => {
 		electronics = await getProductsByCategory('electronics', 8);
 		fashion = await getProductsByCategory('fashion', 4);
-		console.log('Electronics:', electronics);
+		// console.log('Electronics:', electronics);
 		for (const category of categories) {
 			const prods = await getProductsByCategory(category);
 
