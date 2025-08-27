@@ -27,6 +27,30 @@
 			price: 199.0,
 			original: 229.0,
 			img: '/img/headphone.png'
+		},
+		{
+			name: 'Wireless Headphone',
+			price: 199.0,
+			original: 229.0,
+			img: '/img/headphone.png'
+		},
+		{
+			name: 'Wireless Headphone',
+			price: 199.0,
+			original: 229.0,
+			img: '/img/headphone.png'
+		},
+		{
+			name: 'Wireless Headphone',
+			price: 199.0,
+			original: 229.0,
+			img: '/img/headphone.png'
+		},
+		{
+			name: 'Wireless Headphone',
+			price: 199.0,
+			original: 229.0,
+			img: '/img/headphone.png'
 		}
 		// Add more products as needed
 	];
