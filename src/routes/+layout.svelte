@@ -316,6 +316,16 @@
 											</a>
 										</li>
 
+
+										<li>
+											<a href="/orders/track" class="flex items-center px-4 py-2 hover:bg-gray-100">
+											  <!--<Orders size={18} class="mr-2" />--> 
+											  My Orders
+											</a>
+										  </li>
+
+
+
 										<li>
 											<a href="/wishlist" class="flex items-center px-4 py-2 hover:bg-gray-100">
 												<!-- <HeartIcon class="w-5 h-5 mr-3" /> -->
