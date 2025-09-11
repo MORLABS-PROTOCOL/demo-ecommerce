@@ -6,10 +6,10 @@
 	let products: any[] = $state([]);
 	let searchTerm = $state('');
 
-	onMount(async () => {
+	searchTerm = page.params.searchTerm;
+	(async () => {
 		products = await getProductsBySearch(page.params.searchTerm);
-		searchTerm = page.params.searchTerm;
-	})
+	})();
 </script>
 
 <ProductViews {products} title={searchTerm} />
