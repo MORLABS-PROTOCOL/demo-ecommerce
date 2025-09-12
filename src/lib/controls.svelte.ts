@@ -264,6 +264,42 @@ export async function addToCart(productId: string, quantity: number) {
                     'carts+': newCart.id
                 });
         }
+
+        // Automatically create order entry when item is added to cart
+        // Only create new order if it's a new item, not updating existing quantity
+        const isNewItem = !existingCart || !existingCart.items?.find((item: any) => item.product.id === productId);
+        
+        if (isNewItem) {
+            try {
+                // Create product_details object with all relevant product information
+                const productDetails = {
+                    id: product.id,
+                    title: product.title,
+                    price: productInfo.price,
+                    oldPrice: product.oldPrice || product.price,
+                    discount: product.discount_percentage,
+                    category: product.category,
+                    image: pocketbase.files.getURL(product, product.product_image),
+                    description: product.description,
+                    flash_sale: product.flash_sale,
+                    threshold: product.threshold
+                };
+
+                // Create order entry in orders collection
+                await pocketbase.collection('orders').create({
+                    vendor_id: product.vendor_id,
+                    quantity: quantity,
+                    product_details: productDetails,
+                    status: 'pending' // Will be updated to 'accepted' or 'rejected' by admin
+                });
+                
+                console.log('Order created successfully for product:', product.title);
+            } catch (error) {
+                console.error('Error creating order:', error);
+                // Don't throw error to avoid breaking cart functionality
+            }
+        }
+
         await refreshCart();
         return { length: cart.length, total: cart.total };
     } else if (browser) {
@@ -282,6 +318,42 @@ export async function addToCart(productId: string, quantity: number) {
                 total: productInfo.price * quantity
             });
         }
+        
+        // For guest users, also create order entry when item is added to cart
+        // Only create new order if it's a new item, not updating existing quantity
+        const isNewGuestItem = !cartItems.find((item: any) => item.product?.id === productId);
+        
+        if (isNewGuestItem) {
+            try {
+                // Create product_details object with all relevant product information
+                const productDetails = {
+                    id: product.id,
+                    title: product.title,
+                    price: productInfo.price,
+                    oldPrice: product.oldPrice || product.price,
+                    discount: product.discount_percentage,
+                    category: product.category,
+                    image: pocketbase.files.getURL(product, product.product_image),
+                    description: product.description,
+                    flash_sale: product.flash_sale,
+                    threshold: product.threshold
+                };
+
+                // Create order entry in orders collection
+                await pocketbase.collection('orders').create({
+                    vendor_id: product.vendor_id,
+                    quantity: quantity,
+                    product_details: productDetails,
+                    status: 'pending' // Will be updated to 'accepted' or 'rejected' by admin
+                });
+                
+                console.log('Order created successfully for guest product:', product.title);
+            } catch (error) {
+                console.error('Error creating order for guest:', error);
+                // Don't throw error to avoid breaking cart functionality
+            }
+        }
+        
         localStorage.setItem("cartItems", JSON.stringify(cartItems));
         await refreshCart();
         return { length: cart.length, total: cart.total };

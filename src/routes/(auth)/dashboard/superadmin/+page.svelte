@@ -87,10 +87,15 @@ function calculateAnalytics() {
   totalOrders = orders.length;
   pendingKys = vendors.filter(v => v.kys_status === 'pending').length;
   
-  // Calculate total revenue from completed orders
+  // Calculate total revenue from accepted orders
   totalRevenue = orders
-    .filter(order => order.status === 'completed')
-    .reduce((sum, order) => sum + (order.total_amount || 0), 0);
+    .filter(order => order.status === 'accepted')
+    .reduce((sum, order) => {
+      const productDetails = order.product_details || {};
+      const price = productDetails.price || 0;
+      const quantity = order.quantity || 0;
+      return sum + (price * quantity);
+    }, 0);
 
   // Get recent orders (last 10)
   recentOrders = orders
@@ -115,7 +120,7 @@ async function updateKysStatus(vendorId: string, status: 'verified' | 'rejected'
   loading = false;
 }
 
-async function updateOrderStatus(orderId: string, status: string) {
+async function updateOrderStatus(orderId: string, status: 'accepted' | 'rejected') {
   loading = true;
   try {
     await pocketbase.collection('orders').update(orderId, { status });
@@ -318,19 +323,23 @@ onMount(async() => {
             <!-- Additional Stats -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div class="bg-white p-6 rounded-lg shadow">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Vendor Statistics</h3>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Order Statistics</h3>
                 <div class="space-y-2">
                   <div class="flex justify-between">
-                    <span class="text-gray-600">Total Vendors:</span>
-                    <span class="font-semibold">{totalVendors}</span>
+                    <span class="text-gray-600">Total Orders:</span>
+                    <span class="font-semibold">{totalOrders}</span>
                   </div>
                   <div class="flex justify-between">
-                    <span class="text-gray-600">Pending KYS:</span>
-                    <span class="font-semibold text-orange-600">{pendingKys}</span>
+                    <span class="text-gray-600">Accepted:</span>
+                    <span class="font-semibold text-green-600">{orders.filter(o => o.status === 'accepted').length}</span>
                   </div>
                   <div class="flex justify-between">
-                    <span class="text-gray-600">Verified:</span>
-                    <span class="font-semibold text-green-600">{vendors.filter(v => v.kys_status === 'verified').length}</span>
+                    <span class="text-gray-600">Rejected:</span>
+                    <span class="font-semibold text-red-600">{orders.filter(o => o.status === 'rejected').length}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">Pending:</span>
+                    <span class="font-semibold text-yellow-600">{orders.filter(o => o.status !== 'accepted' && o.status !== 'rejected').length}</span>
                   </div>
                 </div>
               </div>
@@ -339,21 +348,37 @@ onMount(async() => {
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Orders</h3>
                 <div class="space-y-2">
                   {#each recentOrders.slice(0, 5) as order}
+                    {@const productDetails = order.product_details || {}}
                     <div class="flex justify-between items-center text-sm">
-                      <span class="truncate">Order #{order.id.slice(0, 8)}</span>
-                      <span class="font-semibold">{formatCurrency(order.total_amount || 0)}</span>
+                      <div>
+                        <div class="truncate">{productDetails.title || 'Unknown Product'}</div>
+                        <div class="text-xs text-gray-500">Qty: {order.quantity}</div>
+                      </div>
+                      <span class="font-semibold">{formatCurrency((productDetails.price || 0) * (order.quantity || 0))}</span>
                     </div>
                   {/each}
                 </div>
               </div>
 
               <div class="bg-white p-6 rounded-lg shadow">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Top Products</h3>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Vendor Performance</h3>
                 <div class="space-y-2">
-                  {#each topProducts as product}
+                  {#each vendors.slice(0, 5).map(vendor => {
+                    const vendorOrders = orders.filter(o => o.vendor_id === vendor.id);
+                    const acceptedOrders = vendorOrders.filter(o => o.status === 'accepted');
+                    return {
+                      ...vendor,
+                      orderCount: vendorOrders.length,
+                      acceptedCount: acceptedOrders.length,
+                      acceptanceRate: vendorOrders.length > 0 ? Math.round((acceptedOrders.length / vendorOrders.length) * 100) : 0
+                    };
+                  }).sort((a, b) => b.orderCount - a.orderCount) as vendor}
                     <div class="flex justify-between items-center text-sm">
-                      <span class="truncate">{product.title}</span>
-                      <span class="font-semibold">{product.views || 0} views</span>
+                      <span class="truncate">{vendor.store_name}</span>
+                      <div class="text-right">
+                        <div class="font-semibold">{vendor.orderCount} orders</div>
+                        <div class="text-xs text-gray-500">{vendor.acceptanceRate}% accepted</div>
+                      </div>
                     </div>
                   {/each}
                 </div>
@@ -456,7 +481,14 @@ onMount(async() => {
         {:else if tab === 'orders'}
           <!-- Orders Management -->
           <div class="space-y-6">
-            <h2 class="text-2xl font-bold text-gray-900">Orders Management</h2>
+            <div class="flex justify-between items-center">
+              <h2 class="text-2xl font-bold text-gray-900">Orders Management</h2>
+              <div class="flex gap-2">
+                <span class="text-sm text-gray-600">Total Orders: {orders.length}</span>
+                <span class="text-sm text-green-600">Accepted: {orders.filter(o => o.status === 'accepted').length}</span>
+                <span class="text-sm text-red-600">Rejected: {orders.filter(o => o.status === 'rejected').length}</span>
+              </div>
+            </div>
 
             <div class="bg-white shadow rounded-lg overflow-hidden">
               <div class="overflow-x-auto">
@@ -464,8 +496,10 @@ onMount(async() => {
                   <thead class="bg-gray-50">
                     <tr>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendor</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -473,30 +507,109 @@ onMount(async() => {
                   </thead>
                   <tbody class="bg-white divide-y divide-gray-200">
                     {#each orders as order}
+                      {@const vendor = vendors.find(v => v.id === order.vendor_id)}
+                      {@const productDetails = order.product_details || {}}
+                      {@const totalAmount = (productDetails.price || 0) * (order.quantity || 0)}
                       <tr>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{order.id.slice(0, 8)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order.customer_email || 'N/A'}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatCurrency(order.total_amount || 0)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                          <select class="text-sm border rounded px-2 py-1" 
-                                  value={order.status || 'pending'} 
-                                  onchange={(e) => updateOrderStatus(order.id, (e.target as HTMLSelectElement).value)}>
-                            <option value="pending">Pending</option>
-                            <option value="processing">Processing</option>
-                            <option value="shipped">Shipped</option>
-                            <option value="delivered">Delivered</option>
-                            <option value="cancelled">Cancelled</option>
-                            <option value="completed">Completed</option>
-                          </select>
+                          <div class="flex items-center">
+                            <div class="h-10 w-10 flex-shrink-0">
+                              <img class="h-10 w-10 rounded-full object-cover" src={productDetails.image || '/placeholder.jpg'} alt={productDetails.title} />
+                            </div>
+                            <div class="ml-4">
+                              <div class="text-sm font-medium text-gray-900">{productDetails.title || 'N/A'}</div>
+                              <div class="text-sm text-gray-500">{productDetails.category || ''}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {vendor ? vendor.store_name : 'Unknown Vendor'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order.quantity || 0}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatCurrency(totalAmount)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                          <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" 
+                                class:bg-green-100={order.status === 'accepted'} class:text-green-800={order.status === 'accepted'}
+                                class:bg-red-100={order.status === 'rejected'} class:text-red-800={order.status === 'rejected'}>
+                            {order.status || 'Unknown'}
+                          </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(order.created)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button class="text-indigo-600 hover:text-indigo-900">View Details</button>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                          {#if order.status !== 'accepted' && order.status !== 'rejected'}
+                            <button class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs" 
+                                    onclick={() => updateOrderStatus(order.id, 'accepted')}>Accept</button>
+                            <button class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs" 
+                                    onclick={() => updateOrderStatus(order.id, 'rejected')}>Reject</button>
+                          {:else}
+                            <span class="text-gray-500 text-xs">Processed</span>
+                          {/if}
                         </td>
                       </tr>
                     {/each}
                   </tbody>
                 </table>
+              </div>
+            </div>
+
+            <!-- Order Statistics -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Order Summary</h3>
+                <div class="space-y-2">
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">Total Orders:</span>
+                    <span class="font-semibold">{orders.length}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">Accepted:</span>
+                    <span class="font-semibold text-green-600">{orders.filter(o => o.status === 'accepted').length}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">Rejected:</span>
+                    <span class="font-semibold text-red-600">{orders.filter(o => o.status === 'rejected').length}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Revenue by Status</h3>
+                <div class="space-y-2">
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">Accepted Orders:</span>
+                    <span class="font-semibold text-green-600">
+                      {formatCurrency(orders.filter(o => o.status === 'accepted').reduce((sum, order) => {
+                        const productDetails = order.product_details || {};
+                        return sum + ((productDetails.price || 0) * (order.quantity || 0));
+                      }, 0))}
+                    </span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">Pending Orders:</span>
+                    <span class="font-semibold text-yellow-600">
+                      {formatCurrency(orders.filter(o => o.status !== 'accepted' && o.status !== 'rejected').reduce((sum, order) => {
+                        const productDetails = order.product_details || {};
+                        return sum + ((productDetails.price || 0) * (order.quantity || 0));
+                      }, 0))}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Top Vendors by Orders</h3>
+                <div class="space-y-2">
+                  {#each vendors.slice(0, 5).map(vendor => ({
+                    ...vendor,
+                    orderCount: orders.filter(o => o.vendor_id === vendor.id).length
+                  })).sort((a, b) => b.orderCount - a.orderCount) as vendor}
+                    <div class="flex justify-between items-center text-sm">
+                      <span class="truncate">{vendor.store_name}</span>
+                      <span class="font-semibold">{vendor.orderCount} orders</span>
+                    </div>
+                  {/each}
+                </div>
               </div>
             </div>
           </div>
@@ -592,14 +705,46 @@ onMount(async() => {
               </div>
 
               <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Vendor Performance</h3>
+                <div class="space-y-2">
+                  {#each vendors.slice(0, 5).map(vendor => {
+                    const vendorOrders = orders.filter(o => o.vendor_id === vendor.id);
+                    const acceptedOrders = vendorOrders.filter(o => o.status === 'accepted');
+                    const totalRevenue = acceptedOrders.reduce((sum, order) => {
+                      const productDetails = order.product_details || {};
+                      return sum + ((productDetails.price || 0) * (order.quantity || 0));
+                    }, 0);
+                    return {
+                      ...vendor,
+                      orderCount: vendorOrders.length,
+                      acceptedCount: acceptedOrders.length,
+                      totalRevenue
+                    };
+                  }).sort((a, b) => b.totalRevenue - a.totalRevenue) as vendor}
+                    <div class="flex justify-between items-center text-sm">
+                      <span class="truncate">{vendor.store_name}</span>
+                      <div class="text-right">
+                        <div class="font-semibold">{formatCurrency(vendor.totalRevenue)}</div>
+                        <div class="text-xs text-gray-500">{vendor.acceptedCount}/{vendor.orderCount} orders</div>
+                      </div>
+                    </div>
+                  {/each}
+                </div>
+              </div>
+
+              <div class="bg-white p-6 rounded-lg shadow">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Order Status Distribution</h3>
                 <div class="space-y-2">
-                  {#each ['pending', 'processing', 'shipped', 'delivered', 'completed', 'cancelled'] as status}
+                  {#each ['accepted', 'rejected'] as status}
                     <div class="flex justify-between items-center">
                       <span class="text-sm text-gray-600 capitalize">{status}</span>
                       <span class="text-sm font-semibold">{orders.filter(o => o.status === status).length}</span>
                     </div>
                   {/each}
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">Pending</span>
+                    <span class="text-sm font-semibold">{orders.filter(o => o.status !== 'accepted' && o.status !== 'rejected').length}</span>
+                  </div>
                 </div>
               </div>
             </div>

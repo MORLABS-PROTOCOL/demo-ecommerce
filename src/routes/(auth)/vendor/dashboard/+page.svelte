@@ -34,6 +34,15 @@
 	let fileInput: HTMLInputElement | null = $state(null);
 	let inventoryProducts: any[] = $state([]);
 	let showEditModal = $state(false);
+	let orders: any[] = $state([]);
+	let loading = $state(false);
+	let orderStats = $state({
+		totalOrders: 0,
+		pendingOrders: 0,
+		acceptedOrders: 0,
+		rejectedOrders: 0,
+		totalRevenue: 0
+	});
 	type VendorEditPayload = {
 		store_name: string;
 		store_niche: string;
@@ -65,6 +74,80 @@
 			window.location.reload();
 		} catch (err) {
 			notify('Error', 'Failed to update vendor info.', 'error');
+		}
+	}
+
+	async function loadOrders() {
+		const userId = pocketbase.authStore?.record?.id;
+		if (!userId) return;
+		
+		loading = true;
+		try {
+			// Fetch orders for this vendor using the vendor's ID (not the user's ID)
+			console.log('Loading orders for vendor_id:', user.id);
+			orders = await pocketbase.collection('orders').getFullList({
+				filter: `vendor_id="${user.id}"`,
+				sort: '-created',
+				requestKey: Date.now().toString()
+			});
+			console.log('Found orders:', orders.length);
+
+			// Calculate statistics
+			orderStats = {
+				totalOrders: orders.length,
+				pendingOrders: orders.filter(o => o.status !== 'accepted' && o.status !== 'rejected').length,
+				acceptedOrders: orders.filter(o => o.status === 'accepted').length,
+				rejectedOrders: orders.filter(o => o.status === 'rejected').length,
+				totalRevenue: orders
+					.filter(o => o.status === 'accepted')
+					.reduce((sum, order) => {
+						const productDetails = order.product_details || {};
+						return sum + ((productDetails.price || 0) * (order.quantity || 0));
+					}, 0)
+			};
+		} catch (error) {
+			console.error('Error loading orders:', error);
+			notify('Error', 'Failed to load orders data.', 'error');
+		}
+		loading = false;
+	}
+
+	function formatCurrency(amount: number) {
+		return new Intl.NumberFormat('en-US', {
+			style: 'currency',
+			currency: 'USD'
+		}).format(amount);
+	}
+
+	function formatDate(date: string) {
+		return new Date(date).toLocaleDateString('en-US', {
+			year: 'numeric',
+			month: 'short',
+			day: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit'
+		});
+	}
+
+	function getStatusColor(status: string) {
+		switch (status) {
+			case 'accepted':
+				return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+			case 'rejected':
+				return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+			default:
+				return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+		}
+	}
+
+	function getStatusText(status: string) {
+		switch (status) {
+			case 'accepted':
+				return 'Accepted';
+			case 'rejected':
+				return 'Rejected';
+			default:
+				return 'Pending';
 		}
 	}
 
@@ -122,8 +205,10 @@
 				return;
 			}
 
+			user = vendor;
 			show = true;
 			inventoryProducts = await getMyProducts(4);
+			await loadOrders();
 		}
 	});
 </script>
@@ -276,52 +361,82 @@
 						Welcome to your vendor dashboard. Here you can get an overview of your store's
 						performance, recent activity, and quick actions.
 					</p>
-					<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+					<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
 						<div
 							class={`p-4 rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}
 						>
-							<h2 class="text-lg font-semibold mb-2">Today's Orders</h2>
-							<p class="text-3xl font-bold">12</p>
+							<h2 class="text-lg font-semibold mb-2">Total Orders</h2>
+							<p class="text-3xl font-bold">{loading ? '...' : orderStats.totalOrders}</p>
 						</div>
 						<div
 							class={`p-4 rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}
-						>
-							<h2 class="text-lg font-semibold mb-2">Inventory</h2>
-							<p class="text-3xl font-bold">245</p>
-						</div>
-						<div
-							class={`p-4 rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}
-						>
-							<h2 class="text-lg font-semibold mb-2">Revenue</h2>
-							<p class="text-3xl font-bold">{currency()}1,230</p>
-						</div>
-						<div
-							class={`md:col-span-3 p-4 rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}
 						>
 							<h2 class="text-lg font-semibold mb-2">Pending Orders</h2>
-							<ul class="divide-y divide-gray-200 dark:divide-gray-700">
-								<li class="py-2 flex justify-between items-center flex-wrap">
-									<span>Order #1023</span>
-									<span
-										class="text-sm px-2 py-1 rounded bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-										>Pending</span
-									>
-								</li>
-								<li class="py-2 flex justify-between items-center flex-wrap">
-									<span>Order #1024</span>
-									<span
-										class="text-sm px-2 py-1 rounded bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-										>Pending</span
-									>
-								</li>
-								<li class="py-2 flex justify-between items-center flex-wrap">
-									<span>Order #1025</span>
-									<span
-										class="text-sm px-2 py-1 rounded bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-										>Pending</span
-									>
-								</li>
-							</ul>
+							<p class="text-3xl font-bold text-yellow-600">{loading ? '...' : orderStats.pendingOrders}</p>
+						</div>
+						<div
+							class={`p-4 rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}
+						>
+							<h2 class="text-lg font-semibold mb-2">Accepted Orders</h2>
+							<p class="text-3xl font-bold text-green-600">{loading ? '...' : orderStats.acceptedOrders}</p>
+						</div>
+						<div
+							class={`p-4 rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}
+						>
+							<h2 class="text-lg font-semibold mb-2">Total Revenue</h2>
+							<p class="text-3xl font-bold text-green-600">{loading ? '...' : formatCurrency(orderStats.totalRevenue)}</p>
+						</div>
+						<div
+							class={`md:col-span-4 p-4 rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}
+						>
+							<h2 class="text-lg font-semibold mb-4">Recent Orders</h2>
+							{#if loading}
+								<div class="flex justify-center py-8">
+									<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+								</div>
+							{:else if orders.length === 0}
+								<div class="text-center py-8 text-gray-500">
+									<p>No orders found</p>
+								</div>
+							{:else}
+								<div class="overflow-x-auto">
+									<table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+										<thead>
+											<tr>
+												<th class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider ${darkmode ? 'text-gray-300' : 'text-gray-700'}">Order ID</th>
+												<th class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider ${darkmode ? 'text-gray-300' : 'text-gray-700'}">Product</th>
+												<th class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider ${darkmode ? 'text-gray-300' : 'text-gray-700'}">Quantity</th>
+												<th class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider ${darkmode ? 'text-gray-300' : 'text-gray-700'}">Amount</th>
+												<th class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider ${darkmode ? 'text-gray-300' : 'text-gray-700'}">Status</th>
+												<th class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider ${darkmode ? 'text-gray-300' : 'text-gray-700'}">Date</th>
+											</tr>
+										</thead>
+										<tbody>
+											{#each orders.slice(0, 10) as order}
+												{@const productDetails = order.product_details || {}}
+												{@const totalAmount = (productDetails.price || 0) * (order.quantity || 0)}
+												<tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+													<td class="px-4 py-2 text-sm font-medium">#{order.id.slice(0, 8)}</td>
+													<td class="px-4 py-2 text-sm">
+														<div class="flex items-center">
+															<img class="h-8 w-8 rounded-full object-cover mr-3" src={productDetails.image || '/placeholder.jpg'} alt={productDetails.title} />
+															<span class="truncate max-w-32">{productDetails.title || 'Unknown Product'}</span>
+														</div>
+													</td>
+													<td class="px-4 py-2 text-sm">{order.quantity || 0}</td>
+													<td class="px-4 py-2 text-sm font-medium">{formatCurrency(totalAmount)}</td>
+													<td class="px-4 py-2 text-sm">
+														<span class="px-2 py-1 rounded text-xs ${getStatusColor(order.status)}">
+															{getStatusText(order.status)}
+														</span>
+													</td>
+													<td class="px-4 py-2 text-sm text-gray-500">{formatDate(order.created)}</td>
+												</tr>
+											{/each}
+										</tbody>
+									</table>
+								</div>
+							{/if}
 						</div>
 					</div>
 					<div
@@ -512,22 +627,304 @@
 						</div>
 					{/if}
 				{:else if selectedTab === 'orders'}
-					<h1 class={`text-2xl font-semibold mb-4 ${darkmode ? 'text-white' : 'text-gray-800'}`}>
-						Orders
+					<div class="flex justify-between items-center mb-6">
+						<div>
+							<h1 class={`text-2xl font-semibold ${darkmode ? 'text-white' : 'text-gray-800'}`}>
+								Orders Management
 					</h1>
 					<p class={`${darkmode ? 'text-gray-300' : 'text-gray-700'}`}>
-						Here are your recent orders and status.
-					</p>
+								Manage and track all your orders
+							</p>
+						</div>
+						<button 
+							onclick={loadOrders}
+							class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors"
+							disabled={loading}
+						>
+							{loading ? 'Refreshing...' : 'Refresh Orders'}
+						</button>
+					</div>
+
+					<!-- Order Statistics Cards -->
+					<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+						<div class={`p-4 rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}>
+							<div class="flex items-center">
+								<div class="p-2 bg-blue-100 rounded-lg">
+									<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+									</svg>
+								</div>
+								<div class="ml-4">
+									<p class="text-sm font-medium text-gray-600">Total Orders</p>
+									<p class="text-2xl font-semibold">{orderStats.totalOrders}</p>
+								</div>
+							</div>
+						</div>
+
+						<div class={`p-4 rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}>
+							<div class="flex items-center">
+								<div class="p-2 bg-yellow-100 rounded-lg">
+									<svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+									</svg>
+								</div>
+								<div class="ml-4">
+									<p class="text-sm font-medium text-gray-600">Pending</p>
+									<p class="text-2xl font-semibold text-yellow-600">{orderStats.pendingOrders}</p>
+								</div>
+							</div>
+						</div>
+
+						<div class={`p-4 rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}>
+							<div class="flex items-center">
+								<div class="p-2 bg-green-100 rounded-lg">
+									<svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+									</svg>
+								</div>
+								<div class="ml-4">
+									<p class="text-sm font-medium text-gray-600">Accepted</p>
+									<p class="text-2xl font-semibold text-green-600">{orderStats.acceptedOrders}</p>
+								</div>
+							</div>
+						</div>
+
+						<div class={`p-4 rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}>
+							<div class="flex items-center">
+								<div class="p-2 bg-green-100 rounded-lg">
+									<svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+									</svg>
+								</div>
+								<div class="ml-4">
+									<p class="text-sm font-medium text-gray-600">Revenue</p>
+									<p class="text-2xl font-semibold text-green-600">{formatCurrency(orderStats.totalRevenue)}</p>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Orders Table -->
+					<div class={`rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}>
+						<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+							<h3 class="text-lg font-semibold">All Orders</h3>
+						</div>
+						<div class="overflow-x-auto">
+							{#if loading}
+								<div class="flex justify-center py-12">
+									<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+								</div>
+							{:else if orders.length === 0}
+								<div class="text-center py-12 text-gray-500">
+									<svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+									</svg>
+									<p class="mt-2 text-lg">No orders found</p>
+									<p class="text-sm">Orders will appear here when customers add your products to their cart</p>
+								</div>
+							{:else}
+								<table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+									<thead class="bg-gray-50 dark:bg-gray-700">
+										<tr>
+											<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Order ID</th>
+											<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Product</th>
+											<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Quantity</th>
+											<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Unit Price</th>
+											<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Total Amount</th>
+											<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+											<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Date</th>
+										</tr>
+									</thead>
+									<tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+										{#each orders as order}
+											{@const productDetails = order.product_details || {}}
+											{@const totalAmount = (productDetails.price || 0) * (order.quantity || 0)}
+											<tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+												<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+													#{order.id.slice(0, 8)}
+												</td>
+												<td class="px-6 py-4 whitespace-nowrap">
+													<div class="flex items-center">
+														<div class="h-10 w-10 flex-shrink-0">
+															<img class="h-10 w-10 rounded-full object-cover" src={productDetails.image || '/placeholder.jpg'} alt={productDetails.title} />
+														</div>
+														<div class="ml-4">
+															<div class="text-sm font-medium text-gray-900 dark:text-white">{productDetails.title || 'Unknown Product'}</div>
+															<div class="text-sm text-gray-500 dark:text-gray-400">{productDetails.category || ''}</div>
+														</div>
+													</div>
+												</td>
+												<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+													{order.quantity || 0}
+												</td>
+												<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+													{formatCurrency(productDetails.price || 0)}
+												</td>
+												<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+													{formatCurrency(totalAmount)}
+												</td>
+												<td class="px-6 py-4 whitespace-nowrap">
+													<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.status)}">
+														{getStatusText(order.status)}
+													</span>
+												</td>
+												<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+													{formatDate(order.created)}
+												</td>
+											</tr>
+										{/each}
+									</tbody>
+								</table>
+							{/if}
+						</div>
+					</div>
 				{:else if selectedTab === 'inventory'}
 					<!-- Upload Product Button and Modal -->
 					<Inventory {darkmode} />
 				{:else if selectedTab === 'finance'}
-					<h1 class={`text-2xl font-semibold mb-4 ${darkmode ? 'text-white' : 'text-gray-800'}`}>
-						Vendor Dashboard
+					<div class="mb-6">
+						<h1 class={`text-2xl font-semibold ${darkmode ? 'text-white' : 'text-gray-800'}`}>
+							Finance & Analytics
 					</h1>
 					<p class={`${darkmode ? 'text-gray-300' : 'text-gray-700'}`}>
-						Manage your store, products, and analytics here.
-					</p>
+							Track your revenue, earnings, and financial performance
+						</p>
+					</div>
+
+					<!-- Financial Overview Cards -->
+					<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+						<div class={`p-6 rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}>
+							<div class="flex items-center">
+								<div class="p-3 bg-green-100 rounded-lg">
+									<svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+									</svg>
+								</div>
+								<div class="ml-4">
+									<p class="text-sm font-medium text-gray-600">Total Revenue</p>
+									<p class="text-3xl font-bold text-green-600">{formatCurrency(orderStats.totalRevenue)}</p>
+									<p class="text-xs text-gray-500">From accepted orders</p>
+								</div>
+							</div>
+						</div>
+
+						<div class={`p-6 rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}>
+							<div class="flex items-center">
+								<div class="p-3 bg-blue-100 rounded-lg">
+									<svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+									</svg>
+								</div>
+								<div class="ml-4">
+									<p class="text-sm font-medium text-gray-600">Average Order Value</p>
+									<p class="text-3xl font-bold text-blue-600">
+										{orderStats.acceptedOrders > 0 ? formatCurrency(orderStats.totalRevenue / orderStats.acceptedOrders) : '$0.00'}
+									</p>
+									<p class="text-xs text-gray-500">Per accepted order</p>
+								</div>
+							</div>
+						</div>
+
+						<div class={`p-6 rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}>
+							<div class="flex items-center">
+								<div class="p-3 bg-purple-100 rounded-lg">
+									<svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+									</svg>
+								</div>
+								<div class="ml-4">
+									<p class="text-sm font-medium text-gray-600">Acceptance Rate</p>
+									<p class="text-3xl font-bold text-purple-600">
+										{orderStats.totalOrders > 0 ? Math.round((orderStats.acceptedOrders / orderStats.totalOrders) * 100) : 0}%
+									</p>
+									<p class="text-xs text-gray-500">Orders accepted</p>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Revenue Chart Placeholder -->
+					<div class={`rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}>
+						<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+							<h3 class="text-lg font-semibold">Revenue Overview</h3>
+						</div>
+						<div class="p-6">
+							<div class="text-center py-12 text-gray-500">
+								<svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+								</svg>
+								<p class="mt-2 text-lg">Revenue Chart</p>
+								<p class="text-sm">Chart visualization will be implemented here</p>
+							</div>
+						</div>
+					</div>
+
+					<!-- Recent Financial Activity -->
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+						<div class={`rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}>
+							<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+								<h3 class="text-lg font-semibold">Recent Earnings</h3>
+							</div>
+							<div class="p-6">
+								{#if orders.filter(o => o.status === 'accepted').length === 0}
+									<div class="text-center py-8 text-gray-500">
+										<p>No earnings yet</p>
+									</div>
+								{:else}
+									<div class="space-y-4">
+										{#each orders.filter(o => o.status === 'accepted').slice(0, 5) as order}
+											{@const productDetails = order.product_details || {}}
+											{@const totalAmount = (productDetails.price || 0) * (order.quantity || 0)}
+											<div class="flex justify-between items-center">
+												<div>
+													<p class="text-sm font-medium">{productDetails.title || 'Unknown Product'}</p>
+													<p class="text-xs text-gray-500">{formatDate(order.created)}</p>
+												</div>
+												<span class="text-green-600 font-semibold">+{formatCurrency(totalAmount)}</span>
+											</div>
+										{/each}
+									</div>
+								{/if}
+							</div>
+						</div>
+
+						<div class={`rounded-lg shadow ${darkmode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}>
+							<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+								<h3 class="text-lg font-semibold">Order Status Breakdown</h3>
+							</div>
+							<div class="p-6">
+								<div class="space-y-4">
+									<div class="flex justify-between items-center">
+										<span class="text-sm">Accepted Orders</span>
+										<div class="flex items-center">
+											<div class="w-24 bg-gray-200 rounded-full h-2 mr-3">
+												<div class="bg-green-600 h-2 rounded-full" style="width: {orderStats.totalOrders > 0 ? (orderStats.acceptedOrders / orderStats.totalOrders) * 100 : 0}%"></div>
+											</div>
+											<span class="text-sm font-medium">{orderStats.acceptedOrders}</span>
+										</div>
+									</div>
+									<div class="flex justify-between items-center">
+										<span class="text-sm">Pending Orders</span>
+										<div class="flex items-center">
+											<div class="w-24 bg-gray-200 rounded-full h-2 mr-3">
+												<div class="bg-yellow-600 h-2 rounded-full" style="width: {orderStats.totalOrders > 0 ? (orderStats.pendingOrders / orderStats.totalOrders) * 100 : 0}%"></div>
+											</div>
+											<span class="text-sm font-medium">{orderStats.pendingOrders}</span>
+										</div>
+									</div>
+									<div class="flex justify-between items-center">
+										<span class="text-sm">Rejected Orders</span>
+										<div class="flex items-center">
+											<div class="w-24 bg-gray-200 rounded-full h-2 mr-3">
+												<div class="bg-red-600 h-2 rounded-full" style="width: {orderStats.totalOrders > 0 ? (orderStats.rejectedOrders / orderStats.totalOrders) * 100 : 0}%"></div>
+											</div>
+											<span class="text-sm font-medium">{orderStats.rejectedOrders}</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
 				{/if}
 			</div>
 		</main>
